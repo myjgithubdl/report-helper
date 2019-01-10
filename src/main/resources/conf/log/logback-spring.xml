@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="logging.path" source="logging.path"/>
+    <springProperty scope="context" name="logging.level.mybatis" source="logging.level.mybatis"/>
+    <springProperty scope="context" name="logging.level.default" source="logging.level.default"/>
+    <springProperty scope="context" name="logging.pattern" source="logging.pattern"/>
+    <springProperty scope="context" name="spring.profiles.active" source="spring.profiles.active"/>
+
+    <!--定义日志的根目录 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_HOME" value="${logging.path}"/>
+
+    <!-- Output full logs to file -->
+    <!-- 按照每天生成日志文件 -->
+    <appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logging.path}/info.log</file>
+        <encoder>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+            <!--<pattern>${FILE_LOG_PATTERN}</pattern>-->
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示56个字符宽度 %method：方法名 %L行号 %msg：日志消息，%n是换行符-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %c -%L -%msg%n</pattern>-->
+            <pattern>${logging.pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${logging.path}/archive/info/history_info.%d{yyyy-MM-dd}.%i.zip
+            </fileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>365</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--日志文件最大的大小-->
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Output WARN, ERROR logs to file -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logging.path}/error.log</file>
+        <encoder>
+            <!--<pattern>${FILE_LOG_PATTERN}</pattern>-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %c -%L -%msg%n</pattern>-->
+            <pattern>${logging.pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logging.path}/archive/error/history_error.%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>365</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!--direct log messages to stdout -->
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--<pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %c -%L -%msg%n</pattern>-->
+            <pattern>${logging.pattern}</pattern>
+            <charset>UTF-8</charset>
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_FILE_ALL" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="FILE_ALL"/>
+    </appender>
+
+    <appender name="ASYNC_FILE_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="FILE_ERROR"/>
+    </appender>
+
+    <logger name="com.myron.reporthelper" level="${logging.level.default}"/>
+    <logger name="org.mybatis" level="${logging.level.mybatis}"/>
+    <logger name="org.apache.ibatis" level="${logging.level.mybatis}"/>
+
+    <root level="${logging.level.default}">
+        <appender-ref ref="ASYNC_FILE_ALL"/>
+        <appender-ref ref="ASYNC_FILE_ERROR"/>
+        <if condition='"${spring.profiles.active}".equals("dev")'>
+            <then>
+                <appender-ref ref="STDOUT"/>
+            </then>
+        </if>
+    </root>
+</configuration>

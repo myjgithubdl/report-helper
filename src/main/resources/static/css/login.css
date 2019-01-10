@@ -1,0 +1,102 @@
+html {
+
+}
+
+.login-bg {
+    background: url("../images/common/login-bg3.jpg") no-repeat left top;
+    background-size: 100% 100%;
+}
+
+
+.login-lakala-logo {
+    height: 52px;
+    width: 110px;
+    background-size: 100% 100%;
+    background: url("../images/common/lakala-logo.png") no-repeat;
+}
+
+.login-bigdata-plant-font {
+    color: #ffffff;
+    font-family: '微软雅黑 Regular', '微软雅黑';
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 400;
+    text-align: left;
+}
+
+.login-login-input {
+    height: 480px;
+    width: 360px;
+    right: 60px;
+    z-index: 0;
+    border-radius: 6px;
+}
+
+.login-yyt-bg {
+    background-size: 100% 100%;
+    background: url("../images/common/login-yyt.png") no-repeat;
+}
+
+.login-kaola-bg {
+    background-size: 100% 100%;
+    background: url("../images/common/kaola.png") no-repeat;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    height: 22px;
+    padding: 5px 8px;
+    font-size: 13px;
+    line-height: 1.53846154;
+    color: #222;
+    vertical-align: middle;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+}
+
+.login-icon-refresh {
+    background: url("../images/common/refresh-page-option-16-2.png") no-repeat scroll center center;
+    background-size: auto auto;
+    height: 16px;
+    width: 16px;
+    display: inline-block;
+}
+
+.login-input-username{
+    width: 16px;
+    height: 17px;
+    background-size: 100% 100%;
+    background: url("../images/common/login-input-username2.png") no-repeat;
+    -moz-background-size: cover;
+}
+
+.login-input-pwd{
+    width: 14px;
+    height: 17px;
+    background-size: 100% 100%;
+    background: url("../images/common/login-input-pwd2.png") no-repeat;
+    -moz-background-size: cover;
+}
+
+.login-bg-login-input {
+    background-size: 100% 100%;
+    background: url("../images/common/login-bg-login-input2.png") no-repeat;
+    opacity: 0.6;
+}
+
+
+
+#loginPage .input-group {
+    position: relative;
+    display: table;
+    border-collapse: separate;
+}

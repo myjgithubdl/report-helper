@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="hp100" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>拉卡拉金融管理平台</title>
+
+
+    <link rel="shortcut icon" href="../../static/images/common/favicon.ico"
+          th:href="@{/images/common/favicon.ico}"/>
+
+    <link href="../../static/css/login.css"
+          th:href="@{'/css/login.css?v='+${version}}" rel="stylesheet"/>
+
+    <link href="../../static/css/main.css"
+          th:href="@{'/css/main.css?v='+${version}}" rel="stylesheet"/>
+
+    <script src="../../static/vendor/jquery.min.js"
+            th:src="@{/vendor/jquery.min.js}"></script>
+    <script src="../../static/vendor/jquery.extension.js"
+            th:src="@{/vendor/jquery.extension.js}"></script>
+    <script src="../../static/vendor/jquery-form/jquery.formautofill.min.js"
+            th:src="@{/vendor/jquery-form/jquery.formautofill.min.js}"></script>
+    <script src="../../static/vendor/jquery-form/jquery-form.min.js"
+            th:src="@{/vendor/jquery-form/jquery-form.min.js}"></script>
+    <script src="../../static/vendor/jquery-validate/jquery.validate.min.js"
+            th:src="@{/vendor/jquery-validate/jquery.validate.min.js}"></script>
+    <script src="../../static/vendor/jquery-validate/jquery.validate.message.zh-cn.js"
+            th:src="@{/vendor/jquery-validate/jquery.validate.message.zh-cn.js}"></script>
+    <script src="../../static/vendor/moment.min.js"
+            th:src="@{/vendor/moment.min.js}"></script>
+    <script src="../../static/js/dynamic/init.js"
+            th:src="@{'/js/dynamic/init.js?v='+${version}}"></script>
+    <script src="../../static/js/member/login.js"
+            th:src="@{'/js/member/login.js?v='+${version}}"></script>
+    <script type="text/javascript">
+        if (window != top)
+            top.location.href = location.href;
+    </script>
+
+</head>
+<body class="hp100">
+
+<!--页面整体布局-->
+<div id="loginPage" class="login-bg hp100">
+    <!--第一部分 start-->
+    <div id="loginPagePageTopContent" style="height:100%;min-height:650px;width: 100%;">
+        <div id="loginPageLoginBG" class="">
+
+            <div class="overflow-hidden w100 pt5" style="padding-left: 20px;">
+                <div class="login-lakala-logo fl"></div>
+                <div class="login-bigdata-plant-font fl ml20 pt10">
+                    <!--<p><span>大数据金融产品平台</span></p>-->
+                </div>
+            </div>
+
+
+            <div class="" style="overflow: hidden">
+                <div class="fl" style="width: 55%;margin-top: 14%;">
+                    <div class="" style="margin-left: 12%;width: 501px;overflow: hidden;">
+                        <div style="width: 100%;overflow: hidden;border-bottom: 2px solid #FFFFFF;padding-bottom:10px; ">
+                            <div class="fl pt10">
+                                <div class="color-0000FF f20">&nbsp;&nbsp;YI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;QIE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RANG&nbsp;&nbsp;
+                                </div>
+                                <div class="color-FFFFFF f28">一&nbsp;&nbsp;&nbsp;&nbsp;切&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;让&nbsp;&nbsp;</div>
+                            </div>
+                            <div class="color-FFFFFF fl"
+                                 style="font-size: 60px;padding: 0px 10px;">数据
+                            </div>
+                            <div class="fl pt10 pt10">
+                                <div class="color-0000FF f20">&nbsp;&nbsp;&nbsp;SHUO&nbsp;&nbsp;&nbsp;&nbsp;HUA</div>
+                                <div class="color-FFFFFF f28">&nbsp;&nbsp;&nbsp;说&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话</div>
+                            </div>
+                        </div>
+                        <div class="pt10" style="width: 100%;overflow: hidden;padding-top: 10px;">
+                            <p class="color-FFFFFF f20" style="text-indent: 1em;">
+                                拉卡拉大数据金融产品平台，是帮助部门进行平台管理、集成多种重要服务的综合数据平台。</p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="fr" style="width: 45%;margin-top: 10px;">
+                    <div class="login-login-input overflow-hidden position-a">
+                        <div class="login-bg-login-input" style="width: 100%;height: 100%;"></div>
+                    </div>
+                    <div class="login-login-input overflow-hidden position-a" style="">
+                        <div class="color-FFFFFF pt3 tc" style="margin:0px auto 0px auto;">
+                            <div class="tc" style="width: 100%;font-size: 30px;">拉卡拉</div>
+                        </div>
+                        <div class="input-group"
+                             style="width: 140px;height: 140px;margin:10px auto 0px auto;">
+                            <div class="login-kaola-bg" style="width: 156px;height: 140px;"></div>
+                        </div>
+
+                        <div class="input-group" style="width: 100%;">
+                            <form id="loginPageLoginForm" method="post" class="inner">
+                                <div class="color-CC0000"
+                                     style="width: 100%;height: 30px;margin:10px auto 0px auto;text-align: center;">
+                                    <span id="loginPageLoginErrorMsg" class=""
+                                          style="width: 100%;"></span>&nbsp;
+                                </div>
+                                <div class="input-group" style="margin:0px 40px;border: 1px solid #FFFFFF;width: 77%;">
+                                    <div class="fl" style="width: 90%;">
+                                        <input id="account" type="text" name="username"
+                                               class="form-control color-000000 f18" value=""
+                                               placeholder="请输入账号" style="background: none;border: none;width:95%;">
+                                    </div>
+                                    <div class="fl login-input-username ml6 mt6"></div>
+                                </div>
+                                <div class="input-group" style="margin:13px 40px;border: 1px solid #FFFFFF;width: 77%;">
+                                    <div class="fl" style="width: 90%;">
+                                        <input id="password" type="password" name="password"
+                                               class="form-control color-000000 f18" value=""
+                                               placeholder="请输入密码"
+                                               style="background: none;border: none;width:95%;">
+                                    </div>
+                                    <div class="fl login-input-pwd ml6 mt6"></div>
+                                </div>
+                                <div class="input-group" style="margin:0px 40px;width:77%">
+                                    <input id="loginPageValidationCode" type="text" name="validationCode"
+                                           class="form-control color-000000 f18 fl" placeholder="请输入验证码"
+                                           style="width: 125px;background: none;border: 1px solid #FFFFFF;border-radius:0px;"
+                                           maxlength="4"/>
+                                    <img id="loginPageValidationCodeImg" class="fl ml7"
+                                         style="height: 34px; width: 98px;" />
+                                    <i class="login-icon-refresh ml5 mt7 cursor-p"
+                                       onclick="LoginMVC.Controller.refreshValidationCode();"></i>
+                                </div>
+                                <div class="input-group display-none" style="margin:10px 40px 0px 40px;">
+                                    <div class="fl" style="width: 15px ;height: 15px;">
+                                        <input id="rememberMe" type="checkbox" checked class=""
+                                               style="width: 15px;height: 15px;"/>
+                                    </div>
+                                    <div class="fl mt1" style="width: 130px ;height: 20px;">
+                                        <span class="color-333333 ml5 f13">记住我的帐号</span>
+                                    </div>
+                                </div>
+
+                                <div class="input-group"
+                                     style="margin:20px 0px 0px auto;z-index: 9999;">
+                                    <button id="loginPageLoginBtn" type="button"
+                                         class="tc fr mr40 cursor-p bg-0099FF color-FFFFFF"
+                                         onmouseover="$(this).removeClass('bg-0099FF').addClass('bg-348CE5');"
+                                         onmouseout="$(this).removeClass('bg-348CE5').addClass('bg-0099FF');"
+                                         style="width: 120px;height: 30px;line-height: 30px;vertical-align: middle; border-radius:6px;border: none;">
+                                        登录
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--第一部分 end-->
+</div>
+
+
+</body>
+</html>

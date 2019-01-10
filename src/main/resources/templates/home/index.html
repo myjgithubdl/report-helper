@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/common_layout}">
+<head>
+    <title>首页</title>
+    <link rel="shortcut icon" href="../../static/images/common/favicon.ico"
+          th:href="@{/images/common/favicon.ico}"/>
+
+
+
+    <!--ZUI start-->
+    <!-- zui css -->
+    <link rel="stylesheet" href="../../static/vendor/zui-1.8.1/css/zui.css"
+          th:href="@{/vendor/zui-1.8.1/css/zui.css}"/>
+
+    <!--ZUI数据表格 CSS文件-->
+    <link rel="stylesheet" href="../../static/vendor/zui-1.8.1/lib/datatable/zui.datatable.min.css"
+          th:href="@{/vendor/zui-1.8.1/lib/datatable/zui.datatable.min.css}"/>
+
+
+    <script src="../../static/vendor/zui-1.8.1/js/zui.js" th:src="@{/vendor/zui-1.8.1/js/zui.js}"></script>
+
+
+    <script th:inline="javascript">//引用
+    var user =  [[${user}]] ;//取值
+    console.log("html")
+    console.log(user);
+    </script>
+
+
+    <script src="../../static/js/home/jquery.menu.js" th:src="@{'/js/home/jquery.menu.js?v='+${version}}"></script>
+    <script src="../../static/js/home/index.js" th:src="@{'/js/home/index.js?v='+${version}}"></script>
+
+
+
+</head>
+
+
+<body layout:fragment="content" style="min-width: 1080px;">
+
+<div id="indexlayout" class="easyui-layout " data-options="collapsedContent:'collapsedContent' " fit="true">
+    <!-- 顶部  start -->
+    <div region="north" data-options="border:false" style="height: 50px;">
+        <div class="bg-393D49" style="width: 100%;height: 52px;/*box-shadow: 0 2px 5px rgba(0, 152, 202, 0.8);*/">
+            <div class="f18 color-FFFFFF " style="height: 100%;width: 100%;">
+                <div class="fl mr15">
+                    <div class="fl" style="padding: 5px 0px 5px 5px;">
+                        <!--<div class="lakala-logo-white "></div>-->
+                    </div>
+                    <div class="fl">
+                        <span style="font-size: 30px; font-weight: bold; padding-left: 5px;">拉</span>
+                        <span style="font-size: 30px; font-weight: bold; padding-left: 2px;">卡</span>
+                        <span style="font-size: 30px; font-weight: bold; padding-left: 2px;">拉</span>
+                    </div>
+                    <div class="fl mt15 ml10">
+                        <span class="f18 color-FFFFFF">大数据金融</span>
+                    </div>
+                </div>
+
+                <!-- 一级菜单  start -->
+                <div id="indexPageMenuTitleTemplate" class="fl ml8 display-none cursor-p" style="height:51px; ">
+                    <div class="pl10 pr10 title"
+                         style="height:51px;line-height: 51px;vertical-align: middle;">
+                    </div>
+                </div>
+
+                <div id="indexPageMenuTitleList">
+
+
+                </div>
+                <!-- 一级菜单  end -->
+
+                <div class="fr ml8 mr20" style="height:31px; ">
+                    <div title="修改密码" class="pl3 pr3 f12 index-edit-password cursor-p pt1 mt15 ml8"
+                         onclick="IndexMVC.Controller.openUpdatePassDialog();">
+                    </div>
+                </div>
+
+                <div class="fr ml8 mr2" style="height:51px; ">
+                    <div title="退出登录" class="mt5 cursor-p index-login-out-bg mt15 ml8"
+                         onclick="$('#indexPageTopNavLogoutModal').modal({backdrop: 'static'});"></div>
+                </div>
+
+                <div class="fr ml8 mr2 pt10 mr10" style="">
+                    <div class="cursor-p overflow-hidden" onclick="$('#userInfoModal').modal({backdrop: 'static'});">
+                        <div class="fl mt5 index-login-user"
+                             style="width: 22px;height: 18px;"></div>
+                        <div class="fl mt5 ml4 f12 pt2 ">欢迎您 ,
+                            <span class="" th:text="${user.name}" ></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- 顶部  end -->
+
+    <!--  左部面板   start  -->
+    <div data-options="region:'west',split:true,border:false" style="width:200px;">
+        <div id="index-layout-west" class="index-layout-west bg-2F4056">
+
+            <div onclick="IndexMVC.Controller.switchWestLayout();" style="display: none;"></div>
+
+            <div class="index-page-menu">
+                <!--菜单样例   start-->
+                <!--<ul class="bg-FFFFFF overflow-hidden" id="indexPageMenuUl">
+                    <li id="indexPageMenuLi3" class="">
+                        <a class="bg-336699" href="javascript:void(0);"
+                           onclick="IndexMVC.Controller.openMentContent('3','https://dompapi.bluemoon.com.cn/bd-view-domp/views/index_system_manage.html#/system_manage_2_0_0/user_manage?token=6f3714d10e5d9ade461d5ca37c6f549e','用户管理')">
+                            <div class="index-page-menu-icon"
+                                 style="background-image: url('https://bdfile.bluemoon.com.cn/group1/M00/05/BE/wKg_HFnJr_eAGf5iAAAHU9Lavwg881.png');"></div>
+                            <div class="fl pl2">用户管理</div>
+                        </a>
+                    </li>
+                    <li id="indexPageMenuLi1085634118" class="bg-00A5DB">
+                        <a href="javascript:void(0);">
+                            <div class="index-page-menu-icon"
+                                 style="background-image: url('https://bdfile.bluemoon.com.cn/group1/M00/05/BC/wKg_HFnJqU6AY2IOAAAAR6OpJx0637.png');"></div>
+                            <div class="fl pl2">报表权限申请管理</div>
+                        </a>
+                        <ul id="indexPageMenuUl1085634118" class="bg-FFFFFF overflow-hidden">
+                            <li id="indexPageMenuLi929261281" class="">
+                                <a href="javascript:void(0);"
+                                   onclick="indexPageModel.openMentContent('929261281','https://dompapi.bluemoon.com.cn/bd-view-domp/views/index.html#/permission_management/dept_report_management?token=6f3714d10e5d9ade461d5ca37c6f549e','业务负责人权限管理')">
+                                <div class="index-page-menu-icon"
+                                     style="background-image: url('https://bdfile.bluemoon.com.cn/group1/M00/05/BC/wKg_HFnJqU6AY2IOAAAAR6OpJx0637.png');"></div>
+                                <div class="fl pl2">业务负责人权限管理</div>
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>-->
+                <!--菜单样例   start-->
+
+                <ul class="bg-393D49 overflow-hidden" id="indexPageMenuUl0"></ul>
+            </div>
+
+        </div>
+    </div>
+    <!--  左部面板   end  -->
+
+    <!-- 内容面板  start -->
+    <div region="center" data-options="border:false">
+        <div id="indexPageTabs" class="easyui-tabs"
+             data-options="border:false" style="width:100%;height:100%;">
+        </div>
+
+
+    </div>
+    <!-- 内容面板  end -->
+
+
+
+
+</div>
+
+<!-- tabs右键菜单  -->
+<div id="main-tab-ctx-menu" class="easyui-menu" style="width: 120px;">
+    <div id="m-current" data-options="name:'current',iconCls:'icon-cancel'">关闭当前页</div>
+    <div id="m-others" data-options="name:'others',iconCls:''">关闭其他页</div>
+    <div id="m-all" data-options="name:'all',iconCls:''">关闭所有页</div>
+</div>
+
+
+<!--主页tab中内容  start-->
+<div id="indexPageHomeTabContent">
+    <div id="indexPageHomeTab" class="">
+
+        <!--首页默认展示内容 start-->
+        <div id="indexPageHomeTabDefaultContent">
+
+
+
+        </div>
+        <!--首页默认展示内容 end-->
+
+    </div>
+</div>
+<!--主页tab中内容  end-->
+
+
+<!--用户信息  start-->
+<div id="userInfoModal" class="modal fade" style="display: none;">
+    <div class="modal-dialog " style="width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">账号信息</h4>
+            </div>
+            <div class="modal-body"
+                 style="padding-left: 10px; padding-right: 10px;">
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr">账号</div>
+                        </label>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" th:value="${user.account}"  disabled="disabled"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr">姓名</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" th:value="${user.name}" disabled="disabled"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr">手机号</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" disabled="disabled" th:value="${user.mobile}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr">邮箱</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input class="form-control" disabled="disabled" th:value="${user.email}" >
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;关闭</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!--用户信息  end-->
+
+
+<!--  注销确认对话框  start  -->
+<div id="indexPageTopNavLogoutModal" class="modal fade" style="z-index: 99999;">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header" >
+                <h4 class="modal-title">注销账户</h4>
+            </div>
+
+            <div class="modal-body">
+                <h4 class="modal-title" style="padding-bottom: 20px;">确定注销账户吗？</h4>
+            </div>
+            <div class="modal-footer" >
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        onclick="window.location.href='/member/logout'"><i class="icon icon-check"></i>&nbsp;确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--  注销确认对话框  end  -->
+
+
+<!-- 重置密码 start-->
+<div id="indexPageUpdatePass" class="modal fade"  style="z-index: 99999;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">账户管理</h4>
+            </div>
+            <div class="modal-body"
+                 style="padding-left: 10px; padding-right: 10px;">
+                <div id="forceUpdatePwdTips" class="row fb color-FF0202 mb10 tc display-none">
+                    <span>系统检测到你的密码与工号或姓名拼音相同，请先修改密码后重新登录！</span>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr f17 color-EA644A" style="height:15px;width: 11px;"></div>
+                            <div class="fr">账号</div>
+                        </label>
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" th:value="${user.account}"
+                                   id="indexPageUpdatePassUserAccount" disabled="disabled">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr f17 color-EA644A" style="height:15px;width: 11px;"></div>
+                            <div class="fr">姓名</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" th:value="${user.name}"
+                                   id="indexPageUpdatePassUserName" disabled="disabled">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr f17 color-EA644A" style="height:15px;width: 11px;">*</div>
+                            <div class="fr">手机号</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="text" class="form-control" th:value="${user.mobile}"
+                                   id="indexPageUpdatePassPhone">
+                        </div>
+                        <span id="indexPageUpdatePassErrorP3" class="col-md-4"
+                              style="font-size: 13px; color: red;padding-top: 8px;"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr f17 color-EA644A" style="height:15px;width: 11px;">*</div>
+                            <div class="fr">原密码</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="password" class="form-control"
+                                   id="indexPageUpdatePassOldPassword">
+                        </div>
+                        <span id="indexPageUpdatePassErrorP4" class="col-md-4"
+                              style="font-size: 13px; color: red;padding-top: 8px;"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr f17 color-EA644A" style="height:15px;width: 11px;">*</div>
+                            <div class="fr">新密码</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="password" class="form-control"
+                                   id="indexPageUpdatePassPassword">
+                        </div>
+                        <span id="indexPageUpdatePassErrorP1" class="col-md-4"
+                              style="font-size: 13px; color: red;padding-top: 8px;"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label class="col-md-3 control-label text-right">
+                            <div class="fr f17 color-EA644A" style="height:15px;width: 11px;">*</div>
+                            <div class="fr">重新输入密码</div>
+                        </label>
+
+                        <div class="col-md-5">
+                            <input type="password" class="form-control"
+                                   id="indexPageUpdatePassPasswordAgainPassword">
+                        </div>
+                        <span id="indexPageUpdatePassErrorP2" class="col-md-4"
+                              style="font-size: 13px; color: red;padding-top: 8px;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="passwordCancelBtn" type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;取消</button>
+                <button id="indexPageSavePass" type="button"
+                        class="btn btn-primary" data-loading-text="保存中..."
+                        onclick="IndexMVC.Controller.checkOldPassIsCorrect()"><i class="icon icon-check"></i>&nbsp;保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 重置密码 end-->
+
+
+<!--菜单模板   start-->
+<ul id="indexPageMenuTempl" class="bg-393D49 overflow-hidden"  style="display: none">
+    <li id="indexPageMenuLiTempl" class="">
+        <!--bg-336699-->
+        <a class="" href="javascript:void(0);"
+           onclick="IndexMVC.Controller.openMentContent('3','http://localhost:9003/home/index','用户管理')">
+            <div class="index-page-menu-icon" ></div>
+            <div class="fl pl2 menu-name">用户管理</div>
+        </a>
+    </li>
+</ul>
+<!--菜单模板   start-->
+
+
+
+</body>
+
+
+</html>

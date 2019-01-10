@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myron.reporthelper.mapper.ReportMapper">
+
+    <sql id="queryParams">
+        <if test="likeKeyword != null and likeKeyword != '' ">
+            and rr.name like concat('%','${likeKeyword}' ,'%' )
+        </if>
+
+    </sql>
+    
+    <select id="getReportCount" parameterType="map" resultType="int">
+        select  count(1) count_num  from rh_report rr , rh_datasource rd , rh_user ru
+        where rr.ds_id=rd.id and rr.update_user=ru.id and rr.`status`=1
+        <include refid="queryParams"></include>
+
+    </select>
+
+    <select id="getReportList" resultType="map" parameterType="map">
+        select rr.id, rr.uid, category_id categoryId, ds_id dsId, rr.name, sql_text sqlText, meta_columns metaColumns, query_params queryParams,
+        rr.options, report_explain reportExplain, rr.status, rr.sequence,
+        rr.comment, rr.create_user createUser, rr.create_date createDate, rr.update_user updateUser, rr.update_date updateDate,
+        rd.name dsName , ru.name updateUserName
+        from rh_report rr , rh_datasource rd , rh_user ru
+        where rr.ds_id=rd.id and rr.update_user=ru.id and rr.`status`=1
+
+        <include refid="queryParams"></include>
+
+        order by rr.sequence , rr.id
+
+        <if test="pageSize != null and pageSize !='' ">
+            limit ${startRowIndex} , ${pageSize}
+        </if>
+    </select>
+
+
+
+</mapper>
