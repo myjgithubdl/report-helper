@@ -2,6 +2,7 @@ package com.myron.reporthelper.bo;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.models.auth.In;
 
 import java.io.Serializable;
 
@@ -26,6 +27,7 @@ public class ReportQueryParameter implements Serializable {
     /**
      * 获取报表查询参数对应的html表单input元素，html表单input元素(select, text等)
      * 参数表单类型  下拉单选、下拉多选、文本框、日期
+     *  下拉单选(select)、下拉多选(selectMul)、文本框(text)、日期(date)
      */
     private String formElement;
 
@@ -45,8 +47,6 @@ public class ReportQueryParameter implements Serializable {
     /**
      * 参数的默认值
      */
-
-
     private String defaultValue;
 
 
@@ -57,7 +57,7 @@ public class ReportQueryParameter implements Serializable {
 
 
     /**
-     * 参数的数据类型，字符串、浮点数、整数、日期
+     * 参数的数据类型，字符串 string、浮点数 float、整数 integer、日期
      */
     private String dataType = "string";
 
@@ -80,9 +80,9 @@ public class ReportQueryParameter implements Serializable {
     /**
      * 如果是日期字段，则是日期范围 如果是正数则输入框的默认值为当前Date加天数
      * 如果是日期字段，则是日期范围 如果是正数则输入框的默认值为当前Date减天数
-     * 如果是日期字段，0标识当天，-0标识日期选择框是空
+     * 如果是日期字段，0标识当天，-0会null标识日期选择框是空
      */
-    private String dateRange;
+    private Integer dateRange;
 
     /**
      * 获取报表查询参数的是否自动提示(主要用于下拉列表控件中)
@@ -167,7 +167,7 @@ public class ReportQueryParameter implements Serializable {
 
     /**
      * 获取报表查询参数对应的html表单input元素，html表单input元素(select, text等)
-     *
+     *下拉单选(select)、下拉多选(selectMul)、文本框(text)、日期(date)
      * @return html表单input元素(select, text等)
      */
     public String getFormElement() {
@@ -353,11 +353,11 @@ public class ReportQueryParameter implements Serializable {
      * 获得假如查询参数对应的html表单input元素的类型为日期表单的时间范围
      * 假如时间为 2016-12-22 dataRange=1   表单元素默认值为2016-12-23
      * dataRange=-1   表单元素默认值为2016-12-21
-     * 0 是当天   -0则为空
+     * 0 是当天   不填则为空
      *
      * @return
      */
-    public String getDateRange() {
+    public Integer getDateRange() {
         return dateRange;
     }
 
@@ -366,7 +366,7 @@ public class ReportQueryParameter implements Serializable {
      *
      * @return
      */
-    public void setDateRange(String dataRange) {
+    public void setDateRange(Integer dataRange) {
         this.dateRange = dataRange;
     }
 

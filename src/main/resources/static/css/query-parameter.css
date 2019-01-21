@@ -1,0 +1,187 @@
+.fl {
+    float: left;
+}
+
+.mt5 {
+    margin-top: 5px;
+}
+
+.mt6 {
+    margin-top: 6px;
+}
+
+.mt7 {
+    margin-top: 7px;
+}
+
+.mb2 {
+    margin-bottom: 2px;
+}
+
+.mb5 {
+    margin-bottom: 5px;
+}
+
+.mr10 {
+    margin-right: 10px;
+}
+
+
+.ml10{
+    margin-left: 10px;
+}
+
+.he30 {
+    height: 30px;
+}
+
+
+.pt4{
+    padding-top: 4px;
+}
+
+.pt2{
+    padding-top: 2px;
+}
+
+.pt5{
+    padding-top: 5px;
+}
+
+.ovh{
+    overflow: hidden;
+}
+
+/* layui formSelects 多选样式修改 start   */
+.xm-select-title {
+    height: 30px !important;
+}
+
+.report-params-form .xm-input {
+    border: none !important;
+}
+
+/* layui formSelects 多选样式修改 end   */
+
+.report-params-form .param-div {
+    border: 1px solid #e6e6e6;
+    margin-top: 5px;
+    margin-right: 10px;
+}
+
+.report-params-form .param-label {
+    height: 30px;
+    line-height: 30px;
+    background-color: #FBFBFB;
+
+    border-radius: 2px 0 0 2px;
+    white-space: normal;
+    padding: 0px 3px;
+}
+
+.report-params-form .param-value-div {
+    border-left: 1px solid #e6e6e6;
+}
+
+.report-params-form .param-input {
+    height: 30px;
+    line-height: 30px;
+    border: none;
+    background-color: #FFF;
+    padding-left: 5px;
+}
+
+.report-params-form .jeinput {
+    display: block;
+    width: 100%;
+    padding-left: 10px;
+    height: 30px;
+    line-height: 30px;
+    border: none;
+    background-color: #fff;
+}
+
+.data-div .layui-laypage {
+    margin: 0px 20px !important;
+}
+
+/* zui 单选 start */
+.report-params-form .chosen-single {
+    border: none !important;
+}
+
+/* zui 单选 end */
+
+/*zui 多选  start*/
+.report-params-form .chosen-choices {
+    border: none !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    overflow: auto !important;
+}
+
+.report-params-form .chosen-choices .search-choice-close {
+    padding-top: 2px;
+}
+
+/*  zui 多选  end  */
+
+.chart-label {
+    height: 30px;
+    line-height: 30px;
+    background-color: #FBFBFB;
+    border-radius: 2px 0 0 2px;
+    white-space: normal;
+    padding: 0px 3px;
+    width: 80px;
+    border: 1px solid #e6e6e6;
+}
+
+
+.legend-label{
+    padding: 5px 10px;
+}
+
+.legend-value-select{
+    height: 28px !important;
+}
+
+/*************************** chart  选择   start ****************************/
+
+/* zui 单选 start */
+.chart-option.chosen-single {
+    border: none !important;
+}
+
+/* zui 单选 end */
+
+/*zui 多选  start*/
+.chart-option .chosen-choices {
+    border: none !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    overflow: auto !important;
+}
+.chart-option .chosen-choices {
+    border: none !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    overflow: auto !important;
+    -webkit-box-shadow:none !important;
+}
+.chart-option .legend-item{
+    border: 1px solid #e6e6e6;
+    margin-left: 10px;
+    height: 30px;
+}
+
+.chart-option .legend-value-div {
+    border-left: 1px solid #e6e6e6;
+    height: 30px;
+}
+
+.chart-option .chosen-choices .search-choice-close {
+    padding-top: 3px;
+}
+
+/*************************** chart  选择   end ****************************/

@@ -11,12 +11,12 @@ public class TextValuePair {
     public TextValuePair() {
     }
 
-    public TextValuePair(String text, String value) {
+    public TextValuePair(String value,String text) {
         this.text = text;
         this.value = value;
     }
 
-    public TextValuePair(String text, String value, boolean selected) {
+    public TextValuePair(String value, String text, boolean selected) {
         this.text = text;
         this.value = value;
         this.selected = selected;

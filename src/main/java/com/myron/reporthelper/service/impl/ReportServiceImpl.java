@@ -1,18 +1,18 @@
 package com.myron.reporthelper.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.easydata.head.TheadColumn;
 import com.easydata.head.TheadColumnTree;
 import com.myron.reporthelper.bo.*;
+import com.myron.reporthelper.bo.pair.TextValuePair;
 import com.myron.reporthelper.db.query.QueryerFactory;
 import com.myron.reporthelper.entity.Datasource;
 import com.myron.reporthelper.entity.Report;
 import com.myron.reporthelper.mapper.ReportMapper;
 import com.myron.reporthelper.service.DatasourceService;
 import com.myron.reporthelper.service.ReportService;
-import com.myron.reporthelper.util.PageInfo;
 import com.sql.util.SQLUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import org.apache.commons.lang3.StringUtils;
@@ -57,32 +57,11 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 
 
     @Override
-    public List<ReportQueryParamItem> executeQueryParamSqlText(int dsId, String sqlText) {
+    public List<TextValuePair> querySelectOptionList(int dsId, String sqlText) {
         ReportDataSource reportDataSource = getReportDataSource(dsId);
-        return QueryerFactory.create(reportDataSource).parseQueryParamItems(sqlText);
+        return QueryerFactory.create(reportDataSource).querySelectOptionList(sqlText);
     }
 
-    @Override
-    public List<TheadColumn> parseMetaColumns(String json) {
-        if (StringUtils.isBlank(json)) {
-            return new ArrayList<>(0);
-        }
-        return JSON.parseArray(json, TheadColumn.class);
-    }
-
-    @Override
-    public List<ReportQueryParameter> parseQueryParams(String json) {
-        if (StringUtils.isBlank(json)) {
-            return new ArrayList<>(0);
-        }
-        return JSON.parseArray(json, ReportQueryParameter.class);
-    }
-
-    @Override
-    public ReportOptions parseOptions(String json) {
-
-        return JSON.parseObject(json, ReportOptions.class);
-    }
 
     @Override
     public ReportDataSource getReportDataSource(int dsId) {
@@ -101,22 +80,6 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     }
 
 
-    @Override
-    public List<CompositionReport> parseCompositionReport(String json) {
-        if (StringUtils.isBlank(json)) {
-            return new ArrayList<>(0);
-        }
-        return JSON.parseArray(json, CompositionReport.class);
-    }
-
-
-    @Override
-    public List<TheadColumnTree> parseMetaColumnTrees(String json) {
-        if (StringUtils.isBlank(json)) {
-            return new ArrayList<>(0);
-        }
-        return JSON.parseArray(json, TheadColumnTree.class);
-    }
 
     @Override
     public List<Map<String, Object>> getReportList(Map<String, Object> params) {
@@ -127,4 +90,14 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     public int getReportCount(Map<String, Object> params) {
         return this.reportMapper.getReportCount(params);
     }
+
+    @Override
+    public Report getReportByUid(String uid) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("uid", uid);
+        return reportMapper.selectOne(queryWrapper);
+    }
+
+
+
 }

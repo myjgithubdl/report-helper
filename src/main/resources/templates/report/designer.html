@@ -303,7 +303,7 @@
                                 <option value="string" selected="selected">字符串</option>
                                 <option value="float">浮点数</option>
                                 <option value="integer">整数</option>
-                                <option value="date">日期</option>
+                                <!--<option value="date">日期</option>-->
                             </select>
                         </div>
                     </div>
@@ -361,7 +361,7 @@
                                 <option value="YYYYMMDD">YYYYMMDD</option>
                                 <option value="YYYY-MM">YYYY-MM</option>
                                 <option value="YYYYMM">YYYYMM</option>
-                                <option value="YYYYMM">YYYY</option>
+                                <option value="YYYY">YYYY</option>
                             </select>
                         </div>
                     </div>
@@ -388,7 +388,7 @@
                         <div class="fl wt60" style="height: 50px;line-height: 50px;">内容:</div>
                         <div class="fl" style="width: 90%;">
                             <textarea id="report-query-param-content" name="content" style="width: 95%; height: 50px;"
-                                      placeholder="(select col1 as name,col2 as text from table ...) or (name1,text1|name2,text2|...) or (name1|name2|...)"></textarea>
+                                      placeholder="(select col1 as value,col2 as text from table ...) or (value1,text1|value2,text2|...) or (value1|value2|...)"></textarea>
                             <input type="hidden" id="report-query-param-gridIndex" value="0"/>
                             <input type="hidden" id="report-query-param-json"/>
                         </div>

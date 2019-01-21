@@ -20,6 +20,8 @@ public class ReportOptions implements Serializable {
 
     /**
      * 是否启用分页.0  禁用;1  启用
+     * 启用分页则分页信息是
+     * @see com.myron.reporthelper.bo.ReportPageInfo
      */
     private Integer enablePage;
 
@@ -30,12 +32,16 @@ public class ReportOptions implements Serializable {
 
     /**
      * 1    报表仅显示数据表格
-     * 2    报表仅显示图表
+     * 2    显示图表  折线图
+     * 3    显示图表  柱状图
+     * 4    显示图表  饼图
+     * 5    显示图表  漏斗图
+     * 6    显示图表  散点图
      * 10   透视表
      * 11   组合报表  CompositionReport
      * @see com.myron.reporthelper.bo.CompositionReport
      */
-    private Integer showContent;
+    private int showContent;
 
 
     /**

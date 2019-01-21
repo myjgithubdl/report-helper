@@ -88,7 +88,7 @@ var DesignerMVC = {
             }
         },
         Report: {
-            url: DesignerCommon.baseReportUrl + 'uid/',
+            url: ReportHelper.ctxPath + '/report/preview/uid/',
             method: 'GET'
         }
     },
@@ -128,6 +128,9 @@ var DesignerMVC = {
              type: 2
              }*/],
         MetaColumnTypes: [{
+            text: "普通列",
+            value: 0
+        }, {
             text: "布局列",
             value: 1
         }, {
@@ -415,7 +418,7 @@ var DesignerMVC = {
                     iconCls: 'icon-cancel',
                     handler: function () {
                         EasyUIUtils.removeTreegridSelectedRow("#report-meta-column-grid");
-                        return ;
+                        return;
                         var row = $("#report-meta-column-grid").datagrid('getSelected');
                         if (row) {
                             var index = $("#report-meta-column-grid").datagrid('getRowIndex', row);
@@ -448,11 +451,7 @@ var DesignerMVC = {
                         formatter: function (value, row, index) {
                             return value;
                         }
-                    }
-
-                ]],
-                columns: [[
-                    {
+                    }, {
                         field: 'name',
                         title: '列名',
                         width: 100,
@@ -479,7 +478,11 @@ var DesignerMVC = {
                                 value: text
                             });
                         }
-                    }, {
+                    }
+
+                ]],
+                columns: [[
+                    {
                         field: 'dataType',
                         title: '数据类型',
                         width: 90,
@@ -513,6 +516,8 @@ var DesignerMVC = {
                         title: '列类型',
                         width: 80,
                         formatter: function (value, row, index) {
+                            console.log(value)
+                            console.log(row)
                             var id = "metaColumnType" + row.id;
                             var tmpl =
                                 '<select id="${id}" name=\"metaColumnType\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
@@ -529,7 +534,7 @@ var DesignerMVC = {
                     }, {
                         field: 'columnWidth',
                         title: '宽度',
-                        width: 80,
+                        width: 50,
                         formatter: function (value, row, index) {
                             var id = "columnWidth" + row.id;
                             if (!row.width) {
@@ -544,7 +549,7 @@ var DesignerMVC = {
                     }, {
                         field: 'precision',
                         title: '显示精度',
-                        width: 80,
+                        width: 50,
                         formatter: function (value, row, index) {
                             var id = "precision" + row.id;
                             if (!row.showDecimals) {
@@ -573,8 +578,8 @@ var DesignerMVC = {
                         }
                     }, {
                         field: 'hrefTarget',
-                        title: '链接打开方式',
-                        width: 100,
+                        title: '打开方式',
+                        width: 60,
                         formatter: function (value, row, index) {//HerfTarget
                             var id = "hrefTarget" + row.id;
                             var tmpl =
@@ -592,7 +597,7 @@ var DesignerMVC = {
                     }, {
                         field: 'isHidden',
                         title: '显示列',
-                        width: 80,
+                        width: 60,
                         formatter: function (value, row, index) {//HerfTarget
                             var id = "isHidden" + row.id;
                             var tmpl =
@@ -609,8 +614,8 @@ var DesignerMVC = {
                         }
                     }, {
                         field: 'downMergeCells',
-                        title: '向下合并等值列',
-                        width: 120,
+                        title: '合并等值列',
+                        width: 80,
                         formatter: function (value, row, index) {
                             var id = "downMergeCells" + row.id;
                             var tmpl =
@@ -1209,10 +1214,15 @@ var DesignerMVC = {
         },
         preview: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
-                var url = DesignerMVC.URLs.Report.url + row.uid;
-                if(parent.IndexMVC){
-                    parent.IndexMVC.Controller.openMentContent(row.uid,url,row.name,'iframe')
-                }else{
+                console.log();
+                var windowHref = window.location.href;
+                var url = windowHref.replace("views/report/designer", "report/preview/uid/") + row.uid;
+
+                //var url = DesignerMVC.URLs.Report.url + row.uid;
+                console.log(url)
+                if (parent.IndexMVC) {
+                    parent.IndexMVC.Controller.openMentContent(row.uid, url, row.name, 'iframe')
+                } else {
                     window.open(url);
                 }
             });
@@ -1304,13 +1314,13 @@ var DesignerMVC = {
             DesignerMVC.Util.updateTreegridSelectRow('#report-meta-column-grid');
             var rows = EasyUIUtils.getTreegridRows('#report-meta-column-grid');
             var metaColumns = DesignerMVC.Util.getMetaColumns(rows);
-            if(!DesignerMVC.Util.checkMetaColumns(metaColumns)){
+            if (!DesignerMVC.Util.checkMetaColumns(metaColumns)) {
                 return;
             }
 
             //报表展示内容
             var showContent = $("#report-showContent").combobox('getValue');
-            if(!DesignerMVC.Util.checkReportShowContent(showContent , metaColumns)){
+            if (!DesignerMVC.Util.checkReportShowContent(showContent, metaColumns)) {
                 return;
             }
 
@@ -1530,18 +1540,6 @@ var DesignerMVC = {
             }
             return "无";
         },
-        getColumnTypeValue: function (name) {
-            if (name == "LAYOUT") {
-                return 1;
-            }
-            if (name == "DIMENSION") {
-                return 2;
-            }
-            if (name == "STATISTICAL") {
-                return 3;
-            }
-            return 1;
-        },
         checkBasicConfParam: function () {
             if (DesignerMVC.View.SqlEditor.getValue() == "") {
                 $.messager.alert('失败', "SQL语句为空！", 'error');
@@ -1549,44 +1547,45 @@ var DesignerMVC = {
             }
             return $('#report-basic-conf-form').form('validate');
         },
-        checkMetaColumns:function(metaColumns){
-            if(!metaColumns || metaColumns.length < 1){
+        checkMetaColumns: function (metaColumns) {
+            if (!metaColumns || metaColumns.length < 1) {
                 $.messager.alert('失败', "元数据列未配置！", 'error');
                 return false
             }
             //检验元数据列
-            for(var index in metaColumns){
-                var row=metaColumns[index];
-                if(row.text.length < 1){
-                    $("#text"+row.id).focus();
+            for (var index in metaColumns) {
+                var row = metaColumns[index];
+                if (row.text.length < 1) {
+                    $("#text" + row.id).focus();
                     $.messager.alert('失败', "元数据列配置中标题不能为空！", 'error');
                     return false;
                 }
-                if(row.text.length < 1){
-                    $("#report-meta-column-grid").treegrid('checkNode',row.id);
+                if (row.text.length < 1) {
+                    $("#report-meta-column-grid").treegrid('checkNode', row.id);
                     $.messager.alert('失败', "元数据列配置中标题不能为空！", 'error');
                     return false;
                 }
                 //没有孩子的列名称不能为空
-                if(row.hasChild=='N' &&  row.name.length < 1){
-                    $("#report-meta-column-grid").treegrid('checkNode',row.id);
+                if (row.hasChild == 'N' && row.name.length < 1) {
+                    $("#report-meta-column-grid").treegrid('checkNode', row.id);
                     $.messager.alert('失败', "元数据列配置中列名不能为空！", 'error');
                     return false
                 }
             }
             return true
         },
-        checkReportShowContent:function(showContent , metaColumns){
+        checkReportShowContent: function (showContent, metaColumns) {
             console.log("报表展示内容：" + showContent);
             //检验图表类型
             if (showContent >= 2 && showContent <= 6) {
                 var columnTypeMap = DesignerMVC.Util.getColumnTypeMap(metaColumns);
-                if ((showContent == 2 || showContent == 3 || showContent == 6 ) &&(columnTypeMap.layout == 0
-                    || columnTypeMap.dim == 0 || columnTypeMap.stat == 0 ) ) {//折线图、柱状图
+                console.log(columnTypeMap)
+                if ((showContent == 2 || showContent == 3 || showContent == 6) && (columnTypeMap.layout == 0
+                    || columnTypeMap.dim == 0 || columnTypeMap.stat == 0)) {//折线图、柱状图
                     $.messager.alert('失败', "您没有设置布局列、维度列、统计列", 'error');
                     return false;
-                }else if( (showContent == 4 || showContent == 5 ) &&(columnTypeMap.layout == 0
-                    || columnTypeMap.stat == 0 ) ){//饼图、漏斗图
+                } else if ((showContent == 4 || showContent == 5) && (columnTypeMap.layout == 0
+                    || columnTypeMap.stat == 0)) {//饼图、漏斗图
                     $.messager.alert('失败', "您没有设置布局列、统计列", 'error');
                     return false;
                 }
@@ -1597,7 +1596,7 @@ var DesignerMVC = {
             var oldColumns = EasyUIUtils.getTreegridRows("#report-meta-column-grid");
             //如果列表中没有元数据列则直接设置成新的元数据列
             if (oldColumns == null || oldColumns.length == 0) {
-                return $("#report-meta-column-grid").treegrid('loadData', { rows: newColumns});
+                return $("#report-meta-column-grid").treegrid('loadData', {rows: newColumns});
             }
 
             //如果列表中存在旧的列则需要替换相同的列并增加新列
@@ -1619,7 +1618,7 @@ var DesignerMVC = {
             return $("#report-meta-column-grid").treegrid('loadData', newColumns);
         },
         getMetaColumns: function (columns) {
-            if(columns == null || columns.length < 1){
+            if (columns == null || columns.length < 1) {
                 return null;
             }
 
@@ -1638,7 +1637,7 @@ var DesignerMVC = {
             if (columns && columns.length) {
                 for (var i = 0; i < columns.length; i++) {
                     var column = columns[i];
-                    column.metaColumnType = DesignerMVC.Util.getColumnTypeValue(column.metaColumnType);
+                    column.metaColumnType = 0;
                 }
             }
             return columns;
@@ -1650,11 +1649,11 @@ var DesignerMVC = {
                 "stat": 0,
             };
             for (var i = 0; i < rows.length; i++) {
-                if (rows[i].type == 1) {
+                if (rows[i].metaColumnType == 1) {
                     typeMap.layout += 1;
-                } else if (rows[i].type == 2) {
+                } else if (rows[i].metaColumnType == 2) {
                     typeMap.dim += 1;
-                } else if (rows[i].type == 3) {
+                } else if (rows[i].metaColumnType == 3) {
                     typeMap.stat += 1;
                 }
             }
@@ -1721,7 +1720,7 @@ var DesignerMVC = {
         getUUID: function () {
             //var uuid = (DesignerMVC.Util.S4() + DesignerMVC.Util.S4() + "-" + DesignerMVC.Util.S4() + "-" +
             //    DesignerMVC.Util.S4() + "-" + DesignerMVC.Util.S4() + "-" + DesignerMVC.Util.S4() + DesignerMVC.Util.S4() + DesignerMVC.Util.S4());
-            var uuid=DesignerMVC.Util.S4();
+            var uuid = DesignerMVC.Util.S4();
             return uuid;
         },
         updateTreegridSelectRow: function (treegridId) {/*更新元数据列选中的行*/

@@ -2,7 +2,9 @@ package com.myron.reporthelper.bo;
 
 import com.easydata.head.TheadColumn;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,6 +14,8 @@ import java.util.List;
  * @author 缪应江
  */
 @Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class ReportParameter {
     /**

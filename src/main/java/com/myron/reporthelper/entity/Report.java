@@ -1,14 +1,25 @@
 package com.myron.reporthelper.entity;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.easydata.head.TheadColumn;
+import com.easydata.head.TheadColumnTree;
+import com.myron.reporthelper.bo.CompositionReport;
+import com.myron.reporthelper.bo.ReportExplain;
+import com.myron.reporthelper.bo.ReportOptions;
+import com.myron.reporthelper.bo.ReportQueryParameter;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>
@@ -63,12 +74,14 @@ public class Report implements Serializable {
 
     /**
      * 报表配置选项(JSON格式)
+     *
      * @see com.myron.reporthelper.bo.ReportOptions
      */
     private String options;
 
     /**
      * 报表列集合元数据(JSON格式)
+     *
      * @see com.easydata.head.TheadColumn
      */
     private String metaColumns;
@@ -76,6 +89,7 @@ public class Report implements Serializable {
 
     /**
      * 查询条件列属性集合(JSON格式)
+     *
      * @see com.myron.reporthelper.bo.ReportQueryParameter
      */
     private String queryParams;
@@ -83,6 +97,7 @@ public class Report implements Serializable {
     /**
      * 报表说明,支持静态或SQL注释(JSON格式)
      * 在静态文档中支持使用${reportExplain}将SQL查询的结果引入
+     *
      * @see com.myron.reporthelper.bo.ReportExplain
      */
     private String reportExplain;
@@ -122,5 +137,71 @@ public class Report implements Serializable {
      */
     private Date updateDate;
 
+
+    /**
+     * 解析json格式的报表查询参数为QueryParameter对象集合
+     *
+     * @return
+     */
+    public List<ReportQueryParameter> parseQueryParams() {
+        if (StringUtils.isBlank(this.queryParams)) {
+            return new ArrayList<>(0);
+        }
+        return JSON.parseArray(this.queryParams, ReportQueryParameter.class);
+    }
+
+    /**
+     * 解析json格式的报表选项ReportOptions
+     *
+     * @return
+     */
+    public ReportOptions parseOptions() {
+        if (StringUtils.isBlank(this.options)) {
+            return null;
+        }
+        return JSON.parseObject(this.options, ReportOptions.class);
+    }
+
+
+    /**
+     * 解析json格式的报表元数据列为TheadColumn对象集合
+     *
+     * @return
+     */
+    public List<TheadColumn> parseMetaColumns() {
+        if (StringUtils.isBlank(this.metaColumns)) {
+            return new ArrayList<>(0);
+        }
+        return JSON.parseArray(this.metaColumns, TheadColumn.class);
+    }
+
+    public List<TheadColumnTree> parseMetaColumnTrees() {
+        if (StringUtils.isBlank(this.metaColumns)) {
+            return new ArrayList<>(0);
+        }
+        return JSON.parseArray(this.metaColumns, TheadColumnTree.class);
+    }
+
+
+    /**
+     * 解析报表的说明内容
+     *
+     * @return
+     */
+    public ReportExplain parseReportExplain() {
+        return JSON.parseObject(this.reportExplain, ReportExplain.class);
+    }
+
+    /**
+     * 解析json格式的报表元数据列为 CompositionReport  对象集合
+     *
+     * @return
+     */
+    public List<CompositionReport> parseCompositionReport() {
+        if (StringUtils.isBlank(this.metaColumns)) {
+            return new ArrayList<>(0);
+        }
+        return JSON.parseArray(this.metaColumns, CompositionReport.class);
+    }
 
 }

@@ -2,7 +2,8 @@ package com.myron.reporthelper.db.query;
 
 
 import com.easydata.head.TheadColumn;
-import com.myron.reporthelper.bo.ReportQueryParamItem;
+import com.myron.reporthelper.bo.ReportParameter;
+import com.myron.reporthelper.bo.pair.TextValuePair;
 
 import java.util.List;
 import java.util.Map;
@@ -25,9 +26,9 @@ public interface Queryer {
      * 从sql语句中解析出报表查询参数(如下拉列表参数）的列表项集合
      *
      * @param sqlText sql语句
-     * @return List[ReportQueryParamItem]
+     * @return List[TextValuePair]
      */
-    List<ReportQueryParamItem> parseQueryParamItems(String sqlText);
+    List<TextValuePair> querySelectOptionList(String sqlText);
 
 
     /**
@@ -47,5 +48,7 @@ public interface Queryer {
      */
     List<Map<String, Object>> queryForList(String sqlText);
 
+
+    ReportParameter getReportParameter();
 
 }

@@ -3,7 +3,7 @@ package com.myron.reporthelper.db.query;
 import com.easydata.head.TheadColumn;
 import com.myron.reporthelper.bo.ReportDataSource;
 import com.myron.reporthelper.bo.ReportParameter;
-import com.myron.reporthelper.bo.ReportQueryParamItem;
+import com.myron.reporthelper.bo.pair.TextValuePair;
 import com.myron.reporthelper.util.JdbcUtil;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -29,14 +28,10 @@ public abstract class AbstractQueryer {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final ReportDataSource reportDataSource;
     protected final ReportParameter parameter;
-    protected final List<TheadColumn> metaDataColumns;
 
     protected AbstractQueryer(final ReportDataSource reportDataSource, final ReportParameter parameter) {
         this.reportDataSource = reportDataSource;
         this.parameter = parameter;
-        this.metaDataColumns = this.parameter == null ?
-                new ArrayList<>(0) :
-                new ArrayList<>(this.parameter.getMetaColumns());
     }
 
 
@@ -62,7 +57,7 @@ public abstract class AbstractQueryer {
             columns = new ArrayList<>(count);
             for (int i = 1; i <= count; i++) {
                 final TheadColumn column = new TheadColumn();
-                column.setId(i+"");
+                column.setId(i + "");
                 column.setName(rsMataData.getColumnLabel(i));
                 column.setText(rsMataData.getColumnLabel(i));
                 column.setDataType(rsMataData.getColumnTypeName(i));
@@ -93,27 +88,27 @@ public abstract class AbstractQueryer {
      * @param sqlText
      * @return
      */
-    public List<ReportQueryParamItem> parseQueryParamItems(final String sqlText) {
+    public List<TextValuePair> querySelectOptionList(final String sqlText) {
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
         final HashSet<String> set = new HashSet<>();
-        final List<ReportQueryParamItem> rows = new ArrayList<>();
+        final List<TextValuePair> rows = new ArrayList<>();
 
         try {
-            this.logger.debug(sqlText);
+            this.logger.info("查询选择框选项SQL:"+sqlText);
             conn = this.getJdbcConnection();
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sqlText);
             while (rs.next()) {
-                String name = rs.getString("name");
+                String value = rs.getString("value");
                 String text = rs.getString("text");
-                name = (name == null) ? "" : name.trim();
-                text = (text == null) ? "" : text.trim();
-                if (!set.contains(name)) {
-                    set.add(name);
+                value = (value == null) ? "" : value.trim();
+                text = (text == null) ? "未设置" : text.trim();
+                if (!set.contains(value)) {
+                    set.add(value);
                 }
-                rows.add(new ReportQueryParamItem(name, text));
+                rows.add(new TextValuePair(value, text));
             }
         } catch (final SQLException ex) {
             throw new RuntimeException(ex);
@@ -227,5 +222,9 @@ public abstract class AbstractQueryer {
         }
     }
 
+
+    public ReportParameter getReportParameter() {
+        return this.parameter;
+    }
 
 }

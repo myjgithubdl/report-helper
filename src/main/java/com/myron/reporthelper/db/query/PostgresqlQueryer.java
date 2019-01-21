@@ -3,6 +3,7 @@ package com.myron.reporthelper.db.query;
 import com.myron.reporthelper.bo.ReportDataSource;
 import com.myron.reporthelper.bo.ReportPageInfo;
 import com.myron.reporthelper.bo.ReportParameter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
@@ -16,6 +17,8 @@ import java.util.Map;
  *
  * @author 缪应江
  */
+
+@Slf4j
 public class PostgresqlQueryer extends AbstractQueryer implements Queryer {
     public PostgresqlQueryer(final ReportDataSource dataSource, final ReportParameter parameter) {
         super(dataSource, parameter);
@@ -44,7 +47,7 @@ public class PostgresqlQueryer extends AbstractQueryer implements Queryer {
         sb.append(sqlText);
         sb.append(" ) AS t");
         int totalRows = queryCountAndSetPageInfo(sb.toString());
-
+        log.info("查询数量SQL:" + sb.toString());
         return totalRows;
     }
 
@@ -54,7 +57,7 @@ public class PostgresqlQueryer extends AbstractQueryer implements Queryer {
         //启用分页信息
         if (pageInfo != null && pageInfo.isEnablePage()) {
             //总记录数为null ， 查询分页信息
-            if (pageInfo.getTotalRows() == null) {
+            if (pageInfo.getTotalRows() == null || pageInfo.getTotalRows() < 0) {
                 queryCount(sqlText);
             }
 
@@ -67,7 +70,7 @@ public class PostgresqlQueryer extends AbstractQueryer implements Queryer {
             sqlText = pageSqlSb.toString();
         }
 
-
+        log.info("查询数据SQL:" + sqlText);
         try {
             List<Map<String, Object>> list = queryDataList(sqlText);
             return list;

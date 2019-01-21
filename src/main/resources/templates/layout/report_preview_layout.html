@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE">ReportHelper</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" href="../../static/images/favicon.ico" th:href="@{/images/favicon.ico}"/>
+    <!-- common css -->
+    <!-- common js -->
+    <script src="../../static/vendor/jquery.min.js" th:src="@{/vendor/jquery.min.js}"></script>
+    <script src="../../static/js/dynamic/init.js" th:src="@{'/js/dynamic/init.js?v='+${version}}"></script>
+</head>
+<body layout:fragment="report-preview-content"></body>
+</html>

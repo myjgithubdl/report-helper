@@ -1,14 +1,20 @@
 package com.myron.reporthelper.bo;
 
-import com.alibaba.fastjson.JSON;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 报表分页信息
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @SuppressWarnings("serial")
 public class ReportPageInfo implements Serializable {
     /**
@@ -19,12 +25,12 @@ public class ReportPageInfo implements Serializable {
     /**
      * 每一页显示的记录条数
      */
-    private int pageSize=10;
+    private int pageSize = 10;
 
     /**
      * 当页数
      */
-    private Integer pageIndex;
+    private int pageIndex=1;
 
     /**
      * 总页数
@@ -46,29 +52,36 @@ public class ReportPageInfo implements Serializable {
      */
     private Integer endRow;
 
+    private List rows;
+
 
     /**
      * 根据记录数设置分页数量
+     *
      * @param totalRows
      */
-    public void setPageInfo(int totalRows){
-        int pageSize=this.getPageSize() <= 0? 50 : this.getPageSize();
-        if(totalRows <= 0){
+    public void setPageInfo(int totalRows) {
+        int pageSize = this.getPageSize() <= 0 ? 50 : this.getPageSize();
+        if (totalRows <= 0) {
             this.setTotalPage(0);
-        }else{
+        } else {
             this.setTotalRows(totalRows);
-            if(totalRows % pageSize == 0){
-                this.setTotalPage(totalRows/pageSize);
-            }else{
-                this.setTotalPage((totalRows/pageSize)+1);
+            if (totalRows % pageSize == 0) {
+                this.setTotalPage(totalRows / pageSize);
+            } else {
+                this.setTotalPage((totalRows / pageSize) + 1);
             }
-            int startRow = (this.pageIndex-1)*this.pageSize+1;
-            int endRow = this.pageIndex*this.pageSize;
-            if(this.pageIndex == this.totalPage){
-                endRow=this.totalRows;
+            if(this.pageIndex < 1){
+                this.pageIndex=1;
             }
-            this.startRow=startRow;
-            this.endRow=endRow;
+
+            int startRow = (this.pageIndex - 1) * this.pageSize + 1;
+            int endRow = this.pageIndex * this.pageSize;
+            if (this.pageIndex == this.totalPage) {
+                endRow = this.totalRows;
+            }
+            this.startRow = startRow;
+            this.endRow = endRow;
         }
     }
 }
