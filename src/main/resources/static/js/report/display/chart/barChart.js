@@ -1,16 +1,16 @@
 $(function () {
-    LineChartManage.init();
+    BarChartManage.init();
 });
 
-var LineChartManage = {
+var BarChartManage = {
     init: function () {
-        LineChartManageMVC.View.initControl();
-        LineChartManageMVC.View.bindEvent();
-        LineChartManageMVC.View.bindValidate();
+        BarChartManageMVC.View.initControl();
+        BarChartManageMVC.View.bindEvent();
+        BarChartManageMVC.View.bindValidate();
     }
 };
 
-var LineChartManageMVC = {
+var BarChartManageMVC = {
     Variable: {
         formQueryParam: {},//查询表单参数
         metaColumns: [],//报表所有元数据列
@@ -30,13 +30,13 @@ var LineChartManageMVC = {
          * 初始化操作
          */
         initControl: function () {
-            LineChartManageMVC.Service.setReportMetaColumn();
+            BarChartManageMVC.Service.setReportMetaColumn();
 
-            QueryParameterManageMVC.Controller.createReportQueryParameter('table-report-params-form', uid, {
+            QueryParameterManageMVC.Controller.createReportQueryParameter('chart-report-params-form', uid, {
                 selectParamChangeFunName: 'QueryParameterManageMVC.Controller.reloadSelectParamOption'
             });
 
-            LineChartManageMVC.Controller.searchChartData()
+            BarChartManageMVC.Controller.searchChartData()
 
 
         },
@@ -57,22 +57,27 @@ var LineChartManageMVC = {
          * 查询图表数据
          */
         searchChartData: function () {
-            LineChartManageMVC.Controller.loadTableData();
+            BarChartManageMVC.Controller.loadTableData();
         },
         /**
          * 加载表格数据
          */
         loadTableData: function () {
-            LineChartManageMVC.Variable.formQueryParam = QueryParameterManageMVC.Service.getQueryParams($("#table-report-params-form"), true);
-            $.post(LineChartManageMVC.URLs.QueryReportChartData.url + uid, LineChartManageMVC.Variable.formQueryParam, function (result) {
+            BarChartManageMVC.Variable.formQueryParam = QueryParameterManageMVC.Service.getQueryParams($("#table-report-params-form"), true);
+            $.post(BarChartManageMVC.URLs.QueryReportChartData.url + uid, BarChartManageMVC.Variable.formQueryParam, function (result) {
                 if (result.respCode == '100') {
 
                     var respData = result.respData;
-                    LineChartManageMVC.Variable.reportData = respData.reportPageInfo.rows;
+                    console.log(respData)
+                    BarChartManageMVC.Variable.reportData = respData.reportPageInfo.rows;
 
-                    QueryParameterManageMVC.Controller.setLegendMetaColumnsValue(LineChartManageMVC.Variable.legendMetaColumns, LineChartManageMVC.Variable.reportData);
+                    QueryParameterManageMVC.Controller.setLegendMetaColumnsValue(BarChartManageMVC.Variable.legendMetaColumns, BarChartManageMVC.Variable.reportData);
+
                 }
+
+                console.log(result)
             }, 'json');
+
         },
         /**
          * 创建图表
@@ -107,14 +112,16 @@ var LineChartManageMVC = {
                 showZuiErrorMessager('只能选择一个维度列的值');
                 return false;
             }
+
             var xName = chartOptionParams.xName;//X轴的列名
             var yName = chartOptionParams.yName;//Y轴的列名
 
-            var respData = ChartDataMVC.Service.getChartData(LineChartManageMVC.Variable.reportData, xName,
+            var respData = ChartDataMVC.Service.getChartData(BarChartManageMVC.Variable.reportData, xName,
                 yName, legendKeyArray[0], chartOptionParams[legendKeyArray[0]]);
             console.log(respData);
 
-            LineChartManageMVC.Controller.initLineChart(respData.xData, respData.legendData, respData.yData, chartOptionParams);
+            BarChartManageMVC.Controller.initBarChart(respData.xData, respData.legendData, respData.yData, chartOptionParams);
+
         },
 
         /**
@@ -124,11 +131,12 @@ var LineChartManageMVC = {
          * @param yData
          * @param chartOptionParams
          */
-        initLineChart: function (xData, legendData, yData, chartOptionParams) {
+        initBarChart: function (xData, legendData, yData, chartOptionParams) {
+
             var series = _.map(yData, function (val, key) {
                 return {
                     name: key,
-                    type: 'line',
+                    type: 'bar',
                     data: val
                 }
             });
@@ -153,7 +161,7 @@ var LineChartManageMVC = {
                 },
                 xAxis: {
                     type: 'category',
-                    boundaryGap: false,
+                    //boundaryGap: false,//坐标轴两边留白策略，类目轴和非类目轴的设置和表现不一样。
                     data: xData
                 },
                 yAxis: {
@@ -164,34 +172,32 @@ var LineChartManageMVC = {
             };
 
             // 基于准备好的dom，初始化echarts图表
-            var myChart = echarts.init(document.getElementById('lineChart'));
+            var myChart = echarts.init(document.getElementById('barChart'));
 
             // 为echarts对象加载数据
             myChart.setOption(option, {notMerge: true});
         }
-
     },
     Service: {
         /**
          * 设置列类型
          */
         setReportMetaColumn: function () {
-            LineChartManageMVC.Variable.metaColumns = JSON.parse(report.metaColumns);
-            LineChartManageMVC.Variable.xMetaColumns = _.filter(LineChartManageMVC.Variable.metaColumns, function (meta) {
+            BarChartManageMVC.Variable.metaColumns = JSON.parse(report.metaColumns);
+            BarChartManageMVC.Variable.xMetaColumns = _.filter(BarChartManageMVC.Variable.metaColumns, function (meta) {
                 return meta.metaColumnType == 1;
             });
-            LineChartManageMVC.Variable.yMetaColumns = _.filter(LineChartManageMVC.Variable.metaColumns, function (meta) {
+            BarChartManageMVC.Variable.yMetaColumns = _.filter(BarChartManageMVC.Variable.metaColumns, function (meta) {
                 return meta.metaColumnType == 3;
             });
-            LineChartManageMVC.Variable.legendMetaColumns = _.filter(LineChartManageMVC.Variable.metaColumns, function (meta) {
+            BarChartManageMVC.Variable.legendMetaColumns = _.filter(BarChartManageMVC.Variable.metaColumns, function (meta) {
                 return meta.metaColumnType == 2;
             });
 
-            QueryParameterManageMVC.Controller.createRadioInputs("chart-x-div", LineChartManageMVC.Variable.xMetaColumns,'xName');
-            QueryParameterManageMVC.Controller.createSelects("chart-legend-div", LineChartManageMVC.Variable.legendMetaColumns,'legendName');
-            QueryParameterManageMVC.Controller.createRadioInputs("chart-y-div", LineChartManageMVC.Variable.yMetaColumns,'yName');
+            QueryParameterManageMVC.Controller.createRadioInputs("chart-x-div", BarChartManageMVC.Variable.xMetaColumns,'xName');
+            QueryParameterManageMVC.Controller.createSelects("chart-legend-div", BarChartManageMVC.Variable.legendMetaColumns,'legendName');
+            QueryParameterManageMVC.Controller.createRadioInputs("chart-y-div", BarChartManageMVC.Variable.yMetaColumns,'yName');
 
-
-        },
+        }
     }
 }

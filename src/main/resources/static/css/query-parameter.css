@@ -156,19 +156,16 @@
 /* zui 单选 end */
 
 /*zui 多选  start*/
+
+
 .chart-option .chosen-choices {
     border: none !important;
-    min-height: 30px !important;
-    height: 30px !important;
-    overflow: auto !important;
-}
-.chart-option .chosen-choices {
-    border: none !important;
-    min-height: 28px !important;
-    height: 28px !important;
+    min-height: 27px !important;
+    height: 27px !important;
     overflow: auto !important;
     -webkit-box-shadow:none !important;
 }
+
 .chart-option .legend-item{
     border: 1px solid #e6e6e6;
     margin-left: 10px;

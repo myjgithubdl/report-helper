@@ -3,6 +3,11 @@ package com.myron.reporthelper.controller.preview;
 import com.easydata.export.ExportCSVUtil;
 import com.easydata.export.ExportExcelUtil;
 import com.easydata.export.excel.ExportExcelParams;
+import com.easydata.head.TheadColumn;
+import com.easydata.pivottable.PivotTableDataUtil;
+import com.easydata.pivottable.core.PivotTableDataCore;
+import com.easydata.pivottable.domain.PivotTableCalCol;
+import com.easydata.pivottable.enmus.AggFunc;
 import com.myron.reporthelper.annotation.OpLog;
 import com.myron.reporthelper.bo.ReportExplain;
 import com.myron.reporthelper.bo.ReportOptions;
@@ -16,6 +21,7 @@ import com.myron.reporthelper.service.ReportService;
 import com.myron.reporthelper.util.LayuiHtmlTableUtil;
 import com.myron.reporthelper.util.ReportUtil;
 import com.myron.reporthelper.util.ServletRequestUtil;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Myron Miao
@@ -47,23 +51,28 @@ public class PeportPreviewController {
         Report report = reportService.getReportByUid(uid);
         ReportOptions options = ReportUtil.getReportOptions(report);
         Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
-        if (options.getShowContent() == 1) {
+        //是否是通过表格查看数据
+        String chartToTabel = MapUtils.getString(requestParams, "chartToTabel", "N");
+        int showContent = "Y".equals(chartToTabel) ? 1 : options.getShowContent();
+        if (showContent == 1) {
             modelAndView.setViewName("report/display/table");
-        } else if (options.getShowContent() == 2) {
+        } else if (showContent == 2) {
             modelAndView.setViewName("report/display/chart/lineChart");
-        } else if (options.getShowContent() == 3) {
+        } else if (showContent == 3) {
             modelAndView.setViewName("report/display/chart/barChart");
-        } else if (options.getShowContent() == 4) {
+        } else if (showContent == 4) {
             modelAndView.setViewName("report/display/chart/pieChart");
-        } else if (options.getShowContent() == 5) {
+        } else if (showContent == 5) {
             modelAndView.setViewName("report/display/chart/funnelChart");
-        } else if (options.getShowContent() == 6) {
+        } else if (showContent == 6) {
             modelAndView.setViewName("report/display/chart/scatterChart");
+        } else if (showContent == 20) {//透视表
+            modelAndView.setViewName("report/display/pivotTable");
         }
-
 
         modelAndView.addObject("report", report);
         modelAndView.addObject("requestParams", requestParams);
+        modelAndView.addObject("chartToTabel", chartToTabel);
         return modelAndView;
     }
 
@@ -178,5 +187,70 @@ public class PeportPreviewController {
 
     }
 
+
+    @OpLog(name = "查询透视表格数据")
+    @PostMapping(value = {"/queryPivotTableData/uid/{uid}"})
+    @ResponseBody
+    public ResponseResult queryPivotTableData(final HttpServletRequest request,
+                                              @PathVariable final String uid) {
+        Report report = reportService.getReportByUid(uid);
+        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
+        PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, requestParams);
+        List<TheadColumn> pivotTableTheadColumnList = pivotTableData.getPivotTableTheadColumnList();
+        List<Map<String, Object>> pivotTableDataList = pivotTableData.getPivotTableDataList();
+
+        String htmlTable = LayuiHtmlTableUtil.getHtmlTable(pivotTableTheadColumnList, pivotTableDataList);
+
+        ReportExplain reportExplain = ReportUtil.getReportExplain(report, requestParams);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("htmlTable", htmlTable);
+        data.put("reportExplain", reportExplain);
+        reportParameter.getReportPageInfo().setRows(null);
+        data.put("reportPageInfo", reportParameter.getReportPageInfo());
+
+        return ResponseResult.success(data);
+    }
+
+
+    private PivotTableDataCore getPivotTableData(ReportParameter reportParameter, Map<String, String> requestParams) {
+        List<String> rows = Arrays.asList(MapUtils.getString(requestParams, "rowColNames", ""));
+        List<String> cols = Arrays.asList(MapUtils.getString(requestParams, "colColNames", ""));
+        String valColNames = MapUtils.getString(requestParams, "valColNames", "");
+        AggFunc func = AggFunc.getAggFunc(MapUtils.getString(requestParams, "func", ""));
+
+        PivotTableCalCol pivotTableCalCol = new PivotTableCalCol(valColNames, func);
+        List<PivotTableCalCol> calCols = new ArrayList<>();
+        calCols.add(pivotTableCalCol);
+
+        PivotTableDataCore pivotTableData = PivotTableDataUtil.getPivotTableData(rows, cols, calCols, reportParameter.getMetaColumns(), reportParameter.getReportPageInfo().getRows());
+
+        return pivotTableData;
+    }
+
+
+    @OpLog(name = "导出透视表数据")
+    @PostMapping(value = {"/exportPivotTableData/uid/{uid}"})
+    public void exportPivotTableData(final HttpServletRequest request, final HttpServletResponse response,
+                                     @PathVariable final String uid, String exportFileType, String charsetName) {
+        Report report = reportService.getReportByUid(uid);
+        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
+        PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, requestParams);
+        List<TheadColumn> pivotTableTheadColumnList = pivotTableData.getPivotTableTheadColumnList();
+        List<Map<String, Object>> pivotTableDataList = pivotTableData.getPivotTableDataList();
+
+        if ("excel".equals(exportFileType)) {
+            ExportExcelParams exportExcelParams = new ExportExcelParams();
+            exportExcelParams.setDataList(pivotTableDataList);
+            exportExcelParams.setTheadColumnList(pivotTableTheadColumnList);
+            exportExcelParams.setSheetName(report.getName());
+            ExportExcelUtil.exportExcel(response, report.getName(), exportExcelParams);
+        } else {
+            ExportCSVUtil.exportCSV(response, report.getName(), charsetName, pivotTableTheadColumnList, pivotTableDataList);
+        }
+
+    }
 
 }

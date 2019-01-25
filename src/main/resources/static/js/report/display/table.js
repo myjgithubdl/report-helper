@@ -40,6 +40,8 @@ var PreviewManageMVC = {
                 selectParamChangeFunName: 'QueryParameterManageMVC.Controller.reloadSelectParamOption'
             });
 
+            PreviewManageMVC.Controller.searchTableData();
+
 
         },
 
@@ -137,6 +139,13 @@ var PreviewManageMVC = {
                     $("#exportDataBtnGroup").removeClass("disabled ");
                 }
             })
+        },
+        /**
+         * 显示图表数据
+         */
+        showChartData: function () {
+            var url = ReportHelper.ctxPath + '/report/preview/uid/' + uid;
+            window.location.href = url
         }
 
     },

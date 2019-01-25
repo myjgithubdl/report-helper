@@ -56,28 +56,14 @@
     <script type="text/javascript" src="../../../../static/vendor/zui-1.8.1/lib/chosen/chosen.min.js"
             th:src="@{'/vendor/zui-1.8.1/lib/chosen/chosen.min.js?v='+${version}}"></script>
 
-    <link type="text/css" rel="stylesheet"
-          href="../../../../static/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.min.css"
-          th:href="@{/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.min.css}">
-    <script type="text/javascript" src="../../../../static/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.min.js"
-            th:src="@{'/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.min.js?v='+${version}}"></script>
-
-
     <script src="../../../../static/js/report/display/query-parameter.js"
             th:src="@{'/js/report/display/query-parameter.js?v='+${version}}"></script>
 
     <script src="../../../../static/js/report/display/chart/chartData.js"
             th:src="@{'/js/report/display/chart/chartData.js?v='+${version}}"></script>
 
-    <script src="../../../../static/js/report/display/chart/lineChart.js"
-            th:src="@{'/js/report/display/chart/lineChart.js?v='+${version}}"></script>
-
-
-    <!--
-        <link rel="stylesheet" href="${ctxPath}/assets/vendor/layui/layui-selects/dist/formSelects-v4.css?v=${version}"
-              media="all"/>
-        <script src="${ctxPath}/assets/vendor/layui/layui-selects/dist/formSelects-v4.js?v=${version}?v=${version}"></script>
-    -->
+    <script src="../../../../static/js/report/display/chart/barChart.js"
+            th:src="@{'/js/report/display/chart/barChart.js?v='+${version}}"></script>
 
 
     <script th:inline="javascript">//引用
@@ -95,9 +81,9 @@
 
     <!-- 查询部分  start-->
     <div  style="width: 100%;">
-        <div id="table-report-params-div" class="fl" style="width: 100%;">
+        <div id="chart-report-params-div" class="fl" style="width: 100%;">
             <!-- 查询参数  start -->
-            <form class="report-params-form" id="table-report-params-form">
+            <form class="report-params-form" id="chart-report-params-form">
                 <!-- url 中的参数  start -->
                 <input th:each="requestParam:${requestParams}" type="hidden" th:name="${requestParam.key}"
                        th:value="${requestParam.value}"/>
@@ -109,7 +95,7 @@
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button"
                         style="background: #009688;border: none;"
-                        onclick="LineChartManageMVC.Controller.searchChartData();"><i class="icon icon-search"></i> 搜索
+                        onclick="BarChartManageMVC.Controller.searchChartData();"><i class="icon icon-search"></i> 搜索
                 </button>
             </div>
 
@@ -122,10 +108,11 @@
             </div>
             <!-- 查看数据 end -->
 
+
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button" title="选择X轴、Y轴、图例生成图表"
                         style="background: #009688;border: none;"
-                        onclick="LineChartManageMVC.Controller.createChart();"><i class="icon icon-line-chart"></i> 图表
+                        onclick="BarChartManageMVC.Controller.createChart();"><i class="icon icon-bar-chart"> 图表</i>
                 </button>
             </div>
             <!--查询按钮  end-->
@@ -174,7 +161,7 @@
 
 
     <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-    <div id="lineChart" style="height:400px"></div>
+    <div id="barChart" style="height:400px"></div>
 
 </div>
 

@@ -84,7 +84,9 @@ public class LayuiHtmlTableUtil {
 
                     StringBuilder htmlSbTheadThStyle = new StringBuilder();
                     StringBuilder layData = new StringBuilder();
-                    layData.append("{field:'" + theadColumnTree.getName() + "',minWidth:60");
+                    //layData.append("{field:'" + theadColumnTree.getName() + "',minWidth:60");
+                    //防止列名相同，layui解析key相同，导致同名列不同值（比如一列是跳转地址，一列不止）的单元格值相同
+                    layData.append("{field:'" + theadColumnTree.getName() + "_" + theadColumnTree.getCelIndex() + "',minWidth:60");
 
 
                     int colspan = theadColumnTree.getColspan();
@@ -127,6 +129,11 @@ public class LayuiHtmlTableUtil {
                         htmlSbTheadTh.append(" style=\"" + htmlSbTheadThStyle.toString() + "\"");
 
                     }
+                    //排序
+                    if (theadColumnTree.isSort()) {
+                        layData.append(",sort:true");
+                    }
+
                     layData.append("}");
 
                     htmlSbTheadTh.append(" lay-data=\"" + layData + "\"");
@@ -176,7 +183,9 @@ public class LayuiHtmlTableUtil {
                     TheadColumnTree theadColumnTree = lastRowTheadColumns.get(m);
                     //列
                     StringBuilder htmlSbTheadTh = new StringBuilder();
-                    htmlSbTheadTh.append("<td data-field='" + theadColumnTree.getName() + "'");
+                    //htmlSbTheadTh.append("<td data-field='" + theadColumnTree.getName() + "'");
+                    //防止列名相同，layui解析key相同，导致同名列不同值（比如一列是跳转地址，一列不止）的单元格值相同
+                    htmlSbTheadTh.append("<td data-field='" + theadColumnTree.getName() + "_" + theadColumnTree.getCelIndex() + "'");
 
                     StringBuilder htmlSbTbodyThStyle = new StringBuilder();
 
@@ -247,7 +256,7 @@ public class LayuiHtmlTableUtil {
      */
     public static String getColumnWidth(TheadColumnTree theadColumnTree) {
         String columnWidth = "";
-        if (theadColumnTree.getColumnWidth() > 0) {
+        if (theadColumnTree.getColumnWidth() != null && theadColumnTree.getColumnWidth() > 0) {
             columnWidth = theadColumnTree.getColumnWidth() + "px";
         }
         //其实，这个参数的单位是1/256个字符宽度，也就是说，这里是把B列的宽度设置为了columnWidth个字符。

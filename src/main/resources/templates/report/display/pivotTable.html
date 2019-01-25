@@ -12,6 +12,9 @@
     <script src="../../../static/vendor/jquery/jquery.extension.js"
             th:src="@{'/vendor/jquery/jquery.extension.js?v='+${version}}"></script>
 
+    <script src="../../../static/vendor/underscore.js"
+            th:src="@{'/vendor/underscore.js?v='+${version}}"></script>
+
 
     <!-- jeDate 插件 -->
     <!--<link type="text/css" rel="stylesheet" href="../../../static/vendor/jeDate/test/jeDate-test.css"
@@ -53,9 +56,12 @@
     <script type="text/javascript" src="../../../static/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.min.js"
             th:src="@{'/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.min.js?v='+${version}}"></script>
 
+    <script src="../../../static/js/utils/zuiMessager.js"
+            th:src="@{'/js/utils/zuiMessager.js?v='+${version}}"></script>
 
-    <script src="../../../static/js/report/display/table.js"
-            th:src="@{'/js/report/display/table.js?v=ss'+${version}}"></script>
+
+    <script src="../../../static/js/report/display/pivotTable.js"
+            th:src="@{'/js/report/display/pivotTable.js?v=ss'+${version}}"></script>
     <script src="../../../static/js/report/display/query-parameter.js"
             th:src="@{'/js/report/display/query-parameter.js?v='+${version}}"></script>
 
@@ -83,12 +89,11 @@
 <div class="">
     <input id="report-uid" type="hidden" name="uid" th:value="${report.uid}"/>
 
-
     <!-- 查询部分  start-->
     <div  style="width: 100%;">
-        <div id="table-report-params-div" class="fl" style="width: 100%;">
+        <div id="pivot-table-report-params-div" class="fl" style="width: 100%;">
             <!-- 查询参数  start -->
-            <form class="report-params-form" id="table-report-params-form">
+            <form class="report-params-form" id="pivot-table-report-params-form">
                 <!-- url 中的参数  start -->
                 <input th:each="requestParam:${requestParams}" type="hidden" th:name="${requestParam.key}"
                        th:value="${requestParam.value}"/>
@@ -100,7 +105,7 @@
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button"
                         style="background: #009688;border: none;"
-                        onclick="PreviewManageMVC.Controller.searchTableData();"><i class="icon icon-search"></i> 搜索
+                        onclick="PivotTableManageMVC.Controller.searchTableData();"><i class="icon icon-search"></i> 搜索
                 </button>
             </div>
             <!--<div class="fl">
@@ -108,24 +113,16 @@
                         onclick="PreviewManageMVC.Controller.clearQueryParams();">清空
                 </button>
             </div>-->
-
-            <div class="fl" th:if="${chartToTabel == 'Y' } ">
-                <button class="btn btn-primary mt7 he30 mr10" type="button"
-                        style="background: #009688;border: none;"
-                        onclick="PreviewManageMVC.Controller.showChartData();"><i class="icon icon-area-chart"></i> 图表
-                </button>
-            </div>
-
             <div class="fl ">
                 <div class="btn-group">
                     <button id="exportDataBtnGroup" type="button" class="btn dropdown-toggle  mt7 he30 mr10"
-                            data-toggle="dropdown"><i class="icon icon-download"></i> 导出
+                            data-toggle="dropdown">导出
                         <span class="caret"></span></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="exportDataBtnGroup"
                         style="min-width:75px;">
-                        <li><a href="#" onclick="PreviewManageMVC.Controller.exportReportData('excel');"><i class="icon icon-file-excel"></i>  Excel</a>
+                        <li><a href="#" onclick="PivotTableManageMVC.Controller.exportReportData('excel');">Excel</a>
                         </li>
-                        <li><a href="#" onclick="PreviewManageMVC.Controller.exportReportData('csv');"><i class="icon icon-file-text-o"></i>  CSV</a></li>
+                        <li><a href="#" onclick="PivotTableManageMVC.Controller.exportReportData('csv');">CSV</a></li>
                     </ul>
                 </div>
             </div>
@@ -136,14 +133,47 @@
 
 </div>
 
-<div id="table-report-data-div" class="data-div" style="width: 100%;clear: both">
 
-    <div id="table-report-table-data-div" style="padding: 1px;"></div>
 
-    <!--数据表格 分页 start-->
-    <div id="table-report-table-data-page-div"
-         style="border:1px solid #e6e6e6;border-top: none;display: none;"></div>
-    <!--数据表格 分页 end-->
+<!--透视表表列选择部分  start-->
+<div class="pivot-table-option " style="clear: both;">
+    <form class="report-params-form" id="pivot-table-attr-form">
+        <!--行选择部分  start-->
+        <div class="mt5 ovh" style="clear: both">
+            <div class="fl chart-label mt5" style="width:30px;">行</div>
+            <div id="pivot-table-row-div" class="fl mt5"></div>
+        </div>
+        <!--行选择部分  end-->
+
+        <!--列选择部分  start-->
+        <div class="mt5 "  style="clear: both">
+            <div class="fl chart-label" style="width: 30px;">列</div>
+            <div id="pivot-table-col-div" class="fl"></div>
+        </div>
+        <!--列选择部分  end-->
+
+        <!--值选择部分  start-->
+        <div class="mt5 ovh" style="clear: both">
+            <div class="fl chart-label mt5" style="width: 30px;">值</div>
+            <div id="pivot-table-val-div" class="fl mt5"></div>
+        </div>
+        <!--值选择部分  end-->
+
+        <!--值选择部分  start-->
+        <div class="mt5 ovh" style="clear: both">
+            <div class="fl chart-label mt5" style="width: 30px;">函数</div>
+            <div id="pivot-table-fun-div" class="fl mt5"></div>
+        </div>
+        <!--值选择部分  end-->
+
+    </form>
+
+</div>
+<!--透视表表列选择部分  end-->
+
+<div id="pivot-table-report-data-div" class="data-div" style="width: 100%;clear: both">
+
+    <div id="pivot-table-report-table-data-div" style="padding: 1px;"></div>
 
 </div>
 

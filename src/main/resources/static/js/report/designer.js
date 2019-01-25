@@ -155,10 +155,17 @@ var DesignerMVC = {
         }],
         DisplayStyleList: [{
             text: "显示",//默认
-            value: "true"
+            value: "false"
         }, {
             text: "隐藏",
+            value: "true"
+        }],
+        IsSort: [{
+            text: "否",//默认
             value: "false"
+        }, {
+            text: "是",
+            value: "true"
         }],
         DownMergeCellsList: [
             {
@@ -449,7 +456,10 @@ var DesignerMVC = {
                         //checkbox:true,
                         width: 125,
                         formatter: function (value, row, index) {
-                            return value;
+                            if (row.id == undefined) {
+                                row.id = DesignerMVC.Util.getUUID();
+                            }
+                            return row.id;
                         }
                     }, {
                         field: 'name',
@@ -457,11 +467,13 @@ var DesignerMVC = {
                         width: 100,
                         formatter: function (value, row, index) {
                             var id = "name" + row.id;
-                            var name = row.name && row.name != 'null' ? row.name : '';
+                            if (row.name == undefined) {
+                                row.name = '';
+                            }
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" type="text" id="${id}" name="name" value="${value}" />';
                             return juicer(tmpl, {
                                 id: id,
-                                value: name
+                                value: row.name
                             });
                         }
                     }, {
@@ -471,11 +483,14 @@ var DesignerMVC = {
                         height: 50,
                         formatter: function (value, row, index) {
                             var id = "text" + row.id;
+                            if (row.text == undefined) {
+                                row.text = '';
+                            }
                             var text = row.text && row.text != 'null' ? row.text : '';
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" type="text" id="${id}" name="text" value="${value}" />';
                             return juicer(tmpl, {
                                 id: id,
-                                value: text
+                                value: row.text
                             });
                         }
                     }
@@ -489,11 +504,13 @@ var DesignerMVC = {
                         height: 50,
                         formatter: function (value, row, index) {
                             var id = "dataType" + row.id;
-                            var dataType = row.dataType && row.dataType != 'null' ? row.dataType : '';
+                            if (row.dataType == undefined) {
+                                row.dataType = '';
+                            }
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" type="text" id="${id}" name="dataType" value="${value}" />';
                             return juicer(tmpl, {
                                 id: id,
-                                value: dataType
+                                value: row.dataType
                             });
                         }
                     }, {
@@ -503,11 +520,13 @@ var DesignerMVC = {
                         height: 50,
                         formatter: function (value, row, index) {
                             var id = "defaultValue" + row.id;
-                            var defaultValue = row.defaultValue ? row.defaultValue : '';
+                            if (row.defaultValue == undefined) {
+                                row.defaultValue = '';
+                            }
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" type="text" id="${id}" name="defaultValue" value="${value}" />';
                             return juicer(tmpl, {
                                 id: id,
-                                value: defaultValue
+                                value: row.defaultValue
                             });
                         }
                     },
@@ -516,9 +535,10 @@ var DesignerMVC = {
                         title: '列类型',
                         width: 80,
                         formatter: function (value, row, index) {
-                            console.log(value)
-                            console.log(row)
                             var id = "metaColumnType" + row.id;
+                            if (row.metaColumnType == undefined) {
+                                row.metaColumnType = DesignerMVC.Model.MetaColumnTypes[0].value;
+                            }
                             var tmpl =
                                 '<select id="${id}" name=\"metaColumnType\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
                                 '{@each list as item}' +
@@ -527,7 +547,7 @@ var DesignerMVC = {
                                 '</select>';
                             return juicer(tmpl, {
                                 id: id,
-                                currValue: value,
+                                currValue: row.metaColumnType,
                                 list: DesignerMVC.Model.MetaColumnTypes
                             });
                         }
@@ -537,13 +557,13 @@ var DesignerMVC = {
                         width: 50,
                         formatter: function (value, row, index) {
                             var id = "columnWidth" + row.id;
-                            if (!row.width) {
-                                row.width = '120';
+                            if (!row.columnWidth) {
+                                row.columnWidth = '120';
                             }
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" onkeyup="DesignerMVC.Util.checkInteger(this,3);" type="text" id="${id}" name="columnWidth" value="${value}" />';
                             return juicer(tmpl, {
                                 id: id,
-                                value: row.width
+                                value: row.columnWidth
                             });
                         }
                     }, {
@@ -552,13 +572,13 @@ var DesignerMVC = {
                         width: 50,
                         formatter: function (value, row, index) {
                             var id = "precision" + row.id;
-                            if (!row.showDecimals) {
-                                row.showDecimals = '';
+                            if (row.precision == undefined) {
+                                row.precision = '';
                             }
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" type="text" id="${id}" name="precision" value="${value}" onkeyup="DesignerMVC.Util.checkInteger(this,1);" />';
                             return juicer(tmpl, {
                                 id: id,
-                                value: row.showDecimals
+                                value: row.precision
                             });
                         }
                     }, {
@@ -567,7 +587,7 @@ var DesignerMVC = {
                         width: 80,
                         formatter: function (value, row, index) {
                             var id = "href" + row.id;
-                            if (row.href == null || row.href == 'null' || row.href == 'undefined') {
+                            if (row.href == undefined) {
                                 row.href = '';
                             }
                             var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" type="text" id="${id}" name="href" value="${value}" />';
@@ -582,6 +602,9 @@ var DesignerMVC = {
                         width: 60,
                         formatter: function (value, row, index) {//HerfTarget
                             var id = "hrefTarget" + row.id;
+                            if (value == undefined) {
+                                row.hrefTarget = DesignerMVC.Model.HerfTargetList[0].value;
+                            }
                             var tmpl =
                                 '<select id="${id}" name=\"hrefTarget\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
                                 '{@each list as item}' +
@@ -590,26 +613,50 @@ var DesignerMVC = {
                                 '</select>';
                             return juicer(tmpl, {
                                 id: id,
-                                currValue: value,
+                                currValue: row.hrefTarget,
                                 list: DesignerMVC.Model.HerfTargetList
                             });
                         }
                     }, {
-                        field: 'isHidden',
+                        field: 'hidden',
                         title: '显示列',
                         width: 60,
                         formatter: function (value, row, index) {//HerfTarget
-                            var id = "isHidden" + row.id;
+                            var id = "hidden" + row.id;
+                            if (value == undefined) {
+                                row.hidden = DesignerMVC.Model.DisplayStyleList[0].value;
+                            }
                             var tmpl =
-                                '<select id="${id}" name=\"isHidden\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
+                                '<select id="${id}" name=\"hidden\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
                                 '{@each list as item}' +
                                 '<option value="${item.value}" {@if item.value == currValue} selected {@/if}>${item.text}</option>' +
                                 '{@/each}' +
                                 '</select>';
                             return juicer(tmpl, {
                                 id: id,
-                                currValue: value,
+                                currValue: row.hidden,
                                 list: DesignerMVC.Model.DisplayStyleList
+                            });
+                        }
+                    }, {
+                        field: 'sort',
+                        title: '排序',
+                        width: 60,
+                        formatter: function (value, row, index) {//
+                            var id = "sort" + row.id;
+                            if (value == undefined) {
+                                row.sort = DesignerMVC.Model.IsSort[0].value;
+                            }
+                            var tmpl =
+                                '<select id="${id}" name=\"sort\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
+                                '{@each list as item}' +
+                                '<option value="${item.value}" {@if item.value == currValue} selected {@/if}>${item.text}</option>' +
+                                '{@/each}' +
+                                '</select>';
+                            return juicer(tmpl, {
+                                id: id,
+                                currValue: row.sort,
+                                list: DesignerMVC.Model.IsSort
                             });
                         }
                     }, {
@@ -618,6 +665,9 @@ var DesignerMVC = {
                         width: 80,
                         formatter: function (value, row, index) {
                             var id = "downMergeCells" + row.id;
+                            if (value == undefined) {
+                                row.downMergeCells = DesignerMVC.Model.DownMergeCellsList[0].value;
+                            }
                             var tmpl =
                                 '<select id="${id}" name=\"downMergeCells\" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
                                 '{@each list as item}' +
@@ -626,7 +676,7 @@ var DesignerMVC = {
                                 '</select>';
                             return juicer(tmpl, {
                                 id: id,
-                                currValue: value,
+                                currValue: row.downMergeCells,
                                 list: DesignerMVC.Model.DownMergeCellsList
                             });
                         }
@@ -636,8 +686,8 @@ var DesignerMVC = {
                         width: 80,
                         formatter: function (value, row, index) {//textAlign
                             var id = "theadTextAlign" + row.id;
-                            if (!value) {
-                                value = "left";
+                            if (value == undefined) {
+                                row.theadTextAlign = DesignerMVC.Model.TextAlignList[0].value;
                             }
                             var tmpl =
                                 '<select id="${id}" name="theadTextAlign" style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';">' +
@@ -647,7 +697,7 @@ var DesignerMVC = {
                                 '</select>';
                             return juicer(tmpl, {
                                 id: id,
-                                currValue: value,
+                                currValue: row.theadTextAlign,
                                 list: DesignerMVC.Model.TextAlignList
                             });
                         }
@@ -1214,11 +1264,9 @@ var DesignerMVC = {
         },
         preview: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
-                console.log();
                 var windowHref = window.location.href;
-                var url = windowHref.replace("views/report/designer", "report/preview/uid/") + row.uid;
-
-                //var url = DesignerMVC.URLs.Report.url + row.uid;
+                console.log(windowHref);
+                var url = ReportHelper.ctxPath + '/report/preview/uid/' + row.uid;
                 console.log(url)
                 if (parent.IndexMVC) {
                     parent.IndexMVC.Controller.openMentContent(row.uid, url, row.name, 'iframe')
@@ -1624,8 +1672,14 @@ var DesignerMVC = {
 
             for (var rowIndex = 0; rowIndex < columns.length; rowIndex++) {
                 var column = columns[rowIndex];
+                console.log(column)
                 var id = column.id;
                 for (var key in column) {
+                    if (key == 'precision') {
+                        console.log(("#" + key + id))
+                        console.log($("#" + key + id).val())
+                    }
+
                     if ($("#" + key + id).size() == 1) {
                         column[key] = $.trim($("#" + key + id).val());
                     }
@@ -1730,7 +1784,6 @@ var DesignerMVC = {
                     var node = rows[i];
                     var id = node.id;
                     EasyUIUtils.removeAttrAndValue(node, "_parentId");
-
                     for (var key in node) {
                         var jqId = "#" + key + id;
                         if ($(jqId).size() == 1) {
