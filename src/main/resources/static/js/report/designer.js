@@ -1307,7 +1307,14 @@ var DesignerMVC = {
         find: function () {
             var keyword = $("#report-search-keyword").val();
             var url = DesignerMVC.URLs.find.url + '?fieldName=name&keyword=' + keyword;
-            EasyUIUtils.loadToDatagrid('#report-datagrid', url)
+            var url = DesignerMVC.URLs.find.url + '?fieldName=name&keyword=' + keyword;
+            //EasyUIUtils.loadToDatagrid('#report-datagrid', url)
+            var url = DesignerMVC.URLs.find.url + '';
+            $('#report-datagrid').datagrid('load',{
+                code: '01',
+                name: 'name01'
+            });
+
         },
         executeSql: function () {
             if (!DesignerMVC.Util.checkBasicConfParam()) return;
