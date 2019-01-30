@@ -102,12 +102,11 @@
         <div id="report-basic-conf-tab" title="基本设置" style="padding: 5px;height:40%">
             <div id="report-basic-conf-form-div">
                 <form id="report-basic-conf-form" name="report-basic-conf-form" method="post">
-
                     <div class="fl mr10 mb5" id="report-name-div">
                         <div class="fl wt60 pt6">名称:</div>
                         <div class="fl wt150">
                             <input class="easyui-textbox wt150" type="text" id="report-name" name="name"
-                                    data-options="required:true" />
+                                   data-options="required:true"/>
                         </div>
                     </div>
 
@@ -133,7 +132,6 @@
                                 <option value="5">漏斗图</option>
                                 <option value="6">散点图</option>
                                 <option value="20">透视表</option>
-
                             </select>
                         </div>
                     </div>
@@ -154,7 +152,7 @@
                         <div class="fl wt150">
                             <select class="easyui-combobox wt150" id="report-pageSize" name="pageSize"
                                     data-options="required:true,panelHeight:'auto'" style=" ">
-                                <option selected="selected" >10</option>
+                                <option selected="selected">10</option>
                                 <option>30</option>
                                 <option>50</option>
                                 <option>100</option>
@@ -196,7 +194,8 @@
                     <div class="fl mr10 mb5" id="report-statisticsRowPosition-div">
                         <div class="fl wt60 pt6">合计位置:</div>
                         <div class="fl wt150">
-                            <select class="easyui-combobox wt150" id="report-statisticsRowPosition" name="statisticsRowPosition"
+                            <select class="easyui-combobox wt150" id="report-statisticsRowPosition"
+                                    name="statisticsRowPosition"
                                     data-options="" style="">
                                 <option value="bottom" selected="bottom">底部</option>
                                 <option value="top">顶部</option>
@@ -214,8 +213,9 @@
                         </div>
                     </div>
 
-                    <div class="mr10 mb5" id="report-sqlTextS-div"  style="clear: both;height: 205px;">
-                        <div class="fl wt60" style="height: 200px;line-height: 200px; vertical-align: middle;">SQL:</div>
+                    <div class="mr10 mb5" id="report-sqlTextS-div" style="clear: both;height: 205px;">
+                        <div class="fl wt60" style="height: 200px;line-height: 200px; vertical-align: middle;">SQL:
+                        </div>
                         <div class="fl " style="width: 90%;">
                             <textarea id="report-sqlText" name="sqlText" rows="10"></textarea>
                         </div>
@@ -283,7 +283,7 @@
                         <div class="fl wt60 pt6">标题宽度:</div>
                         <div class="fl wt150">
                             <input class="easyui-numberbox" value="80" type="text" data-options="min:60,precision:0"
-                                    id="report-query-param-textWidth" name="textWidth"/>
+                                   id="report-query-param-textWidth" name="textWidth"/>
                         </div>
                     </div>
 
@@ -291,7 +291,7 @@
                         <div class="fl wt60 pt6">输入宽度:</div>
                         <div class="fl wt150">
                             <input class="easyui-numberbox" value="120" type="text" data-options="min:60,precision:0"
-                                    id="report-query-param-nameWidth" name="nameWidth"/>
+                                   id="report-query-param-nameWidth" name="nameWidth"/>
                         </div>
                     </div>
 
@@ -370,7 +370,8 @@
                         <div class="fl wt60 pt6">默认日期:</div>
                         <div class="fl wt150">
                             <input class="easyui-numberbox" value="0" type="text" data-options="precision:0"
-                                   id="report-query-param-dateRange" name="dateRange" title="0:当前值；-0：无初始值；整负值：当前日期加减天数"/>
+                                   id="report-query-param-dateRange" name="dateRange"
+                                   title="0:当前值；-0：无初始值；整负值：当前日期加减天数"/>
                         </div>
                     </div>
 
@@ -383,7 +384,6 @@
                     </div>
 
 
-
                     <div class="mb5" id="report-query-param-content-div" style="clear: both;height: 50px;">
                         <div class="fl wt60" style="height: 50px;line-height: 50px;">内容:</div>
                         <div class="fl" style="width: 90%;">
@@ -393,7 +393,6 @@
                             <input type="hidden" id="report-query-param-json"/>
                         </div>
                     </div>
-
 
 
                     <div class="mb5 mt10" style="clear: both;padding-left: 45%;">
@@ -415,7 +414,9 @@
             <div style="background-color: #fff0d5;color: #ed980f;margin-bottom:5px;padding:5px;border-radius:3px;">
                 <h4 style="margin-top:0px;font-size: 14px;margin-bottom:10px;color: #ed980f;">提示</h4>
                 <ul style="list-style-type:decimal;margin-left: -20px;">
-                    <li style="padding-bottom:5px;">报表说明可以由静态说明和动态说明(SQL语句查询)构成，其中可以使用表达式${reportTipContent}将执行SQL语句的结果插入到静态内容中（目的是可以设置样式），如果未使用表达式则动态说明部分会被追加在静态说明部分后。</li>
+                    <li style="padding-bottom:5px;">
+                        报表说明可以由静态说明和动态说明(SQL语句查询)构成，其中可以使用表达式${reportTipContent}将执行SQL语句的结果插入到静态内容中（目的是可以设置样式），如果未使用表达式则动态说明部分会被追加在静态说明部分后。
+                    </li>
                     <li>动态说明中SQL语句的参数和报表查询参数相同。</li>
                 </ul>
             </div>
@@ -432,17 +433,21 @@
                         </div>
                     </div>
 
-                    <div class="mr10 mb5" id="report-tip-content-div"  style="clear: both;height: 205px;">
-                        <div class="fl wt60" style="height: 200px;line-height: 200px; vertical-align: middle;">静态说明:</div>
+                    <div class="mr10 mb5" id="report-tip-content-div" style="clear: both;height: 205px;">
+                        <div class="fl wt60" style="height: 200px;line-height: 200px; vertical-align: middle;">静态说明:
+                        </div>
                         <div class="fl " style="width: 92%;">
-                            <textarea id="report-tip-content" name="reportTipContent"  style="height: 200px; width: 98%;"></textarea>
+                            <textarea id="report-tip-content" name="reportTipContent"
+                                      style="height: 200px; width: 98%;"></textarea>
                         </div>
                     </div>
 
-                    <div class="mr10 mb5" id="report-tip-content-sqlText-div"  style="clear: both;height: 125px;">
-                        <div class="fl wt60" style="height: 120px;line-height: 120px; vertical-align: middle;">SQL内容:</div>
-                        <div class="fl " style="width: 90%;">
-                            <textarea id="report-tip-content-sqlText"style="margin-top: 10px;width: 90%;" name="reportTipContentSqlText"></textarea>
+                    <div class="mr10 mb5" id="report-tip-content-sqlText-div" style="clear: both;height: 125px;">
+                        <div class="fl wt60" style="height: 120px;line-height: 120px; vertical-align: middle;">SQL内容:
+                        </div>
+                        <div class="fl " style="width: 90%;height: 130px;">
+                            <textarea id="report-tip-content-sqlText" style="margin-top: 10px;width: 90%;"
+                                      name="reportTipContentSqlText"></textarea>
                         </div>
                     </div>
 
@@ -455,6 +460,62 @@
 
     </div>
 </div>
+
+<!-- 组合报表  start -->
+<div id="comb-report-designer-dlg" style="padding:10px;">
+    <div style="overflow: hidden">
+        <form id="comb-report-basic-conf-form" name="comb-report-basic-conf-form" method="post">
+            <input type="hidden" id="comb-report-id" name="id" value=""/>
+            <input type="hidden" id="comb-report-uid" name="uid"/>
+            <input type="hidden" id="comb-report-isChange" name="isChange"/>
+
+            <div class="fl mr10 mb5" id="comb-report-name-div">
+                <div class="fl wt60 pt6">名称:</div>
+                <div class="fl wt150">
+                    <input class="easyui-textbox wt150" type="text" id="comb-report-name" name="name"
+                           data-options="required:true"/>
+                </div>
+            </div>
+
+            <div class="fl mr10 mb5" id="comb-report-sequence-div">
+                <div class="fl wt60 pt6">显示顺序:</div>
+                <div class="fl wt150">
+                    <input class="easyui-textbox wt150" type="text" id="comb-report-sequence" name="sequence"
+                           value="100"
+                           data-options="required:true,validType:'digit'"/>
+                </div>
+            </div>
+
+            <div class="fl mr10 mb5" id="comb-report-status-div">
+                <div class="fl wt60 pt6">状态:</div>
+                <div class="fl wt150">
+                    <select class="easyui-combobox wt150" id="comb-report-status" name="status"
+                            data-options="required:true" style="">
+                        <option value="0">禁用</option>
+                        <option value="1" selected="selected">启用</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mr10 mb5" id="comb-report-category-div">
+                <div class="fl wt60 pt6">报表分类:</div>
+                <div class="fl wt150">
+                    <select class="easyui-combobox wt150" id="comb-report-categoryId" name="categoryId"
+                            data-options="required:true,valueField:'id',textField:'name'"
+                            style="">
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="comb-report-meta-column-div" style="height:450px;clear: both;">
+        <div id="comb-report-meta-column-grid" title="选择报表"></div>
+    </div>
+</div>
+<!-- 组合报表  end -->
+
+
 <!-- 报表详细信息弹框 -->
 <div id="report-detail-dlg" title="详细信息">
     <table class="designer-table detail">
@@ -520,7 +581,7 @@
 </div>
 <!-- 查看报表sql历史记录 -->
 <div id="report-history-sql-dlg" title="报表版本历史">
-    <div style="height: 200px">
+    <div style="height: 65px">
         <textarea id="report-history-sqlText" name="sqlText"></textarea>
     </div>
     <div id="report-history-sql-grid-div" class="easyui-layout" style="width:96%;height:60%;margin:5px;">
@@ -583,5 +644,33 @@
     <div id="rp-info" data-options="name:'info',iconCls:'icon-info'">详细</div>
     <div id="rp-refresh" data-options="name:'refresh',iconCls:'icon-reload'">刷新</div>
 </div>
+
+
+
+<!--多报表选择分类树 start -->
+<div id="select-comb-report-dlg" title="选择报表">
+    <div id="comb-report-layout" style="height: 100%;">
+        <!-- 左边报表分类tree -->
+        <div id="comb-report-layout-west"  title="报表分类" style="width: 30%;float: left;">
+            <div class="easyui-panel" style="padding: 5px; border: none;">
+                <ul id="comb-report-category-tree"></ul>
+            </div>
+        </div>
+        <!-- 右边报表列表-->
+        <div id="comb-report-layout-center" style="float: left;width: 68%;height:100%;">
+            <div id="comb-report-toolbar1" class="toolbar">
+                名称:<input class="easyui-textbox" type="text" id="comb-report-search-keyword" name="keyword" style="width:250px"/>
+                <a id="multiple-report-composition-btn-report-search" href="#" class="easyui-linkbutton" iconCls="icon-search"> 查找 </a>
+            </div>
+            <div style="width: 100%; height: 90%;padding-top: 1px">
+                <div id="comb-report-datagrid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--多报表选择分类树 end -->
+
+
+
 </body>
 </html>

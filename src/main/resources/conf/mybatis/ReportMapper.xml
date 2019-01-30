@@ -6,12 +6,17 @@
         <if test="likeKeyword != null and likeKeyword != '' ">
             and rr.name like concat('%','${likeKeyword}' ,'%' )
         </if>
+        <if test="categoryId != null and categoryId !=''">
+            and category_id=#{categoryId}
+        </if>
 
     </sql>
     
     <select id="getReportCount" parameterType="map" resultType="int">
-        select  count(1) count_num  from rh_report rr , rh_datasource rd , rh_user ru
-        where rr.ds_id=rd.id and rr.update_user=ru.id and rr.`status`=1
+        select  count(1) count_num  from rh_report rr
+        left join rh_datasource rd on rr.ds_id=rd.id
+        left join rh_user ru on rr.update_user=ru.id
+        where   rr.`status`=1
         <include refid="queryParams"></include>
 
     </select>
@@ -21,8 +26,10 @@
         rr.options, report_explain reportExplain, rr.status, rr.sequence,
         rr.comment, rr.create_user createUser, rr.create_date createDate, rr.update_user updateUser, rr.update_date updateDate,
         rd.name dsName , ru.name updateUserName
-        from rh_report rr , rh_datasource rd , rh_user ru
-        where rr.ds_id=rd.id and rr.update_user=ru.id and rr.`status`=1
+        from rh_report rr
+        left join rh_datasource rd on rr.ds_id=rd.id
+        left join rh_user ru on rr.update_user=ru.id
+        where   rr.`status`=1
 
         <include refid="queryParams"></include>
 

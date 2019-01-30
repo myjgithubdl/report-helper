@@ -182,3 +182,14 @@
 }
 
 /*************************** chart  选择   end ****************************/
+
+
+/*重写layui 分页条  样式 */
+#table-report-data-div .layui-laypage-em {
+    background-color:#3280fc !important
+}
+
+/*重写layui 分页条  样式 */
+#table-report-data-div .layui-laypage a:hover {
+    color:#3280fc !important
+}

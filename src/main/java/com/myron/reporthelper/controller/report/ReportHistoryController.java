@@ -1,12 +1,16 @@
 package com.myron.reporthelper.controller.report;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.myron.reporthelper.annotation.OpLog;
-import com.myron.reporthelper.util.PageInfo;
+import com.myron.reporthelper.resp.ResponseResult;
+import com.myron.reporthelper.service.ReportHistoryService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,17 +21,25 @@ import java.util.Map;
  * @author 缪应江
  * @since 2018-12-27
  */
-@Controller
-@RequestMapping("/reportHistory")
+@RestController
+@RequestMapping(value = "/rest/report/history")
 public class ReportHistoryController {
+
+
+    @Resource
+    private ReportHistoryService reportHistoryService;
+
     @RequestMapping(value = "/list")
     @OpLog(name = "查看报表版本历史")
     @RequiresPermissions("report.designer:view")
-    public Map<String, Object> list(final PageInfo pageInfo, final Integer reportId) {
+    public ResponseResult list(final Integer reportId) {
         final Map<String, Object> modelMap = new HashMap<>(2);
-        //final List<ReportHistory> list = this.service.getByPage(pageInfo, reportId == null ? 0 : reportId, null, null);
-        //modelMap.put("total", pageInfo.getTotals());
-        //modelMap.put("rows", list);
-        return modelMap;
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("report_id", reportId);
+        queryWrapper.orderByDesc("create_date");
+        List list = reportHistoryService.list(queryWrapper);
+
+        return ResponseResult.success(list);
     }
 }

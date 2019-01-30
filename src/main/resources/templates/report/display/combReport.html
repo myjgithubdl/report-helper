@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/report_preview_layout}" style="height: 99%">
+<head>
+    <title th:text="${report.name}"></title>
+
+
+
+    <!-- zui 插件 -->
+    <link type="text/css" rel="stylesheet" href="../../../static/vendor/zui-1.8.1/css/zui.css"
+          th:href="@{/vendor/zui-1.8.1/css/zui.css}">
+    <script type="text/javascript" src="../../../static/vendor/zui-1.8.1/js/zui.js"
+            th:src="@{'/vendor/zui-1.8.1/js/zui.js?v='+${version}}"></script>
+
+    <!-- zui 选择插件 -->
+    <link type="text/css" rel="stylesheet" href="../../../static/vendor/zui-1.8.1/lib/tabs/zui.tabs.css"
+          th:href="@{/vendor/zui-1.8.1/lib/tabs/zui.tabs.css}">
+    <script type="text/javascript" src="../../../static/vendor/zui-1.8.1/lib/tabs/zui.tabs.js"
+            th:src="@{'/vendor/zui-1.8.1/lib/tabs/zui.tabs.js?v='+${version}}"></script>
+
+
+    <script src="../../../static/js/utils/zuiMessager.js"
+            th:src="@{'/js/utils/zuiMessager.js?v='+${version}}"></script>
+
+
+    <script src="../../../static/js/report/display/combReport.js"
+            th:src="@{'/js/report/display/combReport.js?v=ss'+${version}}"></script>
+
+    <script th:inline="javascript">//引用
+    var report = [[${report}]];//取值
+    var uid = [[${report.uid}]];//取值
+    var combReportMetaColumns=JSON.parse([[${report.metaColumns}]])
+
+    console.log(report)
+    console.log(uid)
+    console.log(combReportMetaColumns)
+    </script>
+
+</head>
+<body layout:fragment="report-preview-content" style="min-width: 800px;min-height: 500px;height: 100%">
+
+<div class="tabs" id="combReportTabs" style="height: 99%"></div>
+
+</body>
+</html>

@@ -1,11 +1,9 @@
 package com.myron.reporthelper.controller.report;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.easydata.head.TheadColumn;
 import com.myron.reporthelper.annotation.CurrentUser;
 import com.myron.reporthelper.annotation.OpLog;
-import com.myron.reporthelper.entity.Datasource;
 import com.myron.reporthelper.entity.Report;
 import com.myron.reporthelper.entity.ReportHistory;
 import com.myron.reporthelper.entity.User;
@@ -23,14 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
  * 报表设计器
- *
- * @author Tom Deng
- * @date 2017-03-25
+ * Myron Miao
  */
 @RestController
 @RequestMapping(value = "/rest/report/designer")
@@ -44,29 +39,32 @@ public class ReportController {
     @RequestMapping(value = "/list")
     @OpLog(name = "分页获取报表列表")
     @RequiresPermissions("report.designer:view")
-    public Map<String, Object> list(final DataGridPager dataGridPager , final String keyword) {
+    public Map<String, Object> list(final DataGridPager dataGridPager ,final String categoryId, final String keyword) {
         final Map<String, Object> modelMap = new HashMap<>(2);
         Page<PageInfo> page = new Page<>(dataGridPager.getPage(), dataGridPager.getRows());
 
-        Map<String,Object> params=new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
 
-        if(StringUtils.isNotEmpty(keyword)){
-            params.put("likeKeyword",keyword);
+        if(StringUtils.isNotEmpty(categoryId)){
+            params.put("categoryId", categoryId);
         }
 
-
-        int count=service.getReportCount(params);
-        List<Map<String, Object>> list =null;
-        if(count > 0){
-
-            params.put("pageSize",dataGridPager.getRows());
-            params.put("startRowIndex",(dataGridPager.getPage()-1)*dataGridPager.getRows());
-
-            list=service.getReportList(params);
+        if (StringUtils.isNotEmpty(keyword)) {
+            params.put("likeKeyword", keyword);
         }
 
-        modelMap.put("total",count);
-        modelMap.put("rows",list);
+        int count = service.getReportCount(params);
+        List<Map<String, Object>> list = null;
+        if (count > 0) {
+
+            params.put("pageSize", dataGridPager.getRows());
+            params.put("startRowIndex", (dataGridPager.getPage() - 1) * dataGridPager.getRows());
+
+            list = service.getReportList(params);
+        }
+
+        modelMap.put("total", count);
+        modelMap.put("rows", list);
         return modelMap;
     }
 
@@ -145,7 +143,7 @@ public class ReportController {
             try {
                 List<TheadColumn> list = this.service.getMetaDataColumns(dsId, sqlText);
                 return ResponseResult.success(list);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 return ResponseResult.error("查询SQL报错");
             }
@@ -163,7 +161,7 @@ public class ReportController {
                 dataRange = 7;
             }
             //sqlText = this.getSqlText(sqlText, dataRange, queryParams, request);
-           // this.service.explainSqlText(dsId, sqlText);
+            // this.service.explainSqlText(dsId, sqlText);
             return ResponseResult.success(sqlText);
         }
         return ResponseResult.error("没有选择数据源");

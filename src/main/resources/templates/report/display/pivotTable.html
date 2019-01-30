@@ -85,7 +85,7 @@
     </script>
 
 </head>
-<body layout:fragment="report-preview-content" style="min-width: 800px;min-height: 600px;">
+<body layout:fragment="report-preview-content" style="min-width: 800px;min-height: 500px;">
 <div class="">
     <input id="report-uid" type="hidden" name="uid" th:value="${report.uid}"/>
 
@@ -104,7 +104,7 @@
             <!--查询按钮  start-->
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button"
-                        style="background: #009688;border: none;"
+                        style=""
                         onclick="PivotTableManageMVC.Controller.searchTableData();"><i class="icon icon-search"></i> 搜索
                 </button>
             </div>

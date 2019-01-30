@@ -68,6 +68,8 @@ public class PeportPreviewController {
             modelAndView.setViewName("report/display/chart/scatterChart");
         } else if (showContent == 20) {//透视表
             modelAndView.setViewName("report/display/pivotTable");
+        } else if (showContent == 100) {//透视表
+            modelAndView.setViewName("report/display/combReport");
         }
 
         modelAndView.addObject("report", report);

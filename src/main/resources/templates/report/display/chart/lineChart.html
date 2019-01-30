@@ -88,7 +88,7 @@
     </script>
 
 </head>
-<body layout:fragment="report-preview-content" style="min-width: 800px;min-height: 600px;">
+<body layout:fragment="report-preview-content" style="min-width: 800px;min-height: 500px;">
 <div class="">
     <input id="report-uid" type="hidden" name="uid" th:value="${report.uid}"/>
 
@@ -108,7 +108,7 @@
             <!--查询按钮  start-->
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button"
-                        style="background: #009688;border: none;"
+                        style=""
                         onclick="LineChartManageMVC.Controller.searchChartData();"><i class="icon icon-search"></i> 搜索
                 </button>
             </div>
@@ -116,7 +116,7 @@
             <!-- 查看数据 start -->
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button"
-                        style="background: #009688;border: none;"
+                        style=""
                         onclick="ChartDataMVC.Controller.showTableData();"><i class="icon icon-table"></i> 数据列表
                 </button>
             </div>
@@ -124,7 +124,7 @@
 
             <div class="fl">
                 <button class="btn btn-primary mt7 he30 mr10" type="button" title="选择X轴、Y轴、图例生成图表"
-                        style="background: #009688;border: none;"
+                        style=""
                         onclick="LineChartManageMVC.Controller.createChart();"><i class="icon icon-line-chart"></i> 图表
                 </button>
             </div>

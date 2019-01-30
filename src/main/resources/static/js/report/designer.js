@@ -7,7 +7,7 @@ var MetaDataDesigner = {
         DesignerMVC.View.initControl();
         DesignerMVC.View.resizeDesignerElments();
         DesignerMVC.View.initSqlEditor();
-        DesignerMVC.View.initHistorySqlEditor();
+        //DesignerMVC.View.initHistorySqlEditor();
         DesignerMVC.View.initPreviewSqlEditor();
         DesignerMVC.View.initKindEditor();
         DesignerMVC.View.bindEvent();
@@ -16,6 +16,9 @@ var MetaDataDesigner = {
     },
     listReports: function (category) {
         DesignerMVC.Controller.listReports(category.id);
+    },
+    listSelectCombReports: function (category) {
+        DesignerMVC.Controller.listSelectCombReports(category.id);
     },
     addReport: function () {
         DesignerMVC.Controller.add();
@@ -219,6 +222,10 @@ var DesignerMVC = {
                     iconCls: 'icon-add',
                     handler: DesignerMVC.Controller.add
                 }, '-', {
+                    text: '组合',
+                    iconCls: 'icon-add',
+                    handler: DesignerMVC.Controller.addCombReport
+                }, '-', {
                     text: '修改',
                     iconCls: 'icon-edit1',
                     handler: DesignerMVC.Controller.edit
@@ -260,7 +267,14 @@ var DesignerMVC = {
                     field: 'dsName',
                     title: '数据源',
                     width: 100,
-                    sortable: true
+                    sortable: true,
+                    formatter: function (value, row, index) {
+                        var reportOptions = $.toJSON(row.options)
+                        if (reportOptions.showContent == 100) {
+                            return '';
+                        }
+                        return value;
+                    }
                 }, {
                     field: 'status',
                     title: '状态',
@@ -836,6 +850,179 @@ var DesignerMVC = {
                 }
             });
 
+
+            //多报表grid
+            $('#comb-report-meta-column-grid').datagrid({
+                method: 'get',
+                fit: true,
+                singleSelect: true,
+                rownumbers: true,
+                tools: [{
+                    iconCls: 'icon-up',
+                    handler: function () {
+                        DesignerMVC.Util.refreshMultipleReportGrid();
+                        EasyUIUtils.move('#comb-report-meta-column-grid', 'up');
+                        $('#comb-report-isChange').val('1');
+                    }
+                }, '-', {
+                    iconCls: 'icon-down',
+                    handler: function () {
+                        DesignerMVC.Util.refreshMultipleReportGrid();
+                        EasyUIUtils.move('#comb-report-meta-column-grid', 'down');
+                        $('#comb-report-isChange').val('1');
+                    }
+                }, '-', {
+                    iconCls: 'icon-add',
+                    handler: function () {
+                        DesignerMVC.Util.refreshMultipleReportGrid();
+                        var row = {};
+                        row.name = "";
+                        row.text = "";
+                        row.type = 4;
+                        row.sortType = 0;
+                        $('#comb-report-meta-column-grid').datagrid('appendRow', row);
+                        $('#comb-report-isChange').val('1');
+                    }
+                }, '-', {
+                    iconCls: 'icon-cancel',
+                    handler: function () {
+                        var row = $("#comb-report-meta-column-grid").datagrid('getSelected');
+                        if (row) {
+                            DesignerMVC.Util.refreshMultipleReportGrid();
+                            var index = $("#comb-report-meta-column-grid").datagrid('getRowIndex', row);
+                            $("#comb-report-meta-column-grid").datagrid('deleteRow', index);
+                            var rows = $("#comb-report-meta-column-grid").datagrid('getRows');
+                            $("#comb-report-meta-column-grid").datagrid('loadData', rows);
+                            $('#comb-report-isChange').val('1');
+                        } else {
+                            $.messager.alert('失败', "请选择删除的行！", 'error');
+                        }
+                    }
+                }],
+                columns: [[{
+                    field: 'id',
+                    title: 'ID',
+                    //checkbox:true,
+                    width: 60,
+                    formatter: function (value, row, index) {
+                        if (row.id == undefined) {
+                            row.id = DesignerMVC.Util.getUUID();
+                        }
+                        return row.id;
+                    }
+                }, {
+                    field: 'name',
+                    title: '名称',
+                    width: 200,
+                    formatter: function (value, row, index) {
+                        var id = "combReportName" + row.id;
+                        if (!row.name) {
+                            row.name = '';
+                        }
+                        var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';"  type="text" id="${id}" name="name" value="${value}" />';
+                        return juicer(tmpl, {
+                            id: id,
+                            value: row.name
+                        });
+                    }
+                }, {
+                    field: 'href',
+                    title: '报表连接(双击可选择)',
+                    width: 320,
+                    formatter: function (value, row, index) {
+                        var id = "combReportHref" + row.id;
+                        if (!row.href) {
+                            row.href = '';
+                        }
+                        var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" ondblclick="DesignerMVC.Controller.selectCombReport(this);" type="text" id="${id}" name="href" value="${value}" />';
+                        return juicer(tmpl, {
+                            id: id,
+                            value: row.href
+                        });
+                    }
+                }, {
+                    field: 'width',
+                    title: '宽度(百分比)',
+                    width: 100,
+                    formatter: function (value, row, index) {
+                        var id = "combReportWidth" + row.id;
+                        if (!row.width) {
+                            row.width = '100';
+                        }
+                        var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" onkeyup="DesignerMVC.Util.checkInteger(this,3);" type="text" id="${id}" name="width" value="${value}" />';
+                        return juicer(tmpl, {
+                            id: id,
+                            value: row.width
+                        });
+                    }
+                }, {
+                    field: 'height',
+                    title: '高度(百分比)',
+                    width: 100,
+                    formatter: function (value, row, index) {
+                        var id = "combReportHeight" + row.id;
+                        if (!row.height) {
+                            row.height = '90';
+                        }
+                        var tmpl = '<input style="width:98%;height:' + DesignerMVC.Model.MetaDataGridInputHeight + ';" onkeyup="DesignerMVC.Util.checkInteger(this,4);" type="text" id="${id}" name="height" value="${value}" />';
+                        return juicer(tmpl, {
+                            id: id,
+                            value: row.height
+                        });
+                    }
+                }]],
+                onDblClickRow: function (index, row) {
+
+                }
+            });
+
+            $('#comb-report-datagrid').datagrid({
+                method: 'get',
+                pageSize: 50,
+                fit: true,
+                pagination: true,
+                rownumbers: true,
+                fitColumns: true,
+                singleSelect: true,
+                sortName: 'sequence',
+                sortOrder: 'asc',
+                loadFilter: function (src) {
+                    if (src.respCode == '100') {
+                        return src.respData;
+                    }
+                    $.messager.alert('失败', src.respDesc, 'error');
+                    return EasyUIUtils.getEmptyDatagridRows();
+                },
+                columns: [[{
+                    field: 'id',
+                    title: 'ID',
+                    width: 50,
+                    sortable: true
+                }, {
+                    field: 'name',
+                    title: '名称',
+                    width: 150,
+                    sortable: true
+                }, {
+                    field: 'status',
+                    title: '状态',
+                    width: 30,
+                    sortable: true,
+                    formatter: function (value, row, index) {
+                        return value == 1 ? "启用" : "禁用";
+                    }
+                }, {
+                    field: 'updateUserName',
+                    title: '更新者',
+                    width: 100,
+                    sortable: true
+                }]],
+                onDblClickRow: function (rowIndex, rowData) {
+                    DesignerMVC.Util.setCombReportRowVal(rowData);
+                }
+            });
+
+
             $('#report-history-sql-grid').datagrid({
                 method: 'get',
                 fit: true,
@@ -851,11 +1038,11 @@ var DesignerMVC = {
                     return EasyUIUtils.getEmptyDatagridRows();
                 },
                 columns: [[{
-                    field: 'gmtCreated',
+                    field: 'createDate',
                     title: '日期',
                     width: 100
                 }, {
-                    field: 'author',
+                    field: 'createUser',
                     title: '作者',
                     width: 100
                 }]],
@@ -912,9 +1099,40 @@ var DesignerMVC = {
                 }
             });
 
+
+            $('#comb-report-designer-dlg').dialog({
+                closed: true,
+                modal: true,
+                width: window.screen.width - 350,
+                height: window.screen.height - 350,
+                maximizable: true,
+                minimizable: true,
+                maximized: true,
+                iconCls: 'icon-designer',
+                buttons: [/*{
+                    text: '编辑器放大/缩小',
+                    iconCls: 'icon-fullscreen',
+                    handler: DesignerMVC.Util.fullscreenEdit
+                }, */
+                    {
+                        text: '关闭',
+                        iconCls: 'icon-no',
+                        handler: function () {
+                            $("#comb-report-designer-dlg").dialog('close');
+                        }
+                    }, {
+                        text: '保存',
+                        iconCls: 'icon-save',
+                        handler: DesignerMVC.Controller.saveCombRepoet
+                    }],
+                onResize: function (width, height) {
+                    DesignerMVC.Util.resizeDesignerDlgElments();
+                }
+            });
+
             $('#report-history-sql-dlg').dialog({
                 closed: true,
-                modal: false,
+                modal: true,
                 width: window.screen.width - 350,
                 height: window.screen.height - 350,
                 maximizable: true,
@@ -924,6 +1142,22 @@ var DesignerMVC = {
                     iconCls: 'icon-no',
                     handler: function () {
                         $("#report-history-sql-dlg").dialog('close');
+                    }
+                }]
+            });
+
+            $('#select-comb-report-dlg').dialog({
+                closed: true,
+                modal: true,
+                width: window.screen.width - 350,
+                height: window.screen.height - 350,
+                maximizable: true,
+                //iconCls: 'icon-history',
+                buttons: [{
+                    text: '关闭',
+                    iconCls: 'icon-no',
+                    handler: function () {
+                        $("#select-comb-report-dlg").dialog('close');
                     }
                 }]
             });
@@ -1108,6 +1342,7 @@ var DesignerMVC = {
                     }
                 }
             });
+            DesignerMVC.View.HistorySqlEditor.setSize('auto', '60px');
         },
         initPreviewSqlEditor: function () {
             var dom = document.getElementById("report-preview-sqlText");
@@ -1197,17 +1432,18 @@ var DesignerMVC = {
                 return DesignerMVC.Controller.showHistorySql();
             }
         },
-        add: function () {
+        add: function (showContent) {
             var node = $('#category-tree').tree('getSelected');
             if (node) {
                 var dsId = $('#report-dsId').combobox('getValue');
                 var category = node.attributes;
                 $('#report-categoryId').combobox('setValue', node.id);
-                var options = DesignerMVC.Util.getOptions();
+                var options = DesignerMVC.Util.getOptions(showContent);
                 options.title = '报表设计器--新增报表';
                 EasyUIUtils.openAddDlg(options);
                 DesignerMVC.Util.clearSqlEditor();
                 EasyUIUtils.clearDatagrid('#report-meta-column-grid');
+                EasyUIUtils.clearDatagrid('#comb-report-meta-column-grid');
                 var row = {
                     name: "",
                     categoryId: category.id,
@@ -1220,6 +1456,7 @@ var DesignerMVC = {
                     options: {
                         isStatistics: 'false',
                         statisticsRowPosition: 'bottom',
+                        showContent: showContent == 100 ? 100 : 1
                     }
                 };
                 DesignerMVC.Util.fillReportBasicConfForm(row, row.options);
@@ -1227,18 +1464,24 @@ var DesignerMVC = {
                 $.messager.alert('警告', '请选中一个报表分类!', 'info');
             }
         },
+        addCombReport: function () {
+            DesignerMVC.Controller.add(100)
+        },
         edit: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
-                var options = DesignerMVC.Util.getOptions();
+                var reportOptions = $.toJSON(row.options)
+                var options = DesignerMVC.Util.getOptions(reportOptions.showContent);
                 options.iconCls = 'icon-designer';
                 options.data = row;
                 options.title = '报表设计器--修改[' + options.data.name + ']报表';
                 DesignerMVC.Util.editOrCopy(options, 'edit');
+
             });
         },
         copy: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
-                var options = DesignerMVC.Util.getOptions();
+                var reportOptions = $.toJSON(row.options)
+                var options = DesignerMVC.Util.getOptions(reportOptions.showContent);
                 options.iconCls = 'icon-designer';
                 options.data = row;
                 options.title = '报表设计器--复制[' + options.data.name + ']报表';
@@ -1264,8 +1507,6 @@ var DesignerMVC = {
         },
         preview: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
-                var windowHref = window.location.href;
-                console.log(windowHref);
                 var url = ReportHelper.ctxPath + '/report/preview/uid/' + row.uid;
                 console.log(url)
                 if (parent.IndexMVC) {
@@ -1291,9 +1532,13 @@ var DesignerMVC = {
         showHistorySql: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
                 $('#report-history-sql-dlg').dialog('open').dialog('center');
+                if (!DesignerMVC.View.HistorySqlEditor) {
+                    DesignerMVC.View.initHistorySqlEditor();
+                }
                 DesignerMVC.View.HistorySqlEditor.setValue('');
                 DesignerMVC.View.HistorySqlEditor.refresh();
                 var url = DesignerMVC.URLs.historyList.url + '?reportId=' + row.id;
+
                 EasyUIUtils.loadDataWithCallback('#report-history-sql-grid', url, function () {
                     $('#report-history-sql-grid').datagrid('selectRow', 0);
                 });
@@ -1305,14 +1550,11 @@ var DesignerMVC = {
             $('#report-history-sql-pgrid').propertygrid('loadData', data);
         },
         find: function () {
-            var keyword = $("#report-search-keyword").val();
-            var url = DesignerMVC.URLs.find.url + '?fieldName=name&keyword=' + keyword;
-            var url = DesignerMVC.URLs.find.url + '?fieldName=name&keyword=' + keyword;
+            var keyword = $.trim($("#report-search-keyword").val());
+            //var url = DesignerMVC.URLs.find.url + '?fieldName=name&keyword=' + keyword;
             //EasyUIUtils.loadToDatagrid('#report-datagrid', url)
-            var url = DesignerMVC.URLs.find.url + '';
-            $('#report-datagrid').datagrid('load',{
-                code: '01',
-                name: 'name01'
+            $('#report-datagrid').datagrid('load', {
+                keyword: keyword
             });
 
         },
@@ -1413,11 +1655,69 @@ var DesignerMVC = {
                     var id = $("#report-categoryId").val();
                     return $.messager.alert('操作提示', "操作成功", 'info', function () {
                         $('#report-designer-dlg').dialog('close');
-                        DesignerMVC.Controller.listReports(id);
+                        DesignerMVC.Controller.listReports(data.categoryId);
                     });
                 }
                 $.messager.alert('操作提示', result.msg, 'error');
             }, 'json');
+        },
+        saveCombRepoet: function () {
+            if (!$('#comb-report-basic-conf-form').form('validate'))
+                return;
+
+            var rows = $('#comb-report-meta-column-grid').datagrid('getRows');
+            if (!rows || rows.length < 1) {
+                $.messager.alert('失败', "请添加需要展示的报表！", 'error');
+                return;
+            }
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+                var row = rows[rowIndex];
+                var href = $("#combReportHref" + row.id).val();
+                var name = $("#combReportName" + row.id).val();
+                if (!href || $.trim(href) == '' || href.indexOf("http") == -1) {
+                    $.messager.alert('失败', "请输入正确的URL地址！", 'error');
+                    return;
+                }
+                if ($.trim(name) == '') {
+                    $.messager.alert('失败', "请输入名称！", 'error');
+                    return;
+                }
+                row["href"] = href;
+                row["name"] = name;
+                row["width"] = $("#combReportWidth" + row.id).val();
+                row["height"] = $("#combReportHeight" + row.id).val();
+            }
+
+            var data = $('#comb-report-basic-conf-form').serializeObject();
+
+            console.log(data)
+
+            data.isChange = $('#comb-report-isChange').val() != 0;
+            data["options"] = JSON.stringify({
+                showContent: 100,
+            });
+            data["metaColumns"] = JSON.stringify(rows);
+            data.dsId = 0;
+
+            $.messager.progress({
+                title: '请稍后...',
+                text: '正在处理中...',
+            });
+
+            var action = $('#modal-action').val();
+            var actUrl = action === "edit" ? DesignerMVC.URLs.edit.url : DesignerMVC.URLs.add.url;
+            $.post(actUrl, data, function (result) {
+                $.messager.progress("close");
+                if (result.respCode == '100') {
+                    return $.messager.alert('操作提示', "操作成功", 'info', function () {
+                        $('#comb-report-designer-dlg').dialog('close');
+                        DesignerMVC.Controller.listReports(data.categoryId);
+                    });
+                }
+                $.messager.alert('操作提示', result.respDesc, 'error');
+            }, 'json');
+
+
         },
         reload: function () {
             EasyUIUtils.reloadDatagrid('#report-datagrid');
@@ -1471,15 +1771,41 @@ var DesignerMVC = {
             }
         },
         listReports: function (id) {
-            var gridUrl = DesignerMVC.URLs.list.url + '?id=' + id;
+            var gridUrl = DesignerMVC.URLs.list.url + '?categoryId=' + id;
             EasyUIUtils.loadDataWithUrl('#report-datagrid', gridUrl);
+        },
+        listSelectCombReports: function (id) {
+            var gridUrl = DesignerMVC.URLs.list.url + '?categoryId=' + id;
+            EasyUIUtils.loadDataWithUrl('#comb-report-datagrid', gridUrl);
+        },
+        selectCombReport: function (thisObj) {
+            var thisId = $(thisObj).attr("id");
+            var rootNodes = $('#comb-report-category-tree').tree("getRoots");
+            if (rootNodes.length == 0) {
+                $.getJSON(CategoryMVC.URLs.getCategoryTree.url, function (src) {
+                    if (src.respCode == '100') {
+                        $('#comb-report-category-tree').tree('loadData', src.respData);//转移分类树
+                        var rootNode = $('#comb-report-category-tree').tree("getRoot");
+                        if (rootNode && rootNode.target) {
+                            $('#comb-report-category-tree').tree("select", rootNode.target);
+                        }
+                    }
+                });
+            }
+            $('#select-comb-report-dlg').dialog('open').dialog('center');
         }
     },
     Util: {
-        getOptions: function () {
+        getOptions: function (showContent) {
+            var dlgId = '#report-designer-dlg';
+            var formId = '#report-basic-conf-form';
+            if (showContent == 100) {
+                dlgId = '#comb-report-designer-dlg';
+                formId = '#comb-report-basic-conf-form';
+            }
             return {
-                dlgId: '#report-designer-dlg',
-                formId: '#report-basic-conf-form',
+                dlgId: dlgId,
+                formId: formId,
                 actId: '#modal-action',
                 rowId: '#report-id',
                 title: '',
@@ -1499,23 +1825,26 @@ var DesignerMVC = {
             }
         },
         editOrCopy: function (options, act) {
-            DesignerMVC.Util.clearSqlEditor();
             EasyUIUtils.openEditDlg(options);
             EasyUIUtils.clearTreegrid("#report-meta-column-grid")
-
+            EasyUIUtils.clearDatagrid("#comb-report-meta-column-grid")
 
             var row = options.data;
             if (act === 'copy') {
                 row.name = '';
             }
-            DesignerMVC.Util.fillReportBasicConfForm(row, $.toJSON(row.options));
 
-            DesignerMVC.View.SqlEditor.setValue(row.sqlText || "");
-
-
-            DesignerMVC.Util.loadMetaColumns($.toJSON(row.metaColumns));
-            DesignerMVC.Util.loadQueryParams($.toJSON(row.queryParams));
-            DesignerMVC.Util.loadReportExplain($.toJSON(row.reportExplain));
+            var reportOptions = $.toJSON(row.options);
+            DesignerMVC.Util.fillReportBasicConfForm(row, reportOptions);
+            if (reportOptions.showContent == 100) {
+                $("#comb-report-meta-column-grid").datagrid('loadData', $.toJSON(row.metaColumns))
+            } else {
+                DesignerMVC.Util.clearSqlEditor();
+                DesignerMVC.View.SqlEditor.setValue(row.sqlText || "");
+                DesignerMVC.Util.loadMetaColumns($.toJSON(row.metaColumns));
+                DesignerMVC.Util.loadQueryParams($.toJSON(row.queryParams));
+                DesignerMVC.Util.loadReportExplain($.toJSON(row.reportExplain));
+            }
         },
         clearSqlEditor: function () {
             DesignerMVC.View.SqlEditor.setValue('');
@@ -1524,8 +1853,10 @@ var DesignerMVC = {
             DesignerMVC.View.PreviewSqlEditor.setValue('');
             DesignerMVC.View.PreviewSqlEditor.refresh();
 
-            DesignerMVC.View.HistorySqlEditor.setValue('');
-            DesignerMVC.View.HistorySqlEditor.refresh();
+            if (DesignerMVC.View.HistorySqlEditor) {
+                DesignerMVC.View.HistorySqlEditor.setValue('');
+                DesignerMVC.View.HistorySqlEditor.refresh();
+            }
 
             DesignerMVC.View.ReportTipContentSqlEditor.setValue('');
             DesignerMVC.View.ReportTipContentSqlEditor.refresh();
@@ -1554,8 +1885,13 @@ var DesignerMVC = {
             DesignerMVC.View.SqlEditor.setOption("fullScreen", !DesignerMVC.View.SqlEditor.getOption("fullScreen"));
         },
         fillReportBasicConfForm: function (row, options) {
-            $('#report-basic-conf-form').form('load', row);
-            $('#report-basic-conf-form').form('load', options);
+            if (options.showContent == 100) {
+                $('#comb-report-basic-conf-form').form('load', row);
+                $('#comb-report-basic-conf-form').form('load', options);
+            } else {
+                $('#report-basic-conf-form').form('load', row);
+                $('#report-basic-conf-form').form('load', options);
+            }
         },
         fillDetailLabels: function (data) {
             $('#report-detail-dlg label').each(function (i) {
@@ -1804,6 +2140,43 @@ var DesignerMVC = {
                 }
             }
         },
+        refreshMultipleReportGrid: function () {
+            var selectedRow = $("#comb-report-meta-column-grid").datagrid('getSelected');
+            var rows = $("#comb-report-meta-column-grid").datagrid('getRows');
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+                var row = rows[rowIndex];
+                row["href"] = $("#combReportHref" + row.id).val();
+                row["width"] = $("#combReportWidth" + row.id).val();
+                row["height"] = $("#combReportHeight" + row.id).val();
+                row["name"] = $("#combReportName" + row.id).val();
+            }
+            $("#comb-report-meta-column-grid").datagrid('loadData', rows);
+            if (selectedRow) {
+                var index = $("#comb-report-meta-column-grid").datagrid('getRowIndex', selectedRow);
+                $("#comb-report-meta-column-grid").datagrid('selectRow', index);
+            }
+        },
+        setCombReportRowVal: function (rowData) {
+            var combRow = $('#comb-report-meta-column-grid').datagrid('getSelected');
+            if (rowData && combRow) {
+
+                var host = window.location.host;
+                if (host.substring(0, 4) != "http") {
+                    host = "http://" + host;
+                }
+                console.log(host)
+
+                var url = host + '/' + ReportHelper.ctxPath + '/report/preview/uid/' + rowData.uid;
+                $("#combReportHref" + combRow.id).val(url);
+                if ($.trim($("#combReportName" + combRow.id).val()) == '') {
+                    $("#combReportName" + combRow.id).val(rowData.name);
+                }
+
+                $("#select-comb-report-dlg").dialog('close');
+            } else {
+                $.messager.alert('警告', '请选中一条记录!', 'info');
+            }
+        }
 
     },
     Data: {
@@ -1821,6 +2194,7 @@ var DesignerMVC = {
                 if (result.respCode == '100') {
                     DesignerMVC.Model.CategoryList = result.respData;
                     EasyUIUtils.fillCombox("#report-categoryId", "add", result.respData, "");
+                    EasyUIUtils.fillCombox("#comb-report-categoryId", "add", result.respData, "");
                 }
             });
         }

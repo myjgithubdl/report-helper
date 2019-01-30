@@ -51,10 +51,10 @@ var CategoryMVC = {
         initControl: function () {
             // 左边字典树
             $('#west').panel({
-                tools: [{
+                tools: [/*{
                     iconCls: 'icon-search',
                     handler: CategoryMVC.Controller.openSearchDlg
-                }, {
+                },*/ {
                     iconCls: 'icon-add',
                     handler: CategoryMVC.Controller.addRoot
                 }, {
@@ -102,6 +102,22 @@ var CategoryMVC = {
                     var copyNodeId = $('#copyNodeId').val();
                     var item = $('#category-tree-ctx-menu').menu('findItem', '粘贴');
                     $('#category-tree-ctx-menu').menu(copyNodeId == 0 ? 'disableItem' : 'enableItem', item.target);
+                }
+            });
+            
+            $('#comb-report-category-tree').tree({
+                checkbox: false,
+                method: 'get',
+                animate: true,
+                dnd: true,
+                onClick: function (node) {
+                    $('#comb-report-category-tree').tree('expand', node.target);
+                },
+                onSelect: function (node) {
+                    MetaDataDesigner.listSelectCombReports(node)
+                },
+                onDblClick: function (node) {
+                    $('#comb-report-category-tree').tree('expand', node.target);
                 }
             });
 
@@ -321,7 +337,7 @@ var CategoryMVC = {
                 }, function (result) {
                     $('#copyNodeId').val(0);
 
-                    if (result.respCode !='100' || !result.respData.length) {
+                    if (result.respCode != '100' || !result.respData.length) {
                         return $.messager.alert('错误', result.msg, 'error');
                     }
 
