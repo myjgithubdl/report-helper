@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+ 
+	<head>
+		<meta charset="UTF-8" />
+		<title>formSelects 基于Layui的多选解决方案</title>
+		<link rel="stylesheet" type="text/css" href="../../layui-v2.3.0/layui/css/layui.css" />
+		<link rel="stylesheet" type="text/css" href="../dist/formSelects-v4.css"/>
+		
+	</head>
+
+	<body style="padding: 20px;">
+				 
+		<div class="example">
+			<div>
+				<div style="width: 200px; display: inline-block; vertical-align: top;">
+					<select name="province" xm-select="select1" xm-select-show-count="1" xm-select-search="" >
+						<option value="1" disabled="disabled">北江</option>
+						<option value="2" selected="selected">广东</option>
+						<option value="3">云南</option>
+						<option value="4">北京</option>
+						<option value="5">上海</option>
+					</select>
+				</div>
+			</div>
+		
+			<div style="margin-top:20px;">
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="city" xm-select="select2" xm-select-search="">
+						<option value="1" >广州</option>
+						<option value="2" >深圳</option>
+						<option value="3">佛山</option>
+						<option value="4">东莞</option>
+						<option value="5">珠海</option>
+					</select>
+				</div>
+			</div>
+			
+			<div style="margin-top:20px;">
+				<div style="width: 400px; display: inline-block; vertical-align: top;">
+					<select name="area" xm-select="select3" xm-select-search="">
+						<option value="1" >天河</option>
+						<option value="2" >海珠</option>
+						<option value="3">荔湾</option>
+						<option value="4">番禺</option>
+					</select>
+				</div>
+			</div>
+			
+			
+		</div>
+		
+		<script src="../../layui-v2.3.0/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../dist/formSelects-v4.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../UI/js-pinyin.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+								
+			//示例操作
+			layui.use('form', function(){
+				var form = layui.form;
+
+
+var formSelects = layui.formSelects;
+                formSelects.btns('select1', []);//默认值['select','remove','']
+
+formSelects.on('select1', function(id, vals, val, isAdd, isDisabled){
+    //id:           点击select的id
+    //vals:         当前select已选中的值
+    //val:          当前select点击的值
+    //isAdd:        当前操作选中or取消
+    //isDisabled:   当前选项是否是disabled
+
+    //如果return false, 那么将取消本次操作
+
+	console.log(id);
+	console.log(vals);
+	console.log(val);
+	console.log(isAdd);
+
+	console.log(formSelects.value('select1', 'valStr'));
+
+    formSelects.render("select3");
+
+
+	 //local模式
+/*
+formSelects.data('select2', 'local', {
+    arr: [
+        {"name": "分组-1", "type": "optgroup"},
+        {"name": "北京", "value": 1},
+        {"name": "上海", "value": 2},
+        {"name": "分组-2", "type": "optgroup"},
+        {"name": "广州", "value": 3},
+        {"name": "深圳", "value": 4},
+        {"name": "天津", "value": 5}
+    ]
+});
+*/
+
+
+   // return false;
+});
+
+				
+				
+			});
+			
+
+			
+		</script>
+	</body>
+
+</html>

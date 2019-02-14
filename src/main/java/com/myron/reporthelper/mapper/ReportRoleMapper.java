@@ -3,6 +3,9 @@ package com.myron.reporthelper.mapper;
 import com.myron.reporthelper.entity.ReportRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  *  Mapper 接口
@@ -13,4 +16,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ReportRoleMapper extends BaseMapper<ReportRole> {
 
+    /**
+     * 查询列表
+     * @param params
+     * @return
+     */
+    List<Map<String,Object>> getReportRoleList(Map<String,Object> params);
+
+
+    int getReportRoleCount(Map<String,Object> params);
 }

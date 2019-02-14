@@ -96,8 +96,16 @@ public class User implements Serializable {
 
     /**
      * 系统用户所属角色集合(role_id以英文逗号分隔)
+     * 表rh_sys_role的id逗号间隔值
      */
-    private String roles;
+    @TableField("sys_roles")
+    private String sysRoles;
+
+    /**
+     * 报表角色，rh_report_role表的id逗号间隔值
+     */
+    @TableField("report_roles")
+    private String reportRoles;
 
     /**
      * 获取系统用户密码的凭证盐(account+salt)

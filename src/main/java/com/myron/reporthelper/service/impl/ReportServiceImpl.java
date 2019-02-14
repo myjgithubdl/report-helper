@@ -80,7 +80,6 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     }
 
 
-
     @Override
     public List<Map<String, Object>> getReportList(Map<String, Object> params) {
         return this.reportMapper.getReportList(params);
@@ -99,5 +98,17 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     }
 
 
+    @Override
+    public List<Report> getReportListByCategoryId(Integer categoryId) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("category_id", categoryId);
+        queryWrapper.orderByAsc("sequence", "id");
+        return reportMapper.selectList(queryWrapper);
+    }
 
+
+    @Override
+    public List<Map<String, Object>> getAllCategoryAndReport() {
+        return reportMapper.getAllCategoryAndReport();
+    }
 }

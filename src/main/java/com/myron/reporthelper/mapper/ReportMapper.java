@@ -26,4 +26,14 @@ public interface ReportMapper extends BaseMapper<Report> {
 
     int getReportCount(Map<String,Object> params);
 
+
+
+    /**
+     * 获取所有的分类和报表
+     *
+     * @return
+     */
+    List<Map<String, Object>> getAllCategoryAndReport();
+
+
 }

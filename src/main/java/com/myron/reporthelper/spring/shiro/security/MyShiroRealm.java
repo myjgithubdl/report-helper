@@ -37,8 +37,8 @@ public class MyShiroRealm extends AuthorizingRealm {
         final User user = this.membershipFacade.getUser(account);
 
         final SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        Set<String> roleSet = this.membershipFacade.getRoleSet(user.getRoles());
-        Set<String> permissionSet = this.membershipFacade.getPermissionSet(user.getRoles());
+        Set<String> roleSet = this.membershipFacade.getRoleSet(user.getSysRoles());
+        Set<String> permissionSet = this.membershipFacade.getPermissionSet(user.getSysRoles());
         log.info(account+"角色："+roleSet);
         log.info(account+"权限："+permissionSet);
         authorizationInfo.setRoles(roleSet);

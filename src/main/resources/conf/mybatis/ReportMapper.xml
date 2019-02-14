@@ -11,25 +11,27 @@
         </if>
 
     </sql>
-    
+
     <select id="getReportCount" parameterType="map" resultType="int">
-        select  count(1) count_num  from rh_report rr
+        select count(1) count_num from rh_report rr
         left join rh_datasource rd on rr.ds_id=rd.id
         left join rh_user ru on rr.update_user=ru.id
-        where   rr.`status`=1
+        where rr.`status`=1
         <include refid="queryParams"></include>
 
     </select>
 
     <select id="getReportList" resultType="map" parameterType="map">
-        select rr.id, rr.uid, category_id categoryId, ds_id dsId, rr.name, sql_text sqlText, meta_columns metaColumns, query_params queryParams,
+        select rr.id, rr.uid, category_id categoryId, ds_id dsId, rr.name, sql_text sqlText, meta_columns metaColumns,
+        query_params queryParams,
         rr.options, report_explain reportExplain, rr.status, rr.sequence,
-        rr.comment, rr.create_user createUser, rr.create_date createDate, rr.update_user updateUser, rr.update_date updateDate,
+        rr.comment, rr.create_user createUser, rr.create_date createDate, rr.update_user updateUser, rr.update_date
+        updateDate,
         rd.name dsName , ru.name updateUserName
         from rh_report rr
         left join rh_datasource rd on rr.ds_id=rd.id
         left join rh_user ru on rr.update_user=ru.id
-        where   rr.`status`=1
+        where rr.`status`=1
 
         <include refid="queryParams"></include>
 
@@ -40,6 +42,14 @@
         </if>
     </select>
 
+    <!--查询报表的分类和报表-->
+    <select id="getAllCategoryAndReport" resultType="map">
+        select * from (
+        select id , null uid , pid , name ,status , sequence , 'category' type from rh_report_category rrc where rrc.status=0
+        union all
+        select id , uid , category_id pid , name, status , sequence , 'report' type from rh_report rr where  rr.status=1
+        ) t order by type , pid  , sequence , id
+    </select>
 
 
 </mapper>

@@ -1,14 +1,18 @@
 package com.myron.reporthelper.controller.report;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.myron.reporthelper.annotation.OpLog;
 import com.myron.reporthelper.bo.EasyUITreeNode;
 import com.myron.reporthelper.entity.Datasource;
+import com.myron.reporthelper.entity.Report;
 import com.myron.reporthelper.entity.ReportCategory;
 import com.myron.reporthelper.resp.ResponseResult;
 import com.myron.reporthelper.service.ReportCategoryService;
+import com.myron.reporthelper.service.ReportService;
 import com.myron.reporthelper.util.DataGridPager;
 import com.myron.reporthelper.util.PageInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +40,8 @@ public class ReportCategoryController {
     @Autowired
     ReportCategoryService service;
 
+    @Autowired
+    ReportService reportService;
 
     @GetMapping(value = "/getCategoryTree")
     @OpLog(name = "获取报表分类树")
@@ -172,5 +178,7 @@ public class ReportCategoryController {
         queryWrapper.orderByAsc("sequence", "id");
         return ResponseResult.success(this.service.listMaps(queryWrapper));
     }
+
+
 }
 

@@ -39,7 +39,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                                                final String keyword) {
 
 
-        if (this.isSuperAdminRole(currentUser.getRoles())) {
+        if (this.isSuperAdminRole(currentUser.getSysRoles())) {
             return this.getByPage(pageInfo);
         }
 
@@ -101,7 +101,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     @Override
     public List<SysRole> getRolesList(final User logingUser) {
-        if (this.isSuperAdminRole(logingUser.getRoles())) {
+        if (this.isSuperAdminRole(logingUser.getSysRoles())) {
             return this.list();
         }
         return this.getByCreateUser(logingUser.getAccount());

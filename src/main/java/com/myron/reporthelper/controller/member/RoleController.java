@@ -50,7 +50,7 @@ public class RoleController {
     @OpLog(name = "是否为超级管理角色")
     @RequiresPermissions("membership.role:view")
     public ResponseResult isSuperAdmin(@CurrentUser final User loginUser) {
-        return ResponseResult.success(this.roleService.isSuperAdminRole(loginUser.getRoles()));
+        return ResponseResult.success(this.roleService.isSuperAdminRole(loginUser.getSysRoles()));
     }
 
     @GetMapping(value = "/list")
@@ -71,7 +71,7 @@ public class RoleController {
             queryWrapper.like("code", keyword);
         }
 
-        QueryWrapperOrderUtil.setOrderBy(queryWrapper,dataGridPager);
+        QueryWrapperOrderUtil.setOrderBy(queryWrapper, dataGridPager);
 
         roleService.page(page, queryWrapper);
         modelMap.put("total", page.getTotal());
@@ -154,7 +154,7 @@ public class RoleController {
             return new ArrayList<>(0);
         }
         return this.buildTree(this.getModulePermissions(
-                loginUser.getRoles(),
+                loginUser.getSysRoles(),
                 roleModuleAndPermissionMap.get("modules"),
                 roleModuleAndPermissionMap.get("permissions")));
     }

@@ -2,4 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.myron.reporthelper.mapper.ReportRoleMapper">
 
+    <sql id="queryParams">
+        <if test="queryKeyword != null and queryKeyword != '' ">
+            and rr.name like concat('%','${queryKeyword}' ,'%' )
+        </if>
+        <if test="categoryId != null and categoryId !=''">
+            and category_id=#{categoryId}
+        </if>
+
+    </sql>
+
+    <select id="getReportRoleCount" parameterType="map" resultType="int">
+        select  count(1) count_num  from rh_report_role rr
+        left join rh_user ru on rr.update_user=ru.id
+        where   rr.`status`=1
+        <include refid="queryParams"></include>
+
+    </select>
+
+    <select id="getReportRoleList" resultType="map" parameterType="map">
+
+        select  rr.*  ,ru.name updateUserName
+        from rh_report_role rr
+        left join rh_user ru on rr.update_user=ru.id
+        where   rr.`status`=1
+
+        <include refid="queryParams"></include>
+
+        order by rr.sequence , rr.id
+
+        <if test="pageSize != null and pageSize !='' ">
+            limit ${startRowIndex} , ${pageSize}
+        </if>
+    </select>
+
+
 </mapper>

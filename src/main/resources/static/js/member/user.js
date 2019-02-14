@@ -14,6 +14,7 @@ var MembershipUser = {
 var UserCommon = {
     baseUrl: ReportHelper.ctxPath + '/rest/member/user/',
     baseRoleUrl: ReportHelper.ctxPath + '/rest/member/role/',
+    baseReportRoleUrl: ReportHelper.ctxPath + '/rest/member/reportRole/',
     baseIconUrl: ReportHelper.ctxPath + '/vendor/easyui-1.7.0/custom/themes/icons/'
 };
 
@@ -39,13 +40,18 @@ var UserMVC = {
             url: UserCommon.baseRoleUrl + 'getRoleList',
             method: 'GET'
         },
+        getReportRoleList: {
+            url: UserCommon.baseReportRoleUrl + 'getReportRoleList',
+            method: 'GET'
+        },
         editPassword: {
             url: UserCommon.baseUrl + 'editPassword',
             method: 'POST'
         }
     },
     Model: {
-        roles: {}
+        SysRoles: {},//系统角色
+        ReportRoles: [],//报表角色
     },
     View: {
         initControl: function () {
@@ -85,10 +91,10 @@ var UserMVC = {
                     }
                 }],
                 loadFilter: function (src) {
-                    if (src.respData != '100') {
+                    if (src.respCode == '100') {
                         return src.respData;
                     }
-                    return $.messager.alert('失败', src.msg, 'error');
+                    return $.messager.alert('失败', src.respDesc, 'error');
                 },
                 columns: [[{
                     field: 'id',
@@ -129,14 +135,7 @@ var UserMVC = {
                     width: 60,
                     sortable: true,
                     formatter: function (value, row, index) {
-                        console.log(value)
-                        if(value){
-                            var monthValue=value.monthValue < 10?  '0'+value.monthValue:value.monthValue;
-                            var dayOfMonth=value.dayOfMonth < 10?  '0'+value.dayOfMonth:value.dayOfMonth;
-
-                            return value.year + '-' + monthValue + '-' + dayOfMonth;
-                        }
-                        return '';
+                        return value;
                     }
 
                 }, {
@@ -220,7 +219,8 @@ var UserMVC = {
         bindValidate: function () {
         },
         initData: function () {
-            UserMVC.Util.loadRoleList();
+            UserMVC.Util.loadSysRoleList();
+            UserMVC.Util.loadReportRoleList();
         }
     },
     Controller: {
@@ -243,6 +243,7 @@ var UserMVC = {
             options.title = '新增用户';
             EasyUIUtils.openAddDlg(options);
             UserMVC.Util.fillRoleCombox("add", []);
+            UserMVC.Util.fillReportRoleCombox("add", []);
             $('#status').combobox('setValue', "1");
             $('#account').textbox('readonly', false);
         },
@@ -250,11 +251,9 @@ var UserMVC = {
             var row = $('#user-datagrid').datagrid('getSelected');
             console.log(row)
             if (row) {
-                row.password='a123456';
-                row.repassword='a123456';
-                console.log(row)
-
-
+                //编辑的时候设置密码，但是不改变原密码
+                row.password = 'a123456';
+                row.repassword = 'a123456';
                 $("#passwordTr").hide();
                 $("#repasswordTr").hide();
 
@@ -263,10 +262,11 @@ var UserMVC = {
                 options.data = row;
                 options.title = '修改[' + options.data.name + ']用户';
                 EasyUIUtils.openEditDlg(options);
-                //$('#password').textbox('setValue', '');
                 $('#account').textbox('readonly', true);
-                var roleIds = row.roles || "";
-                UserMVC.Util.fillRoleCombox("edit", roleIds.split(','));
+                var sysRoles = row.sysRoles || "";
+                var reportRoles = row.reportRoles || "";
+                UserMVC.Util.fillRoleCombox("edit", sysRoles.split(','));
+                UserMVC.Util.fillReportRoleCombox("edit", reportRoles.split(','));
             } else {
                 $.messager.alert('警告', '请选中一条记录!', 'info');
             }
@@ -322,7 +322,8 @@ var UserMVC = {
                 options.formId = '#reset-pwd-form';
                 options.url = UserMVC.URLs.editPassword.url;
             } else {
-                $('#roles').val($('#combox-roles').combobox('getValues'));
+                $('#sysRoles').val($('#combox-sysRoles').combobox('getValues'));
+                $('#reportRoles').val($('#combox-reportRoles').combobox('getValues'));
                 options.url = (action === "edit" ? UserMVC.URLs.edit.url : UserMVC.URLs.add.url);
                 options.gridId = '#user-datagrid';
                 //检验密码
@@ -347,27 +348,52 @@ var UserMVC = {
             };
         },
         fillRoleCombox: function (act, values) {
-            var id = '#combox-roles';
+            var id = '#combox-sysRoles';
             $(id).combobox('clear');
             var data = [];
-            var items = UserMVC.Model.roles;
+            var items = UserMVC.Model.SysRoles;
             console.log(items)
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
                 data.push({
                     "value": item.id,
                     "name": item.name,
-                    "selected": i == 0
+                    "selected": false
                 });
             }
             $(id).combobox('loadData', data);
-            if (act == "edit") {
+            if (act == "edit" && values[0] != "") {
                 $(id).combobox('setValues', values);
             }
         },
-        loadRoleList: function () {
+        fillReportRoleCombox: function (act, values) {
+            var id = '#combox-reportRoles';
+            $(id).combobox('clear');
+            var data = [];
+            var items = UserMVC.Model.ReportRoles;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                data.push({
+                    "value": item.id,
+                    "name": item.name,
+                    "selected":false
+                });
+            }
+            $(id).combobox('loadData', data);
+            if (act == "edit" && values[0] != "") {
+                $(id).combobox('setValues', values);
+            }
+        },
+        loadSysRoleList: function () {
             $.getJSON(UserMVC.URLs.getRoleList.url, function (src) {
-                UserMVC.Model.roles = src.respData;
+                UserMVC.Model.SysRoles = src.respData;
+                console.log(UserMVC.Model.SysRoles)
+            });
+        },
+        loadReportRoleList: function () {
+            $.getJSON(UserMVC.URLs.getReportRoleList.url, function (src) {
+                UserMVC.Model.ReportRoles = src.respData;
+                console.log(UserMVC.Model.ReportRoles)
             });
         }
     }

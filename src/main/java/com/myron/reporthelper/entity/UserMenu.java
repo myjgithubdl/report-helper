@@ -47,7 +47,6 @@ public class UserMenu {
     private String target;
 
 
-
     /**
      * 是否存在子模块,0否,1 是
      */
@@ -68,6 +67,7 @@ public class UserMenu {
 
     /**
      * 设置level字段的值，并重排序
+     *
      * @param userMenus
      * @return
      */
@@ -98,6 +98,7 @@ public class UserMenu {
 
     /**
      * 设置孩子的level
+     *
      * @param parentMenu
      * @param userMenus
      */
@@ -113,6 +114,17 @@ public class UserMenu {
                 setChildrenLevel(m, userMenus);
             }
         }
+    }
+
+
+    /**
+     * 排序
+     *
+     * @param userMenus
+     */
+    public static void resortMenu(List<UserMenu> userMenus) {
+        userMenus.stream().sorted(Comparator.comparing(UserMenu::getLevel).thenComparing(UserMenu::getSequence).thenComparing(UserMenu::getId));
+
     }
 
 

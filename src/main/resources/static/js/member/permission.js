@@ -35,7 +35,7 @@ var PermMVC = {
             method: 'POST'
         },
         getChildMenus: {
-            url: PermCommon.baseMenuUrl + 'getChildMenus',
+            url: PermCommon.baseMenuUrl + 'getChildSysMenus',
             method: 'GET'
         }
     },

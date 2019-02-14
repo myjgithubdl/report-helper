@@ -43,7 +43,6 @@ public interface ReportService extends IService<Report> {
 
     ReportDataSource getReportDataSource(int dsId);
 
-
     /**
      * 查询列表
      *
@@ -70,5 +69,21 @@ public interface ReportService extends IService<Report> {
      */
     Report getReportByUid(String uid);
 
+
+    /**
+     * 根据报表的分类查询列表
+     *
+     * @param categoryId
+     * @return
+     */
+    List<Report> getReportListByCategoryId(Integer categoryId);
+
+
+    /**
+     * 获取所有的分类和报表
+     *
+     * @return
+     */
+    List<Map<String, Object>> getAllCategoryAndReport();
 
 }

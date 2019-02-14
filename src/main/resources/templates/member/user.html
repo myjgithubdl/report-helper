@@ -17,7 +17,7 @@
 </div>
 <div id="user-dlg">
     <form id="user-form" name="user-form" method="post">
-        <table cellpadding="5" style="margin: 30px auto" class="form-table">
+        <table cellpadding="5" style="margin: 5px auto" class="form-table">
             <tr>
                 <td>用户账号:</td>
                 <td colspan="3"><input class="easyui-textbox" type="text" id="account" name="account"
@@ -64,11 +64,19 @@
                 </td>
             </tr>
             <tr>
-                <td>所属角色:</td>
-                <td colspan="3"><select class="easyui-combobox" id="combox-roles" name="comboxRoles"
+                <td>系统角色:</td>
+                <td colspan="3"><select class="easyui-combobox" id="combox-sysRoles" name="comboxSysRoles"
                                         data-options="valueField:'value',textField:'name',multiple:true"
                                         style="width: 380px"></select>
-                    <input id="roles" type="hidden" name="roles"/>
+                    <input id="sysRoles" type="hidden" name="sysRoles"/>
+                </td>
+            </tr>
+            <tr>
+                <td>报表角色:</td>
+                <td colspan="3"><select class="easyui-combobox" id="combox-reportRoles" name="comboxReportRoles"
+                                        data-options="valueField:'value',textField:'name',multiple:true"
+                                        style="width: 380px"></select>
+                    <input id="reportRoles" type="hidden" name="reportRoles"/>
                 </td>
             </tr>
             <tr>

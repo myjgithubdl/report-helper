@@ -1,7 +1,6 @@
 var upDatePassZuiMessager;
 
 $(function () {
-    console.log($("#indexPageTopNavLogoutModal").html())
     Index.init();
 });
 
@@ -19,7 +18,8 @@ var IndexMVC = {
         URLs: {
             //获取用户的菜单URL
             getSysMenus:{
-                url: ReportHelper.ctxPath + '/home/getSysMenus',
+                //url: ReportHelper.ctxPath + '/home/getSysMenus',
+                url: ReportHelper.ctxPath + '/home/getSysMenusAndReport',
                 method: 'POST'
             },
             updatePwd: {
@@ -28,7 +28,6 @@ var IndexMVC = {
             }
         },
         UserInfo: {
-            jwtToken: null,
             user: null
         },
         Data: {
@@ -214,10 +213,11 @@ var IndexMVC = {
                 }
 
                 menuPath = IndexMVC.Controller.extMenuUrl(menuPath);
+                console.log(menuPath)
+
                 //新窗口打开
                 if(openMode == 'blank' && menuPath && menuPath.length > 0){
                     window.open(menuPath);
-                    IndexMVC.Controller.saveUserUseMenuRecord(mid);
                 }else if(openMode == 'none'){
 
                 }else if(openMode == 'iframe'){
@@ -463,29 +463,6 @@ var IndexMVC = {
 
             },
 
-            /**
-             * 保存用户访问记录
-             * @param menuId
-             */
-            saveUserUseMenuRecord: function (menuId) {
-                var params = {};
-                params.menuId = menuId;
-                params.userId = IndexMVC.UserInfo.user.userId;
-                params.method = "m006_1";
-                $.ajax({
-                    url: CommonUrls.insert.url,
-                    type: "post",
-                    dataType: "json",
-                    data: params,
-                    success: function (data) {
-
-                    },
-                    error: function (error) {
-                        console.log(JSON.stringify(error));
-                        console.log("向服务器发送请求失败");
-                    }
-                });
-            },
 
             openUpdatePassDialog:function () {
                 $("#forceUpdatePwdTips").hide();

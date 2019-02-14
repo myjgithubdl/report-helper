@@ -39,7 +39,7 @@ var MenuMVC = {
             method: 'POST'
         },
         getMenuTree: {
-            url: MenuCommon.baseUrl + 'getMenuTree',
+            url: MenuCommon.baseUrl + 'getSysMenuTree',
             method: 'GET'
         }
     },

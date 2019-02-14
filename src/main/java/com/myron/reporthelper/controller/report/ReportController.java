@@ -39,13 +39,13 @@ public class ReportController {
     @RequestMapping(value = "/list")
     @OpLog(name = "分页获取报表列表")
     @RequiresPermissions("report.designer:view")
-    public Map<String, Object> list(final DataGridPager dataGridPager ,final String categoryId, final String keyword) {
+    public Map<String, Object> list(final DataGridPager dataGridPager, final String categoryId, final String keyword) {
         final Map<String, Object> modelMap = new HashMap<>(2);
         Page<PageInfo> page = new Page<>(dataGridPager.getPage(), dataGridPager.getRows());
 
         Map<String, Object> params = new HashMap<>();
 
-        if(StringUtils.isNotEmpty(categoryId)){
+        if (StringUtils.isNotEmpty(categoryId)) {
             params.put("categoryId", categoryId);
         }
 
@@ -110,16 +110,21 @@ public class ReportController {
         po.setComment("");
         this.service.save(po);
         this.reportHistoryService.save(this.getReportHistory(loginUser, po));
-        return ResponseResult.success("");
+        return ResponseResult.success("添加成功");
     }
 
     @PostMapping(value = "/edit")
     @OpLog(name = "修改报表")
     @RequiresPermissions("report.designer:edit")
     public ResponseResult edit(@CurrentUser final User loginUser, final Report po) {
+
+        po.setUpdateUser(loginUser.getId());
+        po.setUpdateDate(new Date());
+
         this.service.updateById(po);
+
         this.reportHistoryService.save(this.getReportHistory(loginUser, po));
-        return ResponseResult.success("");
+        return ResponseResult.success("修改成功");
     }
 
     @PostMapping(value = "/remove")
