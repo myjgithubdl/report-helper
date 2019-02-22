@@ -118,7 +118,10 @@ var BarChartManageMVC = {
 
             var respData = ChartDataMVC.Service.getChartData(BarChartManageMVC.Variable.reportData, xName,
                 yName, legendKeyArray[0], chartOptionParams[legendKeyArray[0]]);
-            console.log(respData);
+
+
+            chartOptionParams.xNameText=_.where(BarChartManageMVC.Variable.xMetaColumns, {name: xName})[0].text
+            chartOptionParams.yNameText=_.where(BarChartManageMVC.Variable.yMetaColumns, {name: yName})[0].text;
 
             BarChartManageMVC.Controller.initBarChart(respData.xData, respData.legendData, respData.yData, chartOptionParams);
 
@@ -166,7 +169,7 @@ var BarChartManageMVC = {
                 },
                 yAxis: {
                     type: 'value',
-                    name: chartOptionParams.yName
+                    name: chartOptionParams.yNameText
                 },
                 series: series
             };

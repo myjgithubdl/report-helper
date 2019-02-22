@@ -1,6 +1,8 @@
 package com.myron.reporthelper.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
@@ -22,7 +24,10 @@ public class Conf implements Serializable {
     /**
      * 数据源ID
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
+
+
     /**
      * 父ID
      */
@@ -31,9 +36,11 @@ public class Conf implements Serializable {
      * 名称
      */
     private String name;
+
     /**
      * 配置key
      */
+    @TableField("`key`")
     private String key;
     /**
      * 配置值

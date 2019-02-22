@@ -10,6 +10,8 @@ import com.myron.reporthelper.entity.User;
 import com.myron.reporthelper.resp.ResponseResult;
 import com.myron.reporthelper.service.ConfService;
 import com.myron.reporthelper.util.DataGridPager;
+import com.myron.reporthelper.util.PageInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,28 +40,22 @@ public class ConfController {
                                     final DataGridPager dataGridPager,
                                     final Integer id) {
         final Map<String, Object> modelMap = new HashMap<>(2);
-        Page<Conf> page = new Page<>(dataGridPager.getPage(), dataGridPager.getRows());
 
-        QueryWrapper queryWrapper = new QueryWrapper();
+        Map<String, Object> params = new HashMap<>();
+        params.put("pid", id);
 
-        queryWrapper.select(("id,pid,name,`key`,value,sequence,comment,create_user,create_date,update_user,update_date").replaceAll(" ", "").split(","));
+        int count = service.getReportCount(params);
+        List<Map<String, Object>> list = null;
+        if (count > 0) {
 
-        if (id != null) {
-            queryWrapper.eq("pid", id);
+            params.put("pageSize", dataGridPager.getRows());
+            params.put("startRowIndex", (dataGridPager.getPage() - 1) * dataGridPager.getRows());
+
+            list = service.getReportList(params);
         }
 
-        if ("asc".equals(dataGridPager.getSort())) {
-            queryWrapper.orderByAsc(dataGridPager.getOrder());
-        }
-
-        if ("desc".equals(dataGridPager.getSort())) {
-            queryWrapper.orderByDesc(dataGridPager.getOrder());
-        }
-
-
-        service.page(page, queryWrapper);
-        modelMap.put("total", page.getTotal());
-        modelMap.put("rows", page.getRecords());
+        modelMap.put("total", count);
+        modelMap.put("rows", list == null ? new ArrayList<>() : list);
         return modelMap;
     }
 

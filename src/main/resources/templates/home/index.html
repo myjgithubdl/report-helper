@@ -4,52 +4,59 @@
       layout:decorate="~{layout/common_layout}">
 <head>
     <title>首页</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
     <link rel="shortcut icon" href="../../static/images/common/favicon.ico"
           th:href="@{/images/common/favicon.ico}"/>
 
-
-
     <!--ZUI start-->
-    <!-- zui css -->
+    <!--<link rel="stylesheet" href="../../static/vendor/zui-1.8.1/css/zui.css"
+          th:href="@{/vendor/zui-1.8.1/css/zui.css}"/>-->
+
     <link rel="stylesheet" href="../../static/vendor/zui-1.8.1/css/zui.css"
           th:href="@{/vendor/zui-1.8.1/css/zui.css}"/>
 
-    <!--ZUI数据表格 CSS文件-->
-    <link rel="stylesheet" href="../../static/vendor/zui-1.8.1/lib/datatable/zui.datatable.min.css"
-          th:href="@{/vendor/zui-1.8.1/lib/datatable/zui.datatable.min.css}"/>
-
-
     <script src="../../static/vendor/zui-1.8.1/js/zui.js" th:src="@{/vendor/zui-1.8.1/js/zui.js}"></script>
-
-
-    <script th:inline="javascript">//引用
-    var user =  [[${user}]] ;//取值
-    console.log("html")
-    console.log(user);
-    </script>
-
+    <!--ZUI end-->
 
     <script src="../../static/js/home/jquery.menu.js" th:src="@{'/js/home/jquery.menu.js?v='+${version}}"></script>
     <script src="../../static/js/home/index.js" th:src="@{'/js/home/index.js?v='+${version}}"></script>
 
+    <style>
+        .menu-item-content-div:hover, #iconBars:hover {
+            color: #0098CA;
+        }
 
+        #indexPageTabs .tabs-icon{
+            width: 0px;
+            height: 0px;
+        }
+    </style>
+
+    <script th:inline="javascript">//引用
+    var user = [[${user}]];//取值
+    </script>
 
 </head>
 
 
 <body layout:fragment="content" style="min-width: 1080px;">
 
-<div id="indexlayout" class="easyui-layout " data-options="collapsedContent:'collapsedContent' " fit="true">
+<div id="indexlayout" class="easyui-layout " data-options="collapsedContent:'collapsedContent',
+onCollapse:function(){IndexMVC.Data.westPanelState = 'collapse'},onExpand:function(){IndexMVC.Data.westPanelState = 'expand'}"
+     fit="true">
     <!-- 顶部  start -->
-    <div region="north" data-options="border:false" style="height: 50px;">
-        <div class="bg-393D49" style="width: 100%;height: 52px;/*box-shadow: 0 2px 5px rgba(0, 152, 202, 0.8);*/">
-            <div class="f18 color-FFFFFF " style="height: 100%;width: 100%;">
-                <div class="fl mr15">
-                    <div class="fl" style="padding: 5px 0px 5px 5px;">
-                        <!--<div class="lakala-logo-white "></div>-->
+    <div region="north" data-options="border:false" style="height: 40px;">
+        <div class="bg-1F2325 hep100 wip100">
+            <div class="f18 color-FFFFFF hep100">
+                <div class="fl mr15 hep100">
+                    <div class="fl pt6 pl10 pr10"
+                         style="border-right:1px solid hsla(0,0%,100%,.15);height: 39px;">
+                        <i id="iconBars" class="icon icon-bars icon-2x cursor-p"
+                           onclick="IndexMVC.Controller.toggleWest();"></i>
                     </div>
-                    <div class="fl">
-                        <span style="font-size: 22px; font-weight: bold; padding-left: 5px;">数据展示平台</span>
+                    <div class="fl" style="padding: 6px 5px">
+                        <span style="font-size: 18px; font-weight: bold; padding-left: 5px;">数据展示平台</span>
                     </div>
                     <div class="fl mt15 ml10">
                         <span class="f18 color-FFFFFF"></span>
@@ -57,35 +64,38 @@
                 </div>
 
                 <!-- 一级菜单  start -->
-                <div id="indexPageMenuTitleTemplate" class="fl ml8 display-none cursor-p" style="height:51px; ">
-                    <div class="pl10 pr10 title"
-                         style="height:51px;line-height: 51px;vertical-align: middle;">
+                <div id="indexPageMenuTitleTemplate" class="fl ml8 display-none cursor-p  hep100">
+                    <div class="pl10 pr10 title  hep100 wip100"
+                         style="vertical-align: middle;">
                     </div>
                 </div>
 
                 <div id="indexPageMenuTitleList">
 
-
                 </div>
                 <!-- 一级菜单  end -->
 
-                <div class="fr ml8 mr20" style="height:31px; ">
-                    <div title="修改密码" class="pl3 pr3 f12 index-edit-password cursor-p pt1 mt15 ml8"
+                <div class="fr ml8 mr20" style="">
+                    <div title="修改密码" class="pl3 pr3 f12 cursor-p mt12 ml8"
                          onclick="IndexMVC.Controller.openUpdatePassDialog();">
+                        <i class="icon icon-cog" style="font-size: 18px;"></i>
                     </div>
                 </div>
 
-                <div class="fr ml8 mr2" style="height:51px; ">
-                    <div title="退出登录" class="mt5 cursor-p index-login-out-bg mt15 ml8"
-                         onclick="$('#indexPageTopNavLogoutModal').modal({backdrop: 'static'});"></div>
+                <div class="fr ml8 mr2" style="">
+                    <div title="退出登录" class=" cursor-p mt12 ml8"
+                         onclick="$('#indexPageTopNavLogoutModal').modal({backdrop: 'static'});">
+                        <i class="icon icon-signout" style="font-size: 18px;"></i>
+                    </div>
                 </div>
 
                 <div class="fr ml8 mr2 pt10 mr10" style="">
                     <div class="cursor-p overflow-hidden" onclick="$('#userInfoModal').modal({backdrop: 'static'});">
-                        <div class="fl mt5 index-login-user"
-                             style="width: 22px;height: 18px;"></div>
-                        <div class="fl mt5 ml4 f12 pt2 ">欢迎您 ,
-                            <span class="" th:text="${user.name}" ></span>
+                        <div class="fl">
+                            <i class="icon icon-user" style="background: none;font-size: 18px;"></i>
+                        </div>
+                        <div class="fl ml4 f12 pt2 ">欢迎您 ,
+                            <span class="" th:text="${user.name}"></span>
                         </div>
                     </div>
                 </div>
@@ -96,8 +106,8 @@
     <!-- 顶部  end -->
 
     <!--  左部面板   start  -->
-    <div data-options="region:'west',split:true,border:false" style="width:200px;">
-        <div id="index-layout-west" class="index-layout-west bg-2F4056">
+    <div data-options="region:'west',split:true,border:false" class="zi9999" style="width:200px;">
+        <div id="index-layout-west" class="index-layout-west bg-1C2327">
 
             <div onclick="IndexMVC.Controller.switchWestLayout();" style="display: none;"></div>
 
@@ -131,7 +141,7 @@
                 </ul>-->
                 <!--菜单样例   start-->
 
-                <ul class="bg-393D49 overflow-hidden" id="indexPageMenuUl0"></ul>
+                <ul class="bg-1F2325 overflow-hidden" id="indexPageMenuUl0"></ul>
             </div>
 
         </div>
@@ -147,8 +157,6 @@
 
     </div>
     <!-- 内容面板  end -->
-
-
 
 
 </div>
@@ -167,7 +175,6 @@
 
         <!--首页默认展示内容 start-->
         <div id="indexPageHomeTabDefaultContent">
-
 
 
         </div>
@@ -193,7 +200,7 @@
                             <div class="fr">账号</div>
                         </label>
                         <div class="col-md-5">
-                            <input type="text" class="form-control" th:value="${user.account}"  disabled="disabled"/>
+                            <input type="text" class="form-control" th:value="${user.account}" disabled="disabled"/>
                         </div>
                     </div>
                 </div>
@@ -215,7 +222,7 @@
                         </label>
 
                         <div class="col-md-5">
-                            <input type="text" class="form-control" disabled="disabled" th:value="${user.mobile}" />
+                            <input type="text" class="form-control" disabled="disabled" th:value="${user.mobile}"/>
                         </div>
                     </div>
                 </div>
@@ -226,7 +233,7 @@
                         </label>
 
                         <div class="col-md-5">
-                            <input class="form-control" disabled="disabled" th:value="${user.email}" >
+                            <input class="form-control" disabled="disabled" th:value="${user.email}">
                         </div>
                     </div>
                 </div>
@@ -234,7 +241,8 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;关闭</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;关闭
+                </button>
             </div>
         </div>
     </div>
@@ -247,17 +255,19 @@
 <div id="indexPageTopNavLogoutModal" class="modal fade" style="z-index: 99999;">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header" >
+            <div class="modal-header">
                 <h4 class="modal-title">注销账户</h4>
             </div>
 
             <div class="modal-body">
                 <h4 class="modal-title" style="padding-bottom: 20px;">确定注销账户吗？</h4>
             </div>
-            <div class="modal-footer" >
-                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;取消</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;取消
+                </button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal"
-                        onclick="window.location.href='/member/logout'"><i class="icon icon-check"></i>&nbsp;确定</button>
+                        onclick="window.location.href='/member/logout'"><i class="icon icon-check"></i>&nbsp;确定
+                </button>
             </div>
         </div>
     </div>
@@ -266,7 +276,7 @@
 
 
 <!-- 重置密码 start-->
-<div id="indexPageUpdatePass" class="modal fade"  style="z-index: 99999;">
+<div id="indexPageUpdatePass" class="modal fade" style="z-index: 99999;">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -365,10 +375,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="passwordCancelBtn" type="button" class="btn btn-default" data-dismiss="modal"><i class="icon icon-times"></i>&nbsp;取消</button>
+                <button id="passwordCancelBtn" type="button" class="btn btn-default" data-dismiss="modal"><i
+                        class="icon icon-times"></i>&nbsp;取消
+                </button>
                 <button id="indexPageSavePass" type="button"
                         class="btn btn-primary" data-loading-text="保存中..."
-                        onclick="IndexMVC.Controller.checkOldPassIsCorrect()"><i class="icon icon-check"></i>&nbsp;保存</button>
+                        onclick="IndexMVC.Controller.checkOldPassIsCorrect()"><i class="icon icon-check"></i>&nbsp;保存
+                </button>
             </div>
         </div>
     </div>
@@ -377,18 +390,20 @@
 
 
 <!--菜单模板   start-->
-<ul id="indexPageMenuTempl" class="bg-393D49 overflow-hidden"  style="display: none">
-    <li id="indexPageMenuLiTempl" class="">
-        <!--bg-336699-->
-        <a class="" href="javascript:void(0);"
-           onclick="IndexMVC.Controller.openMentContent('3','http://localhost:9003/home/index','用户管理')">
-            <div class="index-page-menu-icon" ></div>
-            <div class="fl pl2 menu-name">用户管理</div>
-        </a>
+<ul id="indexPageMenuTempl" class="bg-1C2327 overflow-hidden" style="display: none">
+    <li id="indexPageMenuLiTempl" class="overflow-hidden color-FFFFFF">
+        <div class="menu-item-div overflow-hidden he32" style="height: 30px;"
+             onclick="IndexMVC.Controller.openMentContent('3','http://localhost:9003/home/index','用户管理')">
+            <div class="menu-item-content-div bg-2F4056  hep100 wip100 overflow-hidden mt1 cursor-p">
+                <div class="fl menu-padding-left hep100"></div>
+                <div class="fl menu-left-icon  hep100 wi10"></div>
+                <div class="fl menu-name f14 pl2 pt4 "></div>
+                <div class="fr menu-right-icon pr5 pt5"><i class="icon icon-angle-right"></i></div>
+            </div>
+        </div>
     </li>
 </ul>
 <!--菜单模板   start-->
-
 
 
 </body>

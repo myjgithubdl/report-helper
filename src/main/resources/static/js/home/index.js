@@ -17,7 +17,7 @@ var Index = {
 var IndexMVC = {
         URLs: {
             //获取用户的菜单URL
-            getSysMenus:{
+            getSysMenus: {
                 //url: ReportHelper.ctxPath + '/home/getSysMenus',
                 url: ReportHelper.ctxPath + '/home/getSysMenusAndReport',
                 method: 'POST'
@@ -31,10 +31,11 @@ var IndexMVC = {
             user: null
         },
         Data: {
+            westPanelState: 'expand',//'collapse'
             /*左边菜单的宽度*/
             westLayoutWidth: {
                 width1: 200,
-                width2: 40,
+                width2: 1,
                 curWidth: 200
             },
             /*用户的菜单数据*/
@@ -46,7 +47,7 @@ var IndexMVC = {
              */
             initControl: function () {
 
-                IndexMVC.UserInfo.user =user;
+                IndexMVC.UserInfo.user = user;
 
                 IndexMVC.View.initIndexPageTab();
                 IndexMVC.View.initUserMenu();
@@ -97,13 +98,13 @@ var IndexMVC = {
 
                 //增加固定主页
                 var mid = "00";
-                var screenBtn = '<div id="indexPageFullScrrenBtn' + mid + '" class="icon_homepage fl mt5 mr4"' +
-                    'style="width: 16px; height: 16px; position: absolute; top: 45%; margin-top: -8px; margin-left: -4px;z-index: 99;"></div>';
+                var screenBtn = '<div id="indexPageFullScrrenBtn' + mid + '" class="fl mr4 pt2 cursor-p he28 lh28"' +
+                    'style=""><i class="icon icon-home" style="background: none;font-size: 18px;"></i></div>';
 
                 $('#indexPageTabs').tabs('add', {
                     id: "indexPageFixedTab",
                     //title: menuName,
-                    title: screenBtn + '<div class="fl ml15 pl5 pr10">主页</div>',
+                    title: screenBtn + '<div class="fl pl3 pr5 he28 lh28">主页</div>',
                     //content: content,
                     content: $("#indexPageHomeTabContent"),
                     closable: false
@@ -126,6 +127,7 @@ var IndexMVC = {
                         if ("100" == data.respCode) {
                             var respData = data.respData;
                             if (respData && respData.length > 0) {
+                                var menuItemClass = 'menu-item-div';//每一行菜单的class name
                                 var ulTempl = $("#indexPageMenuTempl").clone().empty();
                                 var liTempl = $("#indexPageMenuLiTempl").clone();
 
@@ -146,14 +148,14 @@ var IndexMVC = {
                                     var menuLi = liTempl.clone();
                                     var liId = "indexPageMenuLi" + id;
                                     menuLi.attr("id", liId);
-                                    menuLi.find(".menu-name").html(menuName).attr("title",menuName);
+                                    menuLi.find(".menu-name").html(menuName).attr("title", menuName);
                                     //是否点击打开tab
                                     if (menuPath && menuPath.length > 0) {
-                                        menuLi.find("a").attr("onclick", "IndexMVC.Controller.openMentContent('" + id + "','" + menuPath + "','" + menuName + "','"+openMode+"')");
+                                        menuLi.find("." + menuItemClass).attr("onclick", "IndexMVC.Controller.openMentContent('" + id + "','" + menuPath + "','" + menuName + "','" + openMode + "')");
                                     } else {
-                                        menuLi.find("a").removeAttr("onclick");
+                                        menuLi.find("." + menuItemClass).removeAttr("onclick");
                                     }
-                                    menuLi.find("a").css("padding-left", ((menuLevel - 1) * 18) + 'px');
+                                    menuLi.find("." + menuItemClass).find(".menu-padding-left").css("width", ((menuLevel - 1) * 18) + 'px');
 
                                     //设置图标
                                     if (menuIcon && menuIcon.length > 0) {
@@ -169,6 +171,15 @@ var IndexMVC = {
                                         menuUl.attr("id", "indexPageMenuUl" + id);
                                         $("#" + liId).addClass("has-child");
                                         $("#" + liId).append(menuUl);
+
+                                        menuLi.find(".menu-right-icon").html('<i class="icon icon-angle-right" style="font-size: 20px;"></i>');
+
+                                    } else {
+                                        menuLi.find(".menu-right-icon").html('');
+                                    }
+
+                                    if (index == 0) {
+                                        menuLi.find(".menu-item-content-div").removeClass('mt1');
                                     }
 
 
@@ -176,7 +187,7 @@ var IndexMVC = {
 
                             }
 
-                            $("#index-layout-west  li").homeMenu({autohide: 0});
+                            $("#index-layout-west li").homeMenu({autohide: 0, menuItemClass: menuItemClass});
                         }
                     },
                     error: function (error) {
@@ -188,9 +199,28 @@ var IndexMVC = {
             }
         },
         Controller: {
-            switchWestLayout: function () {
+            toggleWest: function () {
+
+                if (IndexMVC.Data.westPanelState == 'collapse') {
+                    IndexMVC.Data.westPanelState = 'expand';
+                    $('#indexlayout').layout('expand', 'west');
+                } else {
+                    IndexMVC.Data.westPanelState = 'collapse';
+                    $('#indexlayout').layout('collapse', 'west');
+                }
+
 
                 var westPanel = $('#indexlayout').layout('panel', 'west');
+
+
+                console.log(westPanel)
+
+
+                return
+
+                var westPanel = $('#indexlayout').layout('panel', 'west');
+
+
                 var curWidth = IndexMVC.Data.westLayoutWidth.curWidth;
                 if (curWidth == IndexMVC.Data.westLayoutWidth.width1) {
                     IndexMVC.Data.westLayoutWidth.curWidth = IndexMVC.Data.westLayoutWidth.width2;
@@ -207,23 +237,25 @@ var IndexMVC = {
             /**
              * 打开报表
              */
-            openMentContent: function (mid, menuPath, menuName,openMode) {
-                if($.trim(menuPath) ==''){
+            openMentContent: function (mid, menuPath, menuName, openMode) {
+                if ($.trim(menuPath) == '') {
                     return;
                 }
 
                 menuPath = IndexMVC.Controller.extMenuUrl(menuPath);
-                console.log(menuPath)
+                console.log(openMode, menuPath)
 
                 //新窗口打开
-                if(openMode == 'blank' && menuPath && menuPath.length > 0){
+                if (openMode == 'blank' && menuPath && menuPath.length > 0) {
                     window.open(menuPath);
-                }else if(openMode == 'none'){
+                } else if (openMode == 'none') {
 
-                }else if(openMode == 'iframe'){
-                    var screenBtn = '<div id="indexPageFullScrrenBtn' + mid + '" class="icon_fullscrren fl mt5 mr4 cursor-p"' +
-                        'style="width: 13px; height: 13px; position: absolute; top: 55%; margin-top: -8px; margin-left: -4px;z-index: 99;" ' +
-                        'onclick="IndexMVC.Controller.openFullScrren(\'' + mid + '\');"></div>';
+                } else if (openMode == 'iframe') {
+                    var screenBtn = '<div id="indexPageFullScrrenBtn' + mid + '" class="fl mr4 cursor-p he28 lh28 zi9999" style="" ' +
+                        'onclick="IndexMVC.Controller.openFullScrren(\'' + mid + '\');"><i class="icon icon-expand-full"></i></div>';
+
+                    var closeBtn='<div class="fl cursor-p he28 lh28" style="margin-right: -16px;"><i class="icon icon-times"></i></div>';
+
                     var content = '<iframe id=tabIframe' + mid + ' scrolling="auto" frameborder="0"  src="' + menuPath + '" style="width:100%;height:99%;"></iframe>';
 
                     if ($("#indexPageFullScrrenBtn" + mid).size() == 1) {//已经打开页面
@@ -238,7 +270,7 @@ var IndexMVC = {
                     $('#indexPageTabs').tabs('add', {
                         id: "indexPageTab" + mid,
                         //title: menuName,
-                        title: screenBtn + '<div class="fl ml15 pl5 pr10" style="line-height: 30px;">' + menuName + '</div>',
+                        title: screenBtn + '<div class="fl pl3 pr5 he28 lh28">' + menuName + '</div>'+closeBtn,
                         content: content,
                         //iconCls: "icon_fullscrren",
                         closable: true
@@ -255,7 +287,6 @@ var IndexMVC = {
                     //添加用户使用菜单信息
                     //self.addUserUseMenuInfo(mid);
 
-                    IndexMVC.Controller.saveUserUseMenuRecord(mid);
                 }
 
 
@@ -265,8 +296,11 @@ var IndexMVC = {
              */
             extMenuUrl: function (menuPath) {
                 var returnUrl = menuPath;
-                if(menuPath.indexOf("http") == -1){
-                    returnUrl=ReportHelper.ctxPath + '/' +menuPath;
+                if (menuPath.indexOf("http") == -1) {
+                    if (menuPath.indexOf("/") != 0) {
+                        menuPath = '/' + menuPath;
+                    }
+                    returnUrl = ReportHelper.ctxPath + menuPath;
                 }
                 return returnUrl;
             },
@@ -413,12 +447,12 @@ var IndexMVC = {
                 var oldPassword = $("#indexPageUpdatePassOldPassword").val();
 
                 var params = {};
-                params.account =$("#indexPageUpdatePassUserAccount").val();
+                params.account = $("#indexPageUpdatePassUserAccount").val();
                 params.id = IndexMVC.UserInfo.user.userId;
                 params.password = password;
                 params.oldPassword = oldPassword;
                 params.phone = phone;
-                params.updateUser =IndexMVC.UserInfo.user.userId;
+                params.updateUser = IndexMVC.UserInfo.user.userId;
                 //params.method = "m001_3";
                 $.ajax({
                     url: IndexMVC.URLs.updatePwd.url,
@@ -426,7 +460,7 @@ var IndexMVC = {
                     dataType: "json",
                     data: params,
                     success: function (data) {
-                        if(upDatePassZuiMessager != null) upDatePassZuiMessager.destroy();
+                        if (upDatePassZuiMessager != null) upDatePassZuiMessager.destroy();
                         if (data.respCode != "100") {
                             $("#indexPageUpdatePassTipsContent").text(data.respDesc);
                             //common.failMsg(data.respDesc);
@@ -446,14 +480,14 @@ var IndexMVC = {
                         $("#indexPageUpdatePassTips").modal({
                             backdrop: 'static'
                         });
-                        upDatePassZuiMessager=new $.zui.Messager( "修改密码成功", {
+                        upDatePassZuiMessager = new $.zui.Messager("修改密码成功", {
                             placement: 'center',
                             type: 'success',
                             time: 0
                         });
                         upDatePassZuiMessager.show();
 
-                        allUserInfo.mobile=mobile;
+                        allUserInfo.mobile = mobile;
                     },
                     error: function (error) {
                         console.log(JSON.stringify(error));
@@ -464,7 +498,7 @@ var IndexMVC = {
             },
 
 
-            openUpdatePassDialog:function () {
+            openUpdatePassDialog: function () {
                 $("#forceUpdatePwdTips").hide();
                 $("#passwordCancelBtn").show();
                 $("#indexPageUpdatePassPhone").val(user.mobile);
@@ -475,6 +509,7 @@ var IndexMVC = {
 
                 $('#indexPageUpdatePass').modal({backdrop: 'static'});
             }
+
         }
 
     }

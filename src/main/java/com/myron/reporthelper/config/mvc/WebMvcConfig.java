@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myron.reporthelper.spring.converter.CustomMappingJackson2HttpMessageConverter;
 import com.myron.reporthelper.spring.resolver.CurrentUserMethodArgumentResolver;
 import com.myron.reporthelper.spring.resolver.ResponseBodyWrapFactoryBean;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -12,7 +13,8 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 
 import java.text.SimpleDateFormat;
@@ -25,8 +27,8 @@ import java.util.Locale;
  **/
 @Configuration
 //public class WebMvcConfig extends WebMvcConfigurerAdapter {
-public class WebMvcConfig extends WebMvcConfigurerAdapter {
-
+//public class WebMvcConfig extends WebMvcAutoConfiguration {
+public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void extendMessageConverters(final List<HttpMessageConverter<?>> converters) {
@@ -35,6 +37,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     /**
      * 解析参数
+     *
      * @param argumentResolvers
      */
     @Override
@@ -46,6 +49,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
+
 
     @Bean
     public CustomMappingJackson2HttpMessageConverter messageConverter() {

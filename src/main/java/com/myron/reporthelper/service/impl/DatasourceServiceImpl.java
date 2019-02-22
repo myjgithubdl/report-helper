@@ -5,11 +5,14 @@ import com.myron.reporthelper.mapper.DataSourceMapper;
 import com.myron.reporthelper.service.DatasourceService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -22,6 +25,23 @@ import java.sql.SQLException;
 @Slf4j
 @Service
 public class DatasourceServiceImpl extends ServiceImpl<DataSourceMapper, Datasource> implements DatasourceService {
+
+    @Autowired
+    DataSourceMapper dataSourceMapper;
+
+    @Override
+    public List<Map<String, Object>> getReportList(Map<String, Object> params) {
+        return this.dataSourceMapper.getReportList(params);
+    }
+
+    @Override
+    public int getReportCount(Map<String, Object> params) {
+        return this.dataSourceMapper.getReportCount(params);
+    }
+
+
+
+
     /**
      * @param driverClass
      * @param url

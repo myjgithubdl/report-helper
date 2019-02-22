@@ -112,7 +112,9 @@ var LineChartManageMVC = {
 
             var respData = ChartDataMVC.Service.getChartData(LineChartManageMVC.Variable.reportData, xName,
                 yName, legendKeyArray[0], chartOptionParams[legendKeyArray[0]]);
-            console.log(respData);
+
+            chartOptionParams.xNameText=_.where(LineChartManageMVC.Variable.xMetaColumns, {name: xName})[0].text
+            chartOptionParams.yNameText=_.where(LineChartManageMVC.Variable.yMetaColumns, {name: yName})[0].text;
 
             LineChartManageMVC.Controller.initLineChart(respData.xData, respData.legendData, respData.yData, chartOptionParams);
         },
@@ -154,11 +156,12 @@ var LineChartManageMVC = {
                 xAxis: {
                     type: 'category',
                     boundaryGap: false,
-                    data: xData
+                    data: xData,
+                    //name:chartOptionParams.xNameText
                 },
                 yAxis: {
                     type: 'value',
-                    name: chartOptionParams.yName
+                    name: chartOptionParams.yNameText
                 },
                 series: series
             };

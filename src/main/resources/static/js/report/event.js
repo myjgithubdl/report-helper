@@ -40,6 +40,8 @@ var EventMVC = {
                 singleSelect: true,
                 pagination: true,
                 rownumbers: true,
+                sortName:'id',
+                sortOrder:'desc',
                 pageSize: 50,
                 url: EventMVC.URLs.list.url,
                 toolbar: [{
@@ -91,14 +93,14 @@ var EventMVC = {
                         width: 50,
                         sortable: true
                     }, {
-                        field: 'gmtCreated',
+                        field: 'createDate',
                         title: '发生时间',
-                        width: 50,
+                        width: 100,
                         sortable: true
                     }, {
                         field: 'options',
                         title: '操作',
-                        width: 100,
+                        width: 50,
                         formatter: function (value, row, index) {
                             var tmpl = '<a href="#" title ="${title}" ' +
                                 'onclick="EventMVC.Controller.doOption(\'${index}\',\'${name}\')">' +

@@ -57,37 +57,22 @@ public class DatasourceController {
     @GetMapping(value = "/list")
     @OpLog(name = "分页获取数据源列表")
     @RequiresPermissions("report.ds:view")
-    public Map<String, Object> list(@CurrentUser final User loginUser, final DataGridPager dataGridPager ,final String keyword) {
+    public Map<String, Object> list(@CurrentUser final User loginUser, final DataGridPager dataGridPager, final String keyword) {
         final Map<String, Object> modelMap = new HashMap<>(2);
-        Page<Datasource> page = new Page<>(dataGridPager.getPage(), dataGridPager.getRows());
+        Map<String, Object> params = new HashMap<>();
 
-        QueryWrapper queryWrapper = new QueryWrapper();
+        int count = service.getReportCount(params);
+        List<Map<String, Object>> list = null;
+        if (count > 0) {
 
-        if(StringUtils.isNotEmpty(keyword)){
-            queryWrapper.like("name",keyword);
-            queryWrapper.or();
-            queryWrapper.like("driver_class",keyword);
-            queryWrapper.or();
-            queryWrapper.like("jdbc_url",keyword);
-            queryWrapper.or();
-            queryWrapper.like("user",keyword);
-            queryWrapper.or();
-            queryWrapper.like("queryer_class",keyword);
-            queryWrapper.or();
-            queryWrapper.like("pool_class",keyword);
+            params.put("pageSize", dataGridPager.getRows());
+            params.put("startRowIndex", (dataGridPager.getPage() - 1) * dataGridPager.getRows());
+
+            list = service.getReportList(params);
         }
 
-        if ("asc".equals(dataGridPager.getSort())) {
-            queryWrapper.orderByAsc(dataGridPager.getOrder());
-        }
-
-        if ("desc".equals(dataGridPager.getSort())) {
-            queryWrapper.orderByDesc(dataGridPager.getOrder());
-        }
-
-        service.page(page, queryWrapper);
-        modelMap.put("total", page.getTotal());
-        modelMap.put("rows", page.getRecords());
+        modelMap.put("total", count);
+        modelMap.put("rows", list == null ? new ArrayList<>() : list);
         return modelMap;
     }
 

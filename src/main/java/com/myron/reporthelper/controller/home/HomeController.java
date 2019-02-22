@@ -22,10 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Home页控制器
  *
- * @author Tom Deng
- * @date 2017-03-25
  */
 @Controller
 @RequestMapping(value = {"", "/", "/home"})

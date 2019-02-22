@@ -2,4 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.myron.reporthelper.mapper.DataSourceMapper">
 
+
+    <sql id="queryParams">
+        <if test="menuId != null and menuId != '' ">
+            and menu_Id=#{menuId}
+        </if>
+
+
+    </sql>
+
+    <select id="getReportCount" parameterType="map" resultType="int">
+        select count(1) count_num from rh_datasource rd
+        left join rh_user ru on rd.update_user=ru.id
+        where 1=1
+        <include refid="queryParams"></include>
+
+    </select>
+
+    <select id="getReportList" resultType="map" parameterType="map">
+        select  rd.id , rd.uid,rd.name,rd.driver_class  driverClass, rd.jdbc_url jdbcUrl ,
+        rd.user ,rd.password  , rd.queryer_class queryerClass ,rd.pool_class poolClass ,rd.options , rd.`comment` ,
+        rd.create_user createUser,rd.create_date createDate,
+        ru.name updateUserName , rd.update_user updateUser , rd.update_date updateDate
+        from rh_datasource rd
+        left join rh_user ru on rd.update_user=ru.id
+        where 1=1
+        <include refid="queryParams"></include>
+
+        order by rd.id
+
+        <if test="pageSize != null and pageSize !='' ">
+            limit ${startRowIndex} , ${pageSize}
+        </if>
+    </select>
+
 </mapper>

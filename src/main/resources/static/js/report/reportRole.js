@@ -102,7 +102,7 @@ var ReportRoleManageMVC = {
                 }, {
                     field: 'name',
                     title: '名称',
-                    width: 100,
+                    width: 80,
                     sortable: true
                 }, {
                     field: 'status',
@@ -115,27 +115,27 @@ var ReportRoleManageMVC = {
                 }, {
                     field: 'comment',
                     title: '说明',
-                    width: 100,
-                    sortable: true
-                }, {
-                    field: 'updateUserName',
-                    title: '修改者',
                     width: 80,
                     sortable: true
-                }, {
+                },{
                     field: 'sequence',
                     title: '顺序',
+                    width: 40,
+                    sortable: true
+                },  {
+                    field: 'updateUserName',
+                    title: '修改者',
                     width: 50,
                     sortable: true
                 }, {
                     field: 'update_date',
                     title: '修改时间',
-                    width: 60,
+                    width: 80,
                     sortable: true
                 }, {
                     field: 'options',
                     title: '操作',
-                    width: 100,
+                    width: 80,
                     formatter: function (value, row, index) {
                         var icons = [{
                             "name": "edit",

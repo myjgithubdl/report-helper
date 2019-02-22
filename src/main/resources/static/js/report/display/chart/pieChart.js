@@ -110,10 +110,13 @@ var PieChartManageMVC = {
 
             var xName = chartOptionParams.xName;//X轴的列名
             var yName = chartOptionParams.yName;//Y轴的列名
+            //设置列名对应的名称
+            chartOptionParams.xNameText=_.where(PieChartManageMVC.Variable.xMetaColumns, {name: xName})[0].text
+            chartOptionParams.yNameText=_.where(PieChartManageMVC.Variable.yMetaColumns, {name: yName})[0].text;
+
 
             var respData = ChartDataMVC.Service.getChartData(PieChartManageMVC.Variable.reportData, xName,
                 yName, legendKeyArray[0], chartOptionParams[legendKeyArray[0]]);
-            console.log(respData);
 
             PieChartManageMVC.Controller.initPieChart(respData.xData, respData.legendData, respData.yData, chartOptionParams);
 

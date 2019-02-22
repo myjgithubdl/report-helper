@@ -16,7 +16,6 @@ import java.util.*;
 @AllArgsConstructor
 public class UserMenu {
 
-
     private String id;
 
     /**
@@ -28,7 +27,6 @@ public class UserMenu {
      * 系统模块父标识
      */
     private String name;
-
 
     /**
      * 系统模块显示图标
@@ -46,24 +44,20 @@ public class UserMenu {
      */
     private String target;
 
-
     /**
      * 是否存在子模块,0否,1 是
      */
     private Integer hasChild = 0;
-
 
     /**
      * 菜单层级
      */
     private int level = 1;
 
-
     /**
      * 排序
      */
     private int sequence;
-
 
     /**
      * 设置level字段的值，并重排序
@@ -91,7 +85,7 @@ public class UserMenu {
         }
 
         //排序
-        userMenus.stream().sorted(Comparator.comparingInt(UserMenu::getLevel).thenComparing(UserMenu::getSequence));
+        userMenus.stream().sorted(Comparator.comparingInt(UserMenu::getLevel).thenComparing(UserMenu::getSequence).thenComparing(UserMenu::getId));
         return userMenus;
     }
 
@@ -116,7 +110,6 @@ public class UserMenu {
         }
     }
 
-
     /**
      * 排序
      *
@@ -124,7 +117,6 @@ public class UserMenu {
      */
     public static void resortMenu(List<UserMenu> userMenus) {
         userMenus.stream().sorted(Comparator.comparing(UserMenu::getLevel).thenComparing(UserMenu::getSequence).thenComparing(UserMenu::getId));
-
     }
 
 

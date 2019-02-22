@@ -43,13 +43,14 @@ public class LoginController {
 
     @GetMapping(value = {"/login"})
     public String login(final Model model, final HttpServletRequest request, final HttpServletResponse response) {
-        return "/member/login";
+        log.info("跳转登录页面");
+        return "member/login";
     }
 
     @GetMapping(value = "/logout")
     public String logout() {
         SecurityUtils.getSubject().logout();
-        return "/member/login";
+        return "member/login";
     }
 
     @ResponseBody
@@ -119,8 +120,8 @@ public class LoginController {
     @RequestMapping(value = "/checkValidationCodeV2", method = {RequestMethod.POST})
     @ResponseBody
     public ResponseResult checkValidationCodeV2(@RequestParam(value = "validationCode", required = true) String validationCode,
-                                          HttpServletRequest request,
-                                          HttpServletResponse response) {
+                                                HttpServletRequest request,
+                                                HttpServletResponse response) {
 
         ResponseResult respBean = ResponseResult.error();
         if (validationCode == null || "".equals(validationCode.trim())) {
@@ -134,7 +135,6 @@ public class LoginController {
         }
         return respBean;
     }
-
 
 
 }

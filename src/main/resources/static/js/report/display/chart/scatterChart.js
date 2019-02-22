@@ -109,10 +109,13 @@ var ScatterChartManageMVC = {
             }
             var xName = chartOptionParams.xName;//X轴的列名
             var yName = chartOptionParams.yName;//Y轴的列名
+            //设置列名对应的名称
+            chartOptionParams.xNameText=_.where(ScatterChartManageMVC.Variable.xMetaColumns, {name: xName})[0].text
+            chartOptionParams.yNameText=_.where(ScatterChartManageMVC.Variable.yMetaColumns, {name: yName})[0].text;
+
 
             var respData = ChartDataMVC.Service.getChartData(ScatterChartManageMVC.Variable.reportData, xName,
                 yName, legendKeyArray[0], chartOptionParams[legendKeyArray[0]]);
-            console.log(respData);
 
             ScatterChartManageMVC.Controller.initScatterChart(respData.xData, respData.legendData, respData.yData, chartOptionParams);
         },
@@ -158,7 +161,7 @@ var ScatterChartManageMVC = {
                 },
                 yAxis: {
                     type: 'value',
-                    name: chartOptionParams.yName
+                    name: chartOptionParams.yNameText
                 },
                 series: series
             };

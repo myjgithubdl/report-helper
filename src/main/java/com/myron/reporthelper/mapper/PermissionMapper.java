@@ -16,6 +16,21 @@ import java.util.Map;
  */
 public interface PermissionMapper extends BaseMapper<Permission> {
 
+    /**
+     * 查询列表
+     *
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> getReportList(Map<String, Object> params);
+
+
+    /**
+     * 查询数量
+     * @param params
+     * @return
+     */
+    int getReportCount(Map<String, Object> params);
 
     List<Permission> selectAllWithMenuPath();
 

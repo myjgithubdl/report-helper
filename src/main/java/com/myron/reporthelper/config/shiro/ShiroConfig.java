@@ -9,6 +9,7 @@ import com.myron.reporthelper.spring.shiro.security.RetryLimitHashedCredentialsM
 import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.CacheManager;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -69,6 +70,11 @@ public class ShiroConfig {
         chains.put("/views/**", this.configProperties.getShiro().getFilters());
         chains.put("/rest/**", this.configProperties.getShiro().getFilters());
         chains.put("/**", "anon");
+
+        chains.put("/home/index", "user");
+        //chains.put("/", "user");
+        //chains.put("/**", "user");
+
         shiroFilterFactoryBean.setFilterChainDefinitionMap(chains);
 
         return shiroFilterFactoryBean;
@@ -98,8 +104,8 @@ public class ShiroConfig {
 
         //将缓存管理器，交给安全管理器
         // securityManager.setCacheManager(cacheManager());
+        //securityManager.setCacheManager(shiroSpringCacheManager());
         securityManager.setCacheManager(shiroSpringCacheManager());
-        //securityManager.setCacheManager(ehCacheManager());
         //记住密码管理
         securityManager.setRememberMeManager(rememberMeManager());
         //会话管理器
@@ -176,8 +182,11 @@ public class ShiroConfig {
 
     @Bean
     public SimpleCookie rememberMeCookie() {
+        //这个参数是cookie的名称，对应前端的checkbox的name = rememberMe
         final SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
-        simpleCookie.setHttpOnly(true);
+        //simpleCookie.setHttpOnly(true);
+
+        //<!-- 记住我cookie生效时间30天 ,单位秒;-->
         simpleCookie.setMaxAge(259200);
         return simpleCookie;
     }
@@ -185,7 +194,7 @@ public class ShiroConfig {
     @Bean
     public CookieRememberMeManager rememberMeManager() {
         final CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
-        cookieRememberMeManager.setCipherKey(Base64.decode("ZUdsaGJuSmxibVI2ZHc9PQ=="));
+        //cookieRememberMeManager.setCipherKey(Base64.decode("ZUdsaGJuSmxibVI2ZHc9PQ=="));
         cookieRememberMeManager.setCookie(rememberMeCookie());
         return cookieRememberMeManager;
     }
@@ -198,7 +207,7 @@ public class ShiroConfig {
      *
      * @return
      */
-    @Bean
+   @Bean
     public ShiroSpringCacheManager shiroSpringCacheManager() {
         log.info("初始化bean******shiroSpringCacheManager******");
         ShiroSpringCacheManager shiroSpringCacheManager = new ShiroSpringCacheManager();
@@ -212,6 +221,8 @@ public class ShiroConfig {
         EhCacheCacheManager ehcacheManager = new EhCacheCacheManager();
 
         EhCacheManagerFactoryBean ehCacheManagerFactoryBean = ehCacheManagerFactory();
+        ehCacheManagerFactoryBean.setShared(true);
+
         CacheManager cacheManager = ehCacheManagerFactoryBean.getObject();
         ehcacheManager.setCacheManager(cacheManager);
 
@@ -220,12 +231,18 @@ public class ShiroConfig {
         return ehcacheManager;
     }
 
+/*    @Bean
+    public EhCacheManager ehCacheManager() {
+        System.out.println("ShiroConfiguration.getEhCacheManager()");
+        EhCacheManager ehCacheManager = new EhCacheManager();
+        ehCacheManager.setCacheManagerConfigFile("classpath:conf/spring/ehcache-shiro.xml");
+        return ehCacheManager;
+    }*/
 
     @Bean
     public EhCacheManagerFactoryBean ehCacheManagerFactory() {
         log.info("初始化bean******ehCacheManagerFactory******");
         ClassPathResource resource = new ClassPathResource("conf/spring/ehcache-shiro.xml");
-        //log.info("ehcache-shiro.xml文件是否存在：" + resource.exists());
 
         InputStream configurationInputStream = null;
         try {

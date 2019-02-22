@@ -1,35 +1,41 @@
-
 /*继承jQuery实现垂直菜单点击展开或关闭效果 start*/
 (function ($) {
     $.fn.homeMenu = function (b) {
         var c, item, httpAdress;
-        b = jQuery.extend({Speed: 220, autostart: 1, autohide: 1}, b);
+        b = jQuery.extend({Speed: 220, autostart: 1, autohide: 1, menuItemClass: 'menu-item'}, b);
         c = $(this);
-        item = c.children("ul").parent("li").children("a");
+        item = c.children("ul").parent("li").children("."+b.menuItemClass);
         httpAdress = window.location;
         item.each(function () {
             if (!$(this).hasClass("active")) {
                 $(this).addClass("unactive");
             }
         });
+
         function _item() {
-            var a = $(this);
-            var thisClass = a.attr("class");
+            console.log("." + b.menuItemClass)
+            var menuItemObj = $(this);
             if (b.autohide) {
-                a.parent().parent().find(".active").parent("li").children("ul").slideUp(b.Speed / 1.2,
+                menuItemObj.parent().parent().find(".active").parent("li").children("ul").slideUp(b.Speed / 1.2,
                     function () {
-                        $(this).parent("li").children("a").removeAttr("class");
-                        $(this).parent("li").children("a").attr("class", "unactive");
+                        $(this).parent("li").children("." + b.menuItemClass).removeAttr("class");
+                        $(this).parent("li").children("." + b.menuItemClass).attr("class", "unactive");
                     });
             }
-            if (a.hasClass("unactive")) {//隐藏、需展开子菜单
-                a.parent("li").children("ul").slideDown(b.Speed,
+
+            if (menuItemObj.hasClass("unactive")) {//隐藏、需展开子菜单
+                menuItemObj.parent("li").children("ul").slideDown(b.Speed,
                     function () {
-                        a.removeClass("unactive").addClass("active");
+                        menuItemObj.removeClass("unactive").addClass("active");
+
+                        menuItemObj.find(".menu-right-icon").find("i").removeClass("icon-angle-right").addClass("icon-angle-down");
                     });
-            }else if (a.hasClass("active")) {
-                a.removeClass("active").addClass("unactive");
-                a.parent("li").children("ul").slideUp(b.Speed);
+            } else if (menuItemObj.hasClass("active")) {
+                menuItemObj.removeClass("active").addClass("unactive");
+
+                menuItemObj.find(".menu-right-icon").find("i").removeClass("icon-angle-down").addClass("icon-angle-right");
+
+                menuItemObj.parent("li").children("ul").slideUp(b.Speed);
             }
         }
 
@@ -37,12 +43,12 @@
         item.unbind('click').click(_item);
         if (b.autostart) {
             return;
-            c.children("a").each(function () {
+            c.children("." + b.menuItemClass).each(function () {
                 if (this.href == httpAdress) {
                     $(this).parent("li").parent("ul").slideDown(b.Speed,
                         function () {
                             $(this).parent("li").children(".unactive").removeAttr("class");
-                            $(this).parent("li").children("a").addClass("active");
+                            $(this).parent("li").children("." + b.menuItemClass).addClass("active");
                         });
                 }
             });

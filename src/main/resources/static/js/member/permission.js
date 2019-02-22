@@ -129,7 +129,7 @@ var PermMVC = {
                 }, {
                     field: 'name',
                     title: '名称',
-                    width: 80,
+                    width: 70,
                     sortable: true
                 }, {
                     field: 'code',
@@ -139,20 +139,20 @@ var PermMVC = {
                 }, {
                     field: 'sequence',
                     title: '顺序',
-                    width: 50,
+                    width: 40,
                     sortable: true
                 }, {
                     field: 'comment',
                     title: '说明',
                     width: 100
                 }, {
-                    field: 'gmtCreated',
-                    title: '创建时间',
-                    width: 100,
+                    field: 'updateUserName',
+                    title: '修改人',
+                    width: 80,
                     sortable: true
                 }, {
-                    field: 'gmtModified',
-                    title: '更新时间',
+                    field: 'update_date',
+                    title: '修改时间',
                     width: 100,
                     sortable: true
                 }]],
@@ -193,7 +193,7 @@ var PermMVC = {
                 var options = PermMVC.Util.getOptions();
                 options.title = '新增[' + node.text + ']模块的权限';
                 EasyUIUtils.openAddDlg(options);
-                $('#moduleId').val(node.id);
+                $('#menuId').val(node.id);
                 $('#code').textbox('setValue', node.attributes.code + ":");
                 $('#sequence').textbox('setValue', 10);
             } else {
@@ -222,16 +222,16 @@ var PermMVC = {
                 },
                 callback: function (rows) {
                     var row = rows[0];
-                    PermMVC.Controller.refreshNode(row.moduleId);
-                    EasyUIUtils.loadDataWithUrl('#perm-datagrid', PermMVC.URLs.list.url + '?id=' + row.moduleId);
+                    PermMVC.Controller.refreshNode(row.menuId);
+                    EasyUIUtils.loadDataWithUrl('#perm-datagrid', PermMVC.URLs.list.url + '?id=' + row.menuId);
                 }
             };
             EasyUIUtils.remove(options);
         },
         save: function () {
             var action = $('#modal-action').val();
-            var moduleId = $('#moduleId').val();
-            var gridUrl = PermMVC.URLs.list.url + '?id=' + moduleId;
+            var menuId = $('#menuId').val();
+            var gridUrl = PermMVC.URLs.list.url + '?id=' + menuId;
             var actUrl = action === "edit" ? PermMVC.URLs.edit.url : PermMVC.URLs.add.url;
             var options = {
                 dlgId: "#perm-dlg",

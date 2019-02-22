@@ -126,6 +126,11 @@ var DsMVC = {
                     sortable: true
                 }, {
                     field: 'updateDate',
+                    title: '修改人',
+                    width: 50,
+                    sortable: true
+                }, {
+                    field: 'updateDate',
                     title: '修改时间',
                     width: 50,
                     sortable: true
@@ -223,7 +228,6 @@ var DsMVC = {
             });
         },
         bindEvent: function () {
-            $('#btn-search').bind('click', DsMVC.Controller.find);
         },
         bindValidate: function () {
         },
@@ -245,6 +249,8 @@ var DsMVC = {
             }
         },
         add: function () {
+            $('#modal-action').val("add");
+
             var options = DsMVC.Util.getOptions();
             options.title = '新增数据源';
             EasyUIUtils.openAddDlg(options);
@@ -254,30 +260,23 @@ var DsMVC = {
         edit: function () {
             var row = $('#ds-datagrid').datagrid('getSelected');
             if (row) {
-                console.log("1")
+                $('#modal-action').val('edit');
+
                 var options = DsMVC.Util.getOptions();
-                console.log("2")
                 options.iconCls = 'icon-edit1';
                 options.data = row;
                 options.title = '修改[' + options.data.name + ']数据源';
                 EasyUIUtils.openEditDlg(options);
-                console.log("3")
                 DsMVC.Util.fillCombox("#dbType", "edit", DsMVC.Model.dbTypes, "driverClass", row.driverClass);
 
                 DsMVC.Util.fillCombox("#dbPoolType", "edit", DsMVC.Model.dbPoolTypes, "poolClass", row.poolClass);
                 $('#jdbcUrl').textbox('setValue', row.jdbcUrl);
                 $('#options').val(row.options || "{}");
                 ReportHelper.utils.debug(row.options);
-                console.log(">>>>>>>>>>>>>>>>>>>>>>>>")
                 $('#ds-options-pg').propertygrid('loadData', EasyUIUtils.toPropertygridRows($.toJSON(row.options)));
             } else {
                 $.messager.alert('警告', '请选中一条记录!', 'info');
             }
-        },
-        find: function () {
-            var keyword = $.trim($("#keyword").val());
-            var url = DsMVC.URLs.list.url + '?keyword=' + keyword;
-            EasyUIUtils.loadToDatagrid('#ds-datagrid', url)
         },
         remove: function () {
             var row = $('#ds-datagrid').datagrid('getSelected');

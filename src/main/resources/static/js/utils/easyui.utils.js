@@ -123,14 +123,14 @@ var EasyUIUtils = {
             },
             success: function (data) {
                 var result = $.toJSON(data);
-                if (result.code) {
+                if (result.respCode != '100') {
                     $.messager.show({
                         title: '错误',
-                        msg: result.msg
+                        msg: result.respDesc
                     });
                 } else {
                     EasyUIUtils.showMsg(result.msg || "操作成功");
-                    options.callback(result.data);
+                    options.callback(result.respData);
                     $(options.dlgId).dialog('close');
                 }
             }

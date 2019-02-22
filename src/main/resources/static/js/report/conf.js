@@ -42,10 +42,10 @@ var ConfMVC = {
         initControl: function () {
             // 左边字典树
             $('#west').panel({
-                tools: [{
+                tools: [/*{
                     iconCls: 'icon-search',
                     handler: ConfMVC.Controller.openSearchDlg
-                }, {
+                },*/ {
                     iconCls: 'icon-add',
                     handler: ConfMVC.Controller.addRoot
                 }, {
@@ -65,8 +65,12 @@ var ConfMVC = {
                 url: ConfMVC.URLs.listChildren.url,
                 onClick: function (node) {
                     $('#dict-tree').tree('expand', node.target);
+
+                },
+                onSelect: function (node) {
                     $('#dict-tree').tree('options').url = ConfMVC.URLs.listChildren.url;
                     EasyUIUtils.loadDataWithUrl('#dict-datagrid', ConfMVC.URLs.list.url + '?id=' + node.id);
+                    //EasyUIUtils.loadDataWithUrl('#dict-datagrid', ConfMVC.URLs.list.url + '?id=' + node.id);
                 },
                 onContextMenu: function (e, node) {
                     e.preventDefault();
@@ -80,7 +84,11 @@ var ConfMVC = {
                     if (src.respCode == '100') {
                         return src.respData;
                     }
-                    return $.messager.alert('失败', src.msg, 'error');
+                    return $.messager.alert('失败', src.respDesc, 'error');
+                },
+                onLoadSuccess: function () {
+                    var rootNode = $('#dict-tree').tree('getRoot');
+                    $('#dict-tree').tree('select', rootNode.target);
                 }
             });
 
@@ -100,9 +108,8 @@ var ConfMVC = {
                     }
                 }
             });
-
             $('#dict-datagrid').datagrid({
-                url: ConfMVC.URLs.list.url,
+                //url:  ConfMVC.URLs.list.url + '?id=' + $("#confPid").val(),
                 method: 'get',
                 idField: 'id',
                 pageSize: 50,
@@ -159,14 +166,14 @@ var ConfMVC = {
                     width: 50,
                     sortable: true
                 }, {
-                    field: 'gmtCreated',
-                    title: '创建时间',
-                    width: 100,
+                    field: 'updateUserName',
+                    title: '更新人',
+                    width: 80,
                     sortable: true
                 }, {
-                    field: 'gmtModified',
+                    field: 'update_date',
                     title: '更新时间',
-                    width: 100,
+                    width: 120,
                     sortable: true
                 }]],
                 onDblClickRow: function (index, row) {
@@ -183,8 +190,8 @@ var ConfMVC = {
                 singleSelect: true,
                 pageSize: 10,
                 loadFilter: function (src) {
-                    if (!src.code) {
-                        return src.data;
+                    if (src.respCode == '100') {
+                        return src.respData;
                     }
                     return {
                         total: 0,
@@ -281,7 +288,9 @@ var ConfMVC = {
         },
         edit: function () {
             var row = $('#dict-datagrid').datagrid('getSelected');
-            ConfMVC.Util.edit(row);
+            if (row) {
+                ConfMVC.Util.edit(row);
+            }
         },
         copy: function () {
             $("#confParentNameDiv").hide();
@@ -326,7 +335,7 @@ var ConfMVC = {
                 url: actUrl,
                 callback: function () {
                     ConfMVC.Controller.reloadTree();
-                    EasyUIUtils.loadDataWithUrl('#dict-datagrid', gridUrl);
+                    //EasyUIUtils.loadDataWithUrl('#dict-datagrid', gridUrl);
                 }
             };
             EasyUIUtils.save(options);
@@ -366,6 +375,8 @@ var ConfMVC = {
             $("#confParentNameDiv").show();
             $("#confParentName").html(name);
             $("#sequence").textbox('setValue', 10);
+
+
         },
         edit: function (data) {
             $("#confParentNameDiv").hide();

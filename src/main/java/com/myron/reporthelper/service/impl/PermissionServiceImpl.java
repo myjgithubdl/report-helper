@@ -49,6 +49,19 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
 
     @Override
+    public List<Map<String, Object>> getReportList(Map<String, Object> params) {
+        return this.permissionMapper.getReportList(params);
+    }
+
+    @Override
+    public int getReportCount(Map<String, Object> params) {
+        return this.permissionMapper.getReportCount(params);
+    }
+
+
+
+
+    @Override
     public void reloadCache() {
         if (cache != null) {
             cache.clear();

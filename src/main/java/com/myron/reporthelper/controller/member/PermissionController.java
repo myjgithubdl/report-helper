@@ -24,13 +24,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author 缪应江
@@ -50,27 +48,30 @@ public class PermissionController {
     public Map<String, Object> list(@CurrentUser final User loginUser, final DataGridPager dataGridPager,
                                     final Integer id) {
         final int menuId = (id == null ? 0 : id);
-        final Map<String, Object> modelMap = new HashMap<>(2);
-        Page<Permission> page = new Page<>(dataGridPager.getPage(), dataGridPager.getRows());
 
-        QueryWrapper queryWrapper = new QueryWrapper();
-        if(menuId > 0){
-            queryWrapper.eq("menu_id",menuId);
+        final Map<String, Object> modelMap = new HashMap<>(2);
+        Map<String, Object> params = new HashMap<>();
+        params.put("menuId", menuId);
+
+        int count = service.getReportCount(params);
+        List<Map<String, Object>> list = null;
+        if (count > 0) {
+
+            params.put("pageSize", dataGridPager.getRows());
+            params.put("startRowIndex", (dataGridPager.getPage() - 1) * dataGridPager.getRows());
+
+            list = service.getReportList(params);
         }
 
-        QueryWrapperOrderUtil.setOrderBy(queryWrapper,dataGridPager);
-
-
-        service.page(page,queryWrapper);
-        modelMap.put("total", page.getTotal());
-        modelMap.put("rows", page.getRecords());
+        modelMap.put("total", count);
+        modelMap.put("rows", list == null ? new ArrayList<>() : list);
         return modelMap;
     }
 
     @PostMapping(value = "/add")
     @OpLog(name = "增加权限")
     @RequiresPermissions("membership.permission:add")
-    public ResponseResult add(@CurrentUser final User loginUser , final Permission permission) {
+    public ResponseResult add(@CurrentUser final User loginUser, final Permission permission) {
         permission.setCreateDate(new Date());
         permission.setCreateUser(loginUser.getId());
 
@@ -84,7 +85,7 @@ public class PermissionController {
     @PostMapping(value = "/edit")
     @OpLog(name = "修改权限")
     @RequiresPermissions("membership.permission:edit")
-    public ResponseResult edit(@CurrentUser final User loginUser , final Permission permission) {
+    public ResponseResult edit(@CurrentUser final User loginUser, final Permission permission) {
         permission.setUpdateUser(loginUser.getId());
         permission.setUpdateDate(new Date());
         this.service.updateById(permission);

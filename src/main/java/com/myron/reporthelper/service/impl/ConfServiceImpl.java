@@ -21,6 +21,17 @@ public class ConfServiceImpl extends ServiceImpl<ConfMapper, Conf> implements Co
     ConfMapper confMapper;
 
     @Override
+    public List<Map<String, Object>> getReportList(Map<String, Object> params) {
+        return this.confMapper.getReportList(params);
+    }
+
+    @Override
+    public int getReportCount(Map<String, Object> params) {
+        return this.confMapper.getReportCount(params);
+    }
+
+
+    @Override
     public List<Conf> getByParentId(final Integer parentId) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("pid", parentId);

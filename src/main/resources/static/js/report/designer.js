@@ -1507,12 +1507,11 @@ var DesignerMVC = {
         },
         preview: function () {
             DesignerMVC.Util.isRowSelected(function (row) {
-                var url = ReportHelper.ctxPath + '/report/preview/uid/' + row.uid;
-                console.log(url)
+                var url ='/report/preview/uid/' + row.uid;
                 if (parent.IndexMVC) {
                     parent.IndexMVC.Controller.openMentContent(row.uid, url, row.name, 'iframe')
                 } else {
-                    window.open(url);
+                    window.open(ReportHelper.ctxPath +url);
                 }
             });
         },

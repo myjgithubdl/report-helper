@@ -3,6 +3,7 @@ package com.myron.reporthelper.service;
 import com.myron.reporthelper.entity.Permission;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +18,16 @@ public interface PermissionService extends IService<Permission> {
 
     void reloadCache();
 
+    /**
+     * 查询列表
+     *
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> getReportList(Map<String, Object> params);
+
+
+    int getReportCount(Map<String, Object> params);
 
 
     /**

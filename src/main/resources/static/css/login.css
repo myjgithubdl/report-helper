@@ -3,16 +3,8 @@ html {
 }
 
 .login-bg {
-    background: url("../images/common/login-bg3.jpg") no-repeat left top;
+    background: url("../images/common/login-bg4.jpg") no-repeat left top;
     background-size: 100% 100%;
-}
-
-
-.login-lakala-logo {
-    height: 52px;
-    width: 110px;
-    background-size: 100% 100%;
-    background: url("../images/common/lakala-logo.png") no-repeat;
 }
 
 .login-bigdata-plant-font {
@@ -30,16 +22,6 @@ html {
     right: 60px;
     z-index: 0;
     border-radius: 6px;
-}
-
-.login-yyt-bg {
-    background-size: 100% 100%;
-    background: url("../images/common/login-yyt.png") no-repeat;
-}
-
-.login-kaola-bg {
-    background-size: 100% 100%;
-    background: url("../images/common/kaola.png") no-repeat;
 }
 
 .form-control {
@@ -63,40 +45,20 @@ html {
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
 }
 
-.login-icon-refresh {
-    background: url("../images/common/refresh-page-option-16-2.png") no-repeat scroll center center;
-    background-size: auto auto;
-    height: 16px;
-    width: 16px;
-    display: inline-block;
+
+
+#loginPage input:hover{
+    border: 1px solid #00C1DE !important;
 }
-
-.login-input-username{
-    width: 16px;
-    height: 17px;
-    background-size: 100% 100%;
-    background: url("../images/common/login-input-username2.png") no-repeat;
-    -moz-background-size: cover;
-}
-
-.login-input-pwd{
-    width: 14px;
-    height: 17px;
-    background-size: 100% 100%;
-    background: url("../images/common/login-input-pwd2.png") no-repeat;
-    -moz-background-size: cover;
-}
-
-.login-bg-login-input {
-    background-size: 100% 100%;
-    background: url("../images/common/login-bg-login-input2.png") no-repeat;
-    opacity: 0.6;
-}
-
-
 
 #loginPage .input-group {
     position: relative;
     display: table;
     border-collapse: separate;
+}
+
+
+#loginPage ul li {
+    line-height: 30px;
+    font-size: 14px;
 }

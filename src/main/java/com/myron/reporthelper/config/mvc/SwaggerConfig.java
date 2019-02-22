@@ -32,9 +32,9 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
             .title("ReportHelper")
-            .description("reporthelper A Sample and Easy to Use Web Reporting")
-            .termsOfServiceUrl("http://www.easytoolsoft.com")
-            .contact(new Contact("easytoolsoft", "http://www.easytoolsoft.com", "okex@easytoolsoft.com"))
+            .description("")
+            .termsOfServiceUrl("")
+            .contact(new Contact("", "", ""))
             .version("1.0")
             .build();
     }

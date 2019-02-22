@@ -1259,6 +1259,183 @@ ul.tabs {
     padding-right: 100px;
 }
 
+
+.lh10{
+    line-height:10px;
+}
+
+.lh11{
+    line-height:11px;
+}
+
+.lh12{
+    line-height:12px;
+}
+
+.lh13{
+    line-height:13px;
+}
+
+.lh14{
+    line-height:14px;
+}
+
+.lh15{
+    line-height:15px;
+}
+
+.lh16{
+    line-height:16px;
+}
+
+.lh17{
+    line-height:17px;
+}
+
+.lh18{
+    line-height:18px;
+}
+
+.lh19{
+    line-height:19px;
+}
+
+.lh20{
+    line-height:20px;
+}
+
+.lh21{
+    line-height:21px;
+}
+
+.lh22{
+    line-height:22px;
+}
+
+.lh23{
+    line-height:23px;
+}
+
+.lh24{
+    line-height:24px;
+}
+
+.lh25{
+    line-height:25px;
+}
+
+.lh26{
+    line-height:26px;
+}
+
+.lh27{
+    line-height:27px;
+}
+
+.lh28{
+    line-height:28px;
+}
+
+.lh29{
+    line-height:29px;
+}
+
+.lh30{
+    line-height:30px;
+}
+
+.lh31{
+    line-height:31px;
+}
+
+.lh32{
+    line-height:32px;
+}
+
+.lh33{
+    line-height:33px;
+}
+
+.lh34{
+    line-height:34px;
+}
+
+.lh35{
+    line-height:35px;
+}
+
+.lh36{
+    line-height:36px;
+}
+
+.lh37{
+    line-height:37px;
+}
+
+.lh38{
+    line-height:38px;
+}
+
+.lh39{
+    line-height:39px;
+}
+
+.lh40{
+    line-height:40px;
+}
+
+.lh41{
+    line-height:41px;
+}
+
+.lh42{
+    line-height:42px;
+}
+
+.lh43{
+    line-height:43px;
+}
+
+.lh44{
+    line-height:44px;
+}
+
+.lh45{
+    line-height:45px;
+}
+
+.lh46{
+    line-height:46px;
+}
+
+.lh47{
+    line-height:47px;
+}
+
+.lh48{
+    line-height:48px;
+}
+
+.lh49{
+    line-height:49px;
+}
+
+.lh50{
+    line-height:50px;
+}
+
+.zi99{
+    z-index: 99;
+}
+
+.zi999{
+    z-index: 999;
+}
+
+.zi9999{
+    z-index: 9999;
+}
+
 .tr {
     text-align: right;
 }
@@ -1279,13 +1456,182 @@ ul.tabs {
     text-align: center;
 }
 
-.hp100 {
+.hep100 {
     height: 100%;
 }
 
-.h28 {
-    height: 28px;
+.he10{
+    height:10px;
 }
+
+.he12{
+    height:12px;
+}
+
+.he14{
+    height:14px;
+}
+
+.he16{
+    height:16px;
+}
+
+.he18{
+    height:18px;
+}
+
+.he20{
+    height:20px;
+}
+
+.he22{
+    height:22px;
+}
+
+.he24{
+    height:24px;
+}
+
+.he26{
+    height:26px;
+}
+
+.he28{
+    height:28px;
+}
+
+.he30{
+    height:30px;
+}
+
+.he32{
+    height:32px;
+}
+
+.he34{
+    height:34px;
+}
+
+.he36{
+    height:36px;
+}
+
+.he38{
+    height:38px;
+}
+
+.he40{
+    height:40px;
+}
+
+.he42{
+    height:42px;
+}
+
+.he44{
+    height:44px;
+}
+
+.he46{
+    height:46px;
+}
+
+.he48{
+    height:48px;
+}
+
+.he50{
+    height:50px;
+}
+
+.wip100{
+    width: 100%;
+}
+
+.wi10{
+    width:10px;
+}
+
+.wi12{
+    width:12px;
+}
+
+.wi14{
+    width:14px;
+}
+
+.wi16{
+    width:16px;
+}
+
+.wi18{
+    width:18px;
+}
+
+.wi20{
+    width:20px;
+}
+
+.wi22{
+    width:22px;
+}
+
+.wi24{
+    width:24px;
+}
+
+.wi26{
+    width:26px;
+}
+
+.wi28{
+    width:28px;
+}
+
+.wi30{
+    width:30px;
+}
+
+.wi32{
+    width:32px;
+}
+
+.wi34{
+    width:34px;
+}
+
+.wi36{
+    width:36px;
+}
+
+.wi38{
+    width:38px;
+}
+
+.wi40{
+    width:40px;
+}
+
+.wi42{
+    width:42px;
+}
+
+.wi44{
+    width:44px;
+}
+
+.wi46{
+    width:46px;
+}
+
+.wi48{
+    width:48px;
+}
+
+.wi50{
+    width:50px;
+}
+
 
 .lh26 {
     line-height: 26px;
@@ -1423,6 +1769,14 @@ ul.tabs {
     background-color: #0099FF;
 }
 
+.bg-00C1DE {
+    background-color: #00C1DE;
+}
+
+.bg-1F2325 {
+    background-color: #1F2325;
+}
+
 .bg-99C2E3 {
     background-color: #99C2E3;
 }
@@ -1441,6 +1795,10 @@ ul.tabs {
 
 .bg-00A5DB {
     background-color: #00A5DB;
+}
+
+.bg-1C2327 {
+    background-color: #1C2327;
 }
 
 .bg-336699 {
@@ -1651,118 +2009,6 @@ ul.tabs {
     display: block;
     list-style: none;
     overflow: visible;
-    margin-top: 1px;
-    background-color: #2F4056;
-}
-
-.index-page-menu ul li a {
-    display: block;
-    width: 100%;
-    height: 45px;
-    line-height: 13px;
-    padding-left: 0px;
-    padding-top: 17px;
-    color: #FFFFFF;
-    text-decoration: none;
-}
-
-.index-page-menu ul li .active {
-    background: url(../images/common/off.png) top right no-repeat;
-}
-
-.index-page-menu ul li .unactive {
-    background: url(../images/common/on-right.png) 100% 70% no-repeat;
-}
-
-/*二级菜单  start  */
-.index-page-menu ul li ul {
-    width: 100%;
-    display: none;
-    margin-top: 0px;
-}
-
-.index-page-menu ul li ul li {
-    width: 100%;
-    display: none;
-    margin-top: 0px;
-   /* background-color: #2F4056;*/
-}
-/*二级菜单  end  */
-
-/*三级菜单  start  */
-.index-page-menu ul li ul li ul {
-    margin-bottom: 0px;
-}
-
-.index-page-menu ul li ul li ul li {
-    /*margin-bottom: 5px;*/
-    /*background-color: #0892CD;*/
-}
-
-/*三级菜单  end  */
-
-.index-page-menu ul li ul li {
-    display: block;
-    background: none;
-    font-size: 15px;
-    list-style: circle;
-    color: #FFFFFF;
-    margin-bottom: 0px;
-    margin-top: 1px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    background-color:#2F4056;
-}
-
-.index-page-menu ul li ul li a {
-    background: none;
-    width: 100%;
-    height: 45px;
-    line-height: 13px;
-    color: #FFFFFF;
-// padding-top: 14px;
-// padding-left: 25px;
-    font-size:13px;
-}
-
-.index-page-menu ul li ul li ul li a {
-//padding-left: 45px;
-}
-
-.index-page-menu ul li ul li ul li ul li a {
-    padding-left: 65px;
-}
-
-.index-page-menu ul li ul li ul li ul li ul li a {
-    padding-left: 85px;
-}
-
-/*.index-page-menu li a:hover,.index-page-menu li:hover {
-    //background-color: #0892CD;
-    background-color: white;
-    color:#336699;
-}*/
-
-.index-login-out-bg {
-    background-size: 100% 100%;
-    background-image: url("../images/common/home-login-out.png") ;
-    background-repeat: no-repeat;
-    width: 20px;
-    height: 20px;
-}
-
-.index-edit-password {
-    background-size: 100% 100%;
-    background-image: url("../images/common/edit-password.png");
-    background-repeat: no-repeat;
-    width: 33px;
-    height: 18px;
-}
-
-.index-login-user {
-    background-size: 100% 100%;
-    background-image: url("../images/common/forum-user.png");
-    background-repeat: no-repeat;
 }
 
 /* 覆zui样式  */
@@ -1779,8 +2025,6 @@ ul.tabs {
 .index-page-menu-icon {
     width: 18px;
     height: 18px;
-    float: left;
-    margin-top: -2px;
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }

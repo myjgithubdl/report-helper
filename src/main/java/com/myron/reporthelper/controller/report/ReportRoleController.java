@@ -78,7 +78,7 @@ public class ReportRoleController {
         }
 
         modelMap.put("total", count);
-        modelMap.put("rows", list);
+        modelMap.put("rows", list == null ? new ArrayList<>() : list);
         return modelMap;
     }
 
