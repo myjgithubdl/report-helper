@@ -2,9 +2,7 @@ package com.myron.reporthelper.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.easydata.head.TheadColumn;
-import com.easydata.head.TheadColumnTree;
-import com.myron.reporthelper.bo.*;
-import com.myron.reporthelper.bo.pair.TextValuePair;
+import com.myron.reporthelper.bo.ReportDataSource;
 import com.myron.reporthelper.entity.Report;
 
 import java.util.List;
@@ -29,16 +27,6 @@ public interface ReportService extends IService<Report> {
      * @return
      */
     List<TheadColumn> getMetaDataColumns(int dsId, String sqlText);
-
-
-    /**
-     * 查询报表查询参数为选择框的option选项
-     *
-     * @param dsId
-     * @param sqlText
-     * @return
-     */
-    List<TextValuePair> querySelectOptionList(int dsId, String sqlText);
 
 
     ReportDataSource getReportDataSource(int dsId);

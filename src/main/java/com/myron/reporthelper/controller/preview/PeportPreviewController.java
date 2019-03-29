@@ -49,8 +49,8 @@ public class PeportPreviewController {
     public ModelAndView preview(final HttpServletRequest request, @PathVariable final String uid) {
         final ModelAndView modelAndView = new ModelAndView("report/display/");
         Report report = reportService.getReportByUid(uid);
-        ReportOptions options = ReportUtil.getReportOptions(report);
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        ReportOptions options = report.parseOptions();
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
         //是否是通过表格查看数据
         String chartToTabel = MapUtils.getString(requestParams, "chartToTabel", "N");
         int showContent = "Y".equals(chartToTabel) ? 1 : options.getShowContent();
@@ -84,7 +84,7 @@ public class PeportPreviewController {
     public ResponseResult queryReportTableData(final HttpServletRequest request,
                                                @PathVariable final String uid) {
         Report report = reportService.getReportByUid(uid);
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
         ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
         String htmlTable = LayuiHtmlTableUtil.getHtmlTable(reportParameter.getMetaColumns(), reportParameter.getReportPageInfo().getRows());
 
@@ -105,7 +105,8 @@ public class PeportPreviewController {
     public ResponseResult queryReportChartData(final HttpServletRequest request,
                                                @PathVariable final String uid) {
         Report report = reportService.getReportByUid(uid);
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        //Map<String, String> requestParams = ServletRequestUtil.getStringValParameterMap(request, report, report.getSqlText());
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
         ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
 
         ReportExplain reportExplain = ReportUtil.getReportExplain(report, requestParams);
@@ -131,7 +132,8 @@ public class PeportPreviewController {
                                                @PathVariable final String uid) {
         Report report = reportService.getReportByUid(uid);
         List<ReportQueryParameter> queryParameters = report.parseQueryParams();
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
         List<HtmlFormElement> htmlFormElementList = ReportUtil.getHtmlFormElement(report, requestParams);
         return ResponseResult.success(htmlFormElementList);
     }
@@ -163,7 +165,9 @@ public class PeportPreviewController {
             sqlText = reportQueryParameter.getContent();
         }
 
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, sqlText);
+        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, sqlText);
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
+
         List<TextValuePair> textValuePairs = ReportUtil.reloadSelectParamOption(report, requestParams, triggerParamName);
         return ResponseResult.success(textValuePairs);
     }
@@ -174,7 +178,9 @@ public class PeportPreviewController {
     public void exportReportTableData(final HttpServletRequest request, final HttpServletResponse response,
                                       @PathVariable final String uid, String exportFileType, String charsetName) {
         Report report = reportService.getReportByUid(uid);
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
+
         List<Map<String, Object>> dataList = ReportUtil.getExportReportTableData(report, requestParams);
 
         if ("excel".equals(exportFileType)) {
@@ -196,7 +202,9 @@ public class PeportPreviewController {
     public ResponseResult queryPivotTableData(final HttpServletRequest request,
                                               @PathVariable final String uid) {
         Report report = reportService.getReportByUid(uid);
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
+
         ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
         PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, requestParams);
         List<TheadColumn> pivotTableTheadColumnList = pivotTableData.getPivotTableTheadColumnList();
@@ -216,7 +224,7 @@ public class PeportPreviewController {
     }
 
 
-    private PivotTableDataCore getPivotTableData(ReportParameter reportParameter, Map<String, String> requestParams) {
+    private PivotTableDataCore getPivotTableData(ReportParameter reportParameter, Map<String, Object> requestParams) {
         List<String> rows = Arrays.asList(MapUtils.getString(requestParams, "rowColNames", ""));
         List<String> cols = Arrays.asList(MapUtils.getString(requestParams, "colColNames", ""));
         String valColNames = MapUtils.getString(requestParams, "valColNames", "");
@@ -237,7 +245,9 @@ public class PeportPreviewController {
     public void exportPivotTableData(final HttpServletRequest request, final HttpServletResponse response,
                                      @PathVariable final String uid, String exportFileType, String charsetName) {
         Report report = reportService.getReportByUid(uid);
-        Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
+
         ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
         PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, requestParams);
         List<TheadColumn> pivotTableTheadColumnList = pivotTableData.getPivotTableTheadColumnList();

@@ -6,10 +6,6 @@ import com.myron.reporthelper.bo.ReportPageInfo;
 import com.myron.reporthelper.bo.ReportParameter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
 /**
  * SQLite3数据库查询器类。
  * 在使用该查询器时,请先参考:https://bitbucket.org/xerial/sqlite-jdbc
@@ -23,43 +19,23 @@ public class SQLiteQueryer extends AbstractQueryer implements Queryer {
     }
 
     @Override
-    protected String processParseMetaDataColumnsSql(String sqlText) {
+    public String getCountSql(String sqlText) {
         if (StringUtils.stripToNull(sqlText) == null)
             return null;
 
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ( ");
+        sb.append("SELECT COUNT(1) as count_num FROM ( ");
         sb.append(sqlText);
-        sb.append(" ) t limit 1 ");
+        sb.append(" ) as  t");
 
         return sb.toString();
     }
 
     @Override
-    public int queryCount(String sqlText) {
-        if (StringUtils.stripToNull(sqlText) == null)
-            return 0;
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(1) as count_num FROM ( ");
-        sb.append(sqlText);
-        sb.append("  ) t");
-        int totalRows = queryCountAndSetPageInfo(sb.toString());
-
-        return totalRows;
-    }
-
-    @Override
-    public List<Map<String, Object>> queryForList(String sqlText) {
-
+    public String getPageSql(String sqlText) {
         ReportPageInfo pageInfo = this.parameter.getReportPageInfo();
         //启用分页信息
         if (pageInfo != null && pageInfo.isEnablePage()) {
-            //总记录数为null ， 查询分页信息
-            if (pageInfo.getTotalRows() == null) {
-                queryCount(sqlText);
-            }
-
             StringBuilder pageSqlSb = new StringBuilder();
             pageSqlSb.append(" SELECT * FROM ( ");
             pageSqlSb.append(sqlText);
@@ -68,14 +44,7 @@ public class SQLiteQueryer extends AbstractQueryer implements Queryer {
 
             sqlText = pageSqlSb.toString();
         }
-
-        try {
-            List<Map<String, Object>> list = queryDataList(sqlText);
-            return list;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return sqlText;
     }
+
 }

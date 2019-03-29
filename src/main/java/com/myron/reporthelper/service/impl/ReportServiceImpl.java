@@ -4,9 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.easydata.head.TheadColumn;
-import com.easydata.head.TheadColumnTree;
-import com.myron.reporthelper.bo.*;
-import com.myron.reporthelper.bo.pair.TextValuePair;
+import com.myron.reporthelper.bo.ReportDataSource;
+import com.myron.reporthelper.bo.ReportParameter;
 import com.myron.reporthelper.db.query.QueryerFactory;
 import com.myron.reporthelper.entity.Datasource;
 import com.myron.reporthelper.entity.Report;
@@ -19,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,16 +50,10 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
-        return QueryerFactory.create(reportDataSource).parseMetaDataColumns(sqlText);
+        Report report = Report.builder().id(-1).name("解析元数据列").build();
+        ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(sqlText).build();
+        return QueryerFactory.create(reportDataSource, reportParameter).parseMetaDataColumns(sqlText);
     }
-
-
-    @Override
-    public List<TextValuePair> querySelectOptionList(int dsId, String sqlText) {
-        ReportDataSource reportDataSource = getReportDataSource(dsId);
-        return QueryerFactory.create(reportDataSource).querySelectOptionList(sqlText);
-    }
-
 
     @Override
     public ReportDataSource getReportDataSource(int dsId) {

@@ -1,6 +1,7 @@
 package com.myron.reporthelper.bo;
 
 import com.easydata.head.TheadColumn;
+import com.myron.reporthelper.entity.Report;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,13 +20,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ReportParameter {
     /**
-     * 报表唯一id
+     * 报表
      */
-    private String id;
-    /**
-     * 报表名称
-     */
-    private String name;
+    private Report report;
 
     /**
      * 查询SQL

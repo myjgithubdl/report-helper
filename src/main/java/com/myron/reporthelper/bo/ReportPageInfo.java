@@ -30,7 +30,7 @@ public class ReportPageInfo implements Serializable {
     /**
      * 当页数
      */
-    private int pageIndex=1;
+    private int pageIndex = 1;
 
     /**
      * 总页数
@@ -61,18 +61,18 @@ public class ReportPageInfo implements Serializable {
      * @param totalRows
      */
     public void setPageInfo(int totalRows) {
+        this.setTotalRows(totalRows);
         int pageSize = this.getPageSize() <= 0 ? 50 : this.getPageSize();
         if (totalRows <= 0) {
             this.setTotalPage(0);
         } else {
-            this.setTotalRows(totalRows);
             if (totalRows % pageSize == 0) {
                 this.setTotalPage(totalRows / pageSize);
             } else {
                 this.setTotalPage((totalRows / pageSize) + 1);
             }
-            if(this.pageIndex < 1){
-                this.pageIndex=1;
+            if (this.pageIndex < 1) {
+                this.pageIndex = 1;
             }
 
             int startRow = (this.pageIndex - 1) * this.pageSize + 1;

@@ -3,9 +3,8 @@ package com.myron.reporthelper.db.query;
 
 import com.myron.reporthelper.bo.ReportDataSource;
 import com.myron.reporthelper.bo.ReportParameter;
-
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * MS SQLServer 数据库查询器类。
@@ -14,23 +13,27 @@ import java.util.Map;
  *
  * @author 缪应江
  */
+@Slf4j
 public class SqlServerQueryer extends AbstractQueryer implements Queryer {
     public SqlServerQueryer(final ReportDataSource dataSource, final ReportParameter parameter) {
         super(dataSource, parameter);
     }
 
     @Override
-    protected String processParseMetaDataColumnsSql(String sqlText) {
-        return null;
+    public String getCountSql(String sqlText) {
+        if (StringUtils.stripToNull(sqlText) == null)
+            return null;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(1) AS count_num FROM ( ");
+        sb.append(sqlText);
+        sb.append(" )  AS  t");
+        return sb.toString();
     }
 
     @Override
-    public int queryCount(String sqlText) {
-        return 0;
-    }
-
-    @Override
-    public List<Map<String, Object>> queryForList(String sqlText) {
+    public String getPageSql(String sql) {
         return null;
     }
+
 }

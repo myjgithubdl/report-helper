@@ -12,9 +12,9 @@ import com.myron.reporthelper.db.query.QueryerFactory;
 import com.myron.reporthelper.entity.Report;
 import com.myron.reporthelper.service.DatasourceService;
 import com.myron.reporthelper.service.ReportService;
+import com.sql.entity.JdbcTemplateQueryParams;
 import com.sql.util.ParamsUtil;
 import com.sql.util.SQLUtil;
-import io.swagger.models.parameters.QueryParameter;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import org.apache.commons.collections.MapUtils;
@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import java.sql.Types;
 import java.util.*;
 
 /**
@@ -43,74 +43,130 @@ public class ReportUtil {
     }
 
 
-    public ReportParameter queryReportData(Report report, Map<String, String> requestParams) {
-
-
-        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
-
-        return reportParameter;
-    }
-
-
-    /**
-     * 解析报表参数
-     *
-     * @param report
-     * @return
-     */
-    public static ReportOptions getReportOptions(Report report) {
-        if (report != null) {
-            return JSONObject.parseObject(report.getOptions(), ReportOptions.class);
-        }
-        return null;
-    }
-
     /**
      * 如果报表启用分页则查询报表分页数据，否则查询全部数据
      *
      * @param report
      * @return
      */
-    public static ReportParameter queryReportPageData(Report report, Map<String, String> params) {
+    public static ReportParameter queryReportPageData(Report report, Map<String, Object> params) {
         try {
             ReportDataSource reportDataSource = reportService.getReportDataSource(report.getDsId());
-            ReportOptions options = getReportOptions(report);
+            ReportOptions options = report.parseOptions();
 
             //创建分页信息
             ReportPageInfo pageInfo = ReportPageInfo.builder()
                     .isEnablePage(options.getEnablePage() != null && options.getEnablePage() == 1)
                     .pageSize(options.getPageSize()).build();
 
-            if (StringUtils.isNotEmpty(params.get("pageIndex"))) {
-                pageInfo.setPageIndex(Integer.parseInt(params.get("pageIndex")));
+            if (params.get("pageIndex") != null && StringUtils.isNotEmpty(params.get("pageIndex").toString())) {
+                pageInfo.setPageIndex(Integer.parseInt(params.get("pageIndex").toString()));
             }
-            if (StringUtils.isNotEmpty(params.get("pageSize"))) {
-                pageInfo.setPageSize(Integer.parseInt(params.get("pageSize")));
+            if (params.get("pageSize") != null && StringUtils.isNotEmpty(params.get("pageSize").toString())) {
+                pageInfo.setPageSize(Integer.parseInt(params.get("pageSize").toString()));
             }
             //totalRows>=0 不会触发查询数量操作
-            if (StringUtils.isNotEmpty(params.get("totalRows"))) {
-                pageInfo.setTotalRows(Integer.parseInt(params.get("totalRows")));
+            if (params.get("totalRows") != null && StringUtils.isNotEmpty(params.get("totalRows").toString())) {
+                pageInfo.setTotalRows(Integer.parseInt(params.get("totalRows").toString()));
             }
 
-            ReportParameter reportParameter = new ReportParameter();
+            ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(report.getSqlText()).build();
             reportParameter.setReportPageInfo(pageInfo);
             reportParameter.setMetaColumns(report.parseMetaColumns());
 
             Queryer query = QueryerFactory.create(reportDataSource, reportParameter);
 
-            String sqlText = SQLUtil.replaceSQLParams2(report.getSqlText(), params);
-
             pageInfo = query.getReportParameter().getReportPageInfo();
 
             reportParameter.setReportPageInfo(pageInfo);
 
-            pageInfo.setRows(query.queryForList(sqlText));
+            //String sqlText = SQLUtil.replaceSQLParams2(report.getSqlText(), params);
+            //pageInfo.setRows(query.queryForList(sqlText));
+
+            //使用Spring JdbcTemplate做查询
+            //JdbcTemplateQueryParams jdbcTemplateQueryParams = getJdbcTemplateQueryParams(report, report.getSqlText(), params);
+            //List<Map<String, Object>> dataList = query.queryPageDataList(jdbcTemplateQueryParams.getSql(),
+            // jdbcTemplateQueryParams.getArgValues(), jdbcTemplateQueryParams.getArgTypes());
+            //使用Spring NamedParameterJdbcTemplate 做查询
+            JdbcTemplateQueryParams jdbcTemplateQueryParams = getNamedParameterJdbcTemplateQueryParams(report, report.getSqlText(), params);
+            List<Map<String, Object>> dataList = query.queryPageDataList(jdbcTemplateQueryParams.getSql(), params);
+            pageInfo.setRows(dataList);
+
             return reportParameter;
         } catch (JSQLParserException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+
+    /**
+     * 获取Spring JdbcTemplate queryForList需要的查询参数
+     *
+     * @param report
+     * @param params
+     * @return
+     * @throws JSQLParserException
+     */
+    public static JdbcTemplateQueryParams getJdbcTemplateQueryParams(Report report, String sql, Map<String, String> params) throws JSQLParserException {
+        List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
+        JdbcTemplateQueryParams jdbcTemplateQueryParams = SQLUtil.sqlToJdbcTemplateQuery2(sql, params);
+
+        //参数类型
+        List<Integer> argTypeList = new ArrayList<>();
+        List<Object> argValueList = new ArrayList<>();
+        String[] argNames = jdbcTemplateQueryParams.getArgNames();
+
+        if (reportQueryParameters != null) {
+            Map<String, ReportQueryParameter> reportQueryParameterMap = new HashMap<>();
+            reportQueryParameters.stream().forEach(a -> reportQueryParameterMap.put(a.getName(), a));
+            for (String argName : argNames) {
+                Object argValue = null;
+                int argType = Types.VARCHAR;
+                ReportQueryParameter reportQueryParameter = reportQueryParameterMap.get(argName);
+                if (reportQueryParameter != null) {
+                    if ("string".equals(reportQueryParameter.getDataType())) {
+                        argValue = MapUtils.getString(params, argName, null);
+                        argType = Types.VARCHAR;
+                    } else if ("float".equals(reportQueryParameter.getDataType())) {
+                        argValue = MapUtils.getDouble(params, argName, null);
+                        argType = Types.FLOAT;
+                    } else if ("integer".equals(reportQueryParameter.getDataType())) {
+                        argValue = MapUtils.getInteger(params, argName, null);
+                        argType = Types.VARCHAR;
+                    } else {
+                        argValue = MapUtils.getString(params, argName, null);
+                        argType = Types.VARCHAR;
+                    }
+                } else {
+                    argValue = MapUtils.getString(params, argName, null);
+                    argType = Types.VARCHAR;
+                }
+                argTypeList.add(argType);
+                argValueList.add(argValue);
+            }
+        }
+
+        jdbcTemplateQueryParams.setArgTypes(argTypeList.stream().mapToInt(Integer::valueOf).toArray());
+        jdbcTemplateQueryParams.setArgValues(argValueList.toArray());
+
+        return jdbcTemplateQueryParams;
+    }
+
+    /**
+     * 获取Spring JdbcTemplate queryForList需要的查询参数
+     *
+     * @param report
+     * @param params
+     * @return
+     * @throws JSQLParserException
+     */
+    public static JdbcTemplateQueryParams getNamedParameterJdbcTemplateQueryParams(Report report, String sql, Map<String, Object> params) throws JSQLParserException {
+        //List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
+        JdbcTemplateQueryParams jdbcTemplateQueryParams = SQLUtil.sqlToNamedParameterJdbcTemplateQuery(sql, params);
+        return jdbcTemplateQueryParams;
+    }
+
 
     /**
      * 获取报表的说明内容
@@ -119,7 +175,7 @@ public class ReportUtil {
      * @param params
      * @return
      */
-    public static ReportExplain getReportExplain(Report report, Map<String, String> params) {
+    public static ReportExplain getReportExplain(Report report, Map<String, Object> params) {
         try {
             ReportExplain reportExplain = report.parseReportExplain();
             if (reportExplain == null) {
@@ -130,10 +186,22 @@ public class ReportUtil {
             String sqlText = StringUtils.trimToNull(reportExplain.getSqlText());
             if (sqlText != null) {
                 ReportDataSource reportDataSource = reportService.getReportDataSource(report.getDsId());
-                ReportParameter reportParameter = new ReportParameter();
+                ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(sqlText).build();
                 Queryer query = QueryerFactory.create(reportDataSource, reportParameter);
-                sqlText = SQLUtil.replaceSQLParams2(sqlText, params);
-                List<Map<String, Object>> dataList = query.queryForList(sqlText);
+
+                //sqlText = SQLUtil.replaceSQLParams2(sqlText, params);
+                //List<Map<String, Object>> dataList = query.queryForList(sqlText);
+
+                /*//使用Spring JdbcTemplate做查询
+                JdbcTemplateQueryParams jdbcTemplateQueryParams = getJdbcTemplateQueryParams(report, sqlText, params);
+                List<Map<String, Object>> dataList = query.queryDataList(jdbcTemplateQueryParams.getSql(),
+                        jdbcTemplateQueryParams.getArgValues(), jdbcTemplateQueryParams.getArgTypes());*/
+
+
+                //使用Spring NamedParameterJdbcTemplate 做查询
+                JdbcTemplateQueryParams jdbcTemplateQueryParams = getNamedParameterJdbcTemplateQueryParams(report, sqlText, params);
+                List<Map<String, Object>> dataList = query.queryPageDataList(jdbcTemplateQueryParams.getSql(), params);
+
                 StringBuilder stringBuilder = new StringBuilder();
                 for (Map<String, Object> map : dataList) {
                     for (String key : map.keySet()) {
@@ -168,7 +236,7 @@ public class ReportUtil {
      * @param report
      * @return
      */
-    public static List<Map<String, Object>> getExportReportTableData(Report report, Map<String, String> params) {
+    public static List<Map<String, Object>> getExportReportTableData(Report report, Map<String, Object> params) {
         List<Map<String, Object>> dataList = new ArrayList<>();
         //设置分页信息
         params.put("pageIndex", "1");
@@ -201,7 +269,7 @@ public class ReportUtil {
      * @return
      */
     public static List<TextValuePair> getSelectOptionData(Report report,
-                                                          Map<String, String> params,
+                                                          Map<String, Object> params,
                                                           ReportQueryParameter reportQueryParameter) {
         List<TextValuePair> optionList = new ArrayList<>();
 
@@ -209,8 +277,18 @@ public class ReportUtil {
         HashSet<String> set = new HashSet<>();
         if ("sql".equals(reportQueryParameter.getDataSource())) {//来源是SQL
             try {
-                String sqlText = SQLUtil.replaceSQLParams2(reportQueryParameter.getContent(), params);
-                optionList = reportService.querySelectOptionList(report.getDsId(), sqlText);
+
+                ReportDataSource reportDataSource = reportService.getReportDataSource(report.getDsId());
+                ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(report.getSqlText()).build();
+                Queryer query = QueryerFactory.create(reportDataSource, reportParameter);
+
+                /*String sqlText = SQLUtil.replaceSQLParams2(reportQueryParameter.getContent(), params);
+                optionList = query.querySelectOptionList(sqlText);*/
+
+
+                //使用Spring NamedParameterJdbcTemplate 做查询
+                JdbcTemplateQueryParams jdbcTemplateQueryParams = getNamedParameterJdbcTemplateQueryParams(report, reportQueryParameter.getContent(), params);
+                optionList = query.querySelectOptionList(jdbcTemplateQueryParams.getSql(), params);
             } catch (JSQLParserException e) {
                 log.info("解析SQL语句出错,sql语句：" + report.getSqlText());
                 log.info("查询参数：" + JSONObject.toJSONString(params));
@@ -259,7 +337,7 @@ public class ReportUtil {
      * @param params
      * @return
      */
-    public static List<HtmlFormElement> getHtmlFormElement(Report report, Map<String, String> params) {
+    public static List<HtmlFormElement> getHtmlFormElement(Report report, Map<String, Object> params) {
 
         List<HtmlFormElement> htmlFormElementList = new ArrayList<>();
         List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
@@ -333,7 +411,7 @@ public class ReportUtil {
      * @param triggerParamName
      * @return
      */
-    public static List<TextValuePair> reloadSelectParamOption(Report report, Map<String, String> params, String triggerParamName) {
+    public static List<TextValuePair> reloadSelectParamOption(Report report, Map<String, Object> params, String triggerParamName) {
         List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
         for (ReportQueryParameter reportQueryParameter : reportQueryParameters) {
             if (triggerParamName.equals(reportQueryParameter.getName())
