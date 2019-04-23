@@ -2,6 +2,7 @@ package com.myron.reporthelper.util;
 
 import com.myron.reporthelper.bo.ReportQueryParameter;
 import com.myron.reporthelper.entity.Report;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -50,6 +51,12 @@ public class ServletRequestUtil {
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, String> returnMap = new HashMap<>();
 
+        if(StringUtils.isBlank(sqlText)){
+            returnMap.putAll(getRequestParameter(request));
+
+            return returnMap;
+        }
+
         for (String key : parameterMap.keySet()) {
             List<String> valueList = new ArrayList<>();
             String[] valueArray = parameterMap.get(key);
@@ -97,12 +104,18 @@ public class ServletRequestUtil {
     public static Map<String, Object> getObjectValParameterMap(HttpServletRequest request, Report report, String sql) {
         List<ReportQueryParameter> queryParameters = report.parseQueryParams();
 
-        sql = sql.replaceAll(" ", "");
-
         //请求参数
         Map<String, String[]> parameterMap = request.getParameterMap();
         //返回数据
         Map<String, Object> returnMap = new HashMap<>();
+
+        if(StringUtils.isBlank(sql)){
+            returnMap.putAll(getRequestParameter(request));
+
+            return returnMap;
+        }
+
+        sql = sql.replaceAll(" ", "");
 
         //处理报表参数
         for (String key : parameterMap.keySet()) {

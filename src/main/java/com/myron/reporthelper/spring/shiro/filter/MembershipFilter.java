@@ -15,8 +15,8 @@ import javax.servlet.ServletResponse;
 /**
  * 自定义的Shiro Filter,用于处理用户是否登录
  *
- * @author Tom Deng
- * @date 2017-03-25
+ * @author MyromMiao
+ * @date 2019-03-25
  */
 @Slf4j
 public class MembershipFilter extends PathMatchingFilter {

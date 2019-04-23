@@ -26,10 +26,10 @@ public class CurrentUserMethodArgumentResolver implements HandlerMethodArgumentR
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         CurrentUser currentUserAnnotation = parameter.getParameterAnnotation(CurrentUser.class);
-        log.info(currentUserAnnotation.value());
+        log.info("CurrentUser注解参数名：{}", currentUserAnnotation.value());
         Object val = webRequest.getAttribute(currentUserAnnotation.value(), NativeWebRequest.SCOPE_REQUEST);
-        if(val == null){
-            log.info("注解CurrentUser值为null.......");
+        if (val == null) {
+            log.info("@CurrentUser {}值为null.......", currentUserAnnotation.value());
         }
         return val;
     }

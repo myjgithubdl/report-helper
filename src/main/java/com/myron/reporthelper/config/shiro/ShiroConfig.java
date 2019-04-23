@@ -13,6 +13,7 @@ import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -56,7 +57,12 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager());
         shiroFilterFactoryBean.setLoginUrl("/member/login");
         shiroFilterFactoryBean.setSuccessUrl("/home/index");
-        shiroFilterFactoryBean.setUnauthorizedUrl("/error/401");
+        shiroFilterFactoryBean.setUnauthorizedUrl("/member/login");
+
+        //<!-- authc:所有url都必须认证通过才可以访问; anon:所有url都都可以匿名访问-->
+        //<!-- logout:配置退出 过滤器,其中的具体的退出代码Shiro已经替我们实现了-->
+        //<!-- user:配置记住我或认证通过可以访问-->
+
 
         final Map<String, Filter> filters = Maps.newHashMap();
         filters.put("authc", this.authcFilter());
@@ -64,16 +70,35 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setFilters(filters);
 
         final Map<String, String> chains = Maps.newLinkedHashMap();
-        chains.put("/member/logout", "logout");
+        /*chains.put("/member/logout", "logout");
         chains.put("/", this.configProperties.getShiro().getFilters());
         chains.put("/home/**", this.configProperties.getShiro().getFilters());
         chains.put("/views/**", this.configProperties.getShiro().getFilters());
         chains.put("/rest/**", this.configProperties.getShiro().getFilters());
         chains.put("/**", "anon");
 
-        chains.put("/home/index", "user");
+        chains.put("/home/index", "user");*/
         //chains.put("/", "user");
         //chains.put("/**", "user");
+
+
+        chains.put("/member/logout", "logout");
+
+        chains.put("/css/**", "anon");
+        chains.put("/images/**", "anon");
+        chains.put("/js/**", "anon");
+        chains.put("/vendor/**", "anon");
+        chains.put("/member/**", "anon");
+
+        chains.put("/", this.configProperties.getShiro().getFilters());
+        chains.put("/home/**", this.configProperties.getShiro().getFilters());
+        chains.put("/views/**", this.configProperties.getShiro().getFilters());
+        chains.put("/rest/**", this.configProperties.getShiro().getFilters());
+        chains.put("/**", "anon");
+
+
+        chains.put("/home/**", "authc,membership");
+        chains.put("/**", "user");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(chains);
 
@@ -157,8 +182,23 @@ public class ShiroConfig {
     @Bean
     public SessionManager sessionManager() {
         final DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-        sessionManager.getSessionIdCookie().setName("ReportHelper_JSESSIONID");
+        sessionManager.getSessionIdCookie().setName("JSESSIONID");
+        //全局会话超时时间1小时
+        sessionManager.setGlobalSessionTimeout(60*60*1000);
+        //rul上带上sessionID
+        sessionManager.setSessionIdUrlRewritingEnabled(false);
+        //sessionManager.setSessionDAO(sessionDAO);
+
         return sessionManager;
+    }
+
+    @Bean
+    public EnterpriseCacheSessionDAO getSessionDAO(){
+        EnterpriseCacheSessionDAO sessionDAO=new EnterpriseCacheSessionDAO();
+        sessionDAO.setActiveSessionsCacheName("activeSessionCache");
+        sessionDAO.setCacheManager(shiroSpringCacheManager());
+
+        return sessionDAO;
     }
 
     @Bean
@@ -207,7 +247,7 @@ public class ShiroConfig {
      *
      * @return
      */
-   @Bean
+    @Bean
     public ShiroSpringCacheManager shiroSpringCacheManager() {
         log.info("初始化bean******shiroSpringCacheManager******");
         ShiroSpringCacheManager shiroSpringCacheManager = new ShiroSpringCacheManager();

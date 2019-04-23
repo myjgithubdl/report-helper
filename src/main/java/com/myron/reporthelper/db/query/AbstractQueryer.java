@@ -497,16 +497,18 @@ public abstract class AbstractQueryer {
 
         ReportPageInfo pageInfo = this.parameter.getReportPageInfo();
         int totalRows = 0;
-        //总记录数为null ， 查询分页信息
-        if (pageInfo != null && (pageInfo.getTotalRows() == null || pageInfo.getTotalRows() < 0)) {
-            totalRows = this.queryCountAndSetPageInfo(sql, paramMap);
+        //启用分页
+        if (pageInfo != null && pageInfo.isEnablePage()) {
+            if (pageInfo.getTotalRows() == null || pageInfo.getTotalRows() < 0) {
+                totalRows = this.queryCountAndSetPageInfo(sql, paramMap);
+            } else {
+                totalRows = pageInfo.getTotalRows();
+            }
+            if (totalRows < 1) {
+                return null;
+            }
+            sql = this.getPageSql(sql);
         }
-
-        if (totalRows < 1) {
-            return null;
-        }
-
-        sql = this.getPageSql(sql);
 
         return this.queryDataList(sql, paramMap);
     }

@@ -12,6 +12,7 @@ import com.myron.reporthelper.db.query.QueryerFactory;
 import com.myron.reporthelper.entity.Report;
 import com.myron.reporthelper.service.DatasourceService;
 import com.myron.reporthelper.service.ReportService;
+import com.sql.constant.Constant;
 import com.sql.entity.JdbcTemplateQueryParams;
 import com.sql.util.ParamsUtil;
 import com.sql.util.SQLUtil;
@@ -183,11 +184,20 @@ public class ReportUtil {
             }
 
             String html = StringUtils.trimToNull(reportExplain.getHtml());
+            if (html == null) {
+                return null;
+            }
+
             String sqlText = StringUtils.trimToNull(reportExplain.getSqlText());
             if (sqlText != null) {
+
+                //报表提示强制限制为查询100条记录
+                ReportPageInfo reportPageInfo = ReportPageInfo.builder().isEnablePage(true).pageIndex(1).totalRows(100).pageSize(100).build();
+
                 ReportDataSource reportDataSource = reportService.getReportDataSource(report.getDsId());
-                ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(sqlText).build();
+                ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(sqlText).reportPageInfo(reportPageInfo).build();
                 Queryer query = QueryerFactory.create(reportDataSource, reportParameter);
+
 
                 //sqlText = SQLUtil.replaceSQLParams2(sqlText, params);
                 //List<Map<String, Object>> dataList = query.queryForList(sqlText);
@@ -203,25 +213,25 @@ public class ReportUtil {
                 List<Map<String, Object>> dataList = query.queryPageDataList(jdbcTemplateQueryParams.getSql(), params);
 
                 StringBuilder stringBuilder = new StringBuilder();
-                for (Map<String, Object> map : dataList) {
-                    for (String key : map.keySet()) {
-                        stringBuilder.append(StringUtils.trimToEmpty(map.get(key) == null ? "" : (map.get(key).toString())));
+                if (dataList != null && dataList.size() > 0) {
+                    for (Map<String, Object> map : dataList) {
+                        for (String key : map.keySet()) {
+                            stringBuilder.append(StringUtils.trimToEmpty(map.get(key) == null ? "" : (map.get(key).toString())));
+                        }
                     }
                 }
 
                 if (html.indexOf("reportTipContent") != -1) {
                     Map<String, Object> maps = new HashMap<>();
                     maps.put("reportTipContent", stringBuilder.toString());
-
-                    html = ParamsUtil.replaceAllParams(html, maps, "");
-
+                    html = ParamsUtil.replaceAllParams(html, Constant.REG_PARAMS_PATTERN, maps, "");
                 } else {
                     html += stringBuilder.toString();
                 }
-
-                reportExplain.setHtml(html);
-
             }
+
+            reportExplain.setHtml(html);
+
             return reportExplain;
         } catch (Exception e) {
             e.printStackTrace();
