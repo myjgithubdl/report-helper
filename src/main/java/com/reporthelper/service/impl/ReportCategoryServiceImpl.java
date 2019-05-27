@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * 报表类别表 服务实现类
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 @Service

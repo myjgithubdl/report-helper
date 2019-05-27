@@ -40,7 +40,7 @@ public class MybatisPlusGenerator {
                 .setNaming(NamingStrategy.underline_to_camel).setTablePrefix("rh");
         config.setActiveRecord(false)
                 .setEnableCache(false)
-                .setAuthor("缪应江")
+                .setAuthor("Myron")
                 //指定输出文件夹位置
                 .setOutputDir("D:\\ProgramFiles\\study\\ideaworkspace\\report-helper-mybatis-plus-generator-code\\src\\main\\java")
                 .setFileOverride(true)

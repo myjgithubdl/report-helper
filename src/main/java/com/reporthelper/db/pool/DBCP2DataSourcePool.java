@@ -10,7 +10,7 @@ import javax.sql.DataSource;
  * c3p0数据源连接池包装类
  * <a href="http://www.mchange.com/projects/c3p0/#quickstart>c3po</a>
  *
- * @author 缪应江
+ * @author Myron
  */
 public class DBCP2DataSourcePool implements DataSourcePoolWrapper {
     @Override

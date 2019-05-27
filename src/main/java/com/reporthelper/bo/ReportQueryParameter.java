@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * 报表查询参数类
  *
- * @author 缪应江
+ * @author Myron
  */
 public class ReportQueryParameter implements Serializable {
     private static final long serialVersionUID = 7975880105664108114L;

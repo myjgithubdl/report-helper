@@ -15,7 +15,7 @@ import java.util.Date;
  * 系统用户表
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 @Data

@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * 报表查询器接口
  *
- * @author 缪应江
+ * @author Myron
  */
 public interface Queryer {
     /**

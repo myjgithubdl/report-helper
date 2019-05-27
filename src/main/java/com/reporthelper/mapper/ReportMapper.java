@@ -11,7 +11,7 @@ import java.util.Map;
  * 报表配置表 Mapper 接口
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface ReportMapper extends BaseMapper<Report> {

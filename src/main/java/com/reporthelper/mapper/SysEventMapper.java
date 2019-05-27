@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  *  Mapper 接口
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface SysEventMapper extends BaseMapper<SysEvent> {

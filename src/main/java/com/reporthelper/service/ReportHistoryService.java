@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * 报表修改历史表 服务类
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface ReportHistoryService extends IService<ReportHistory> {

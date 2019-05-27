@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
  * 报表配置表
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 @Data

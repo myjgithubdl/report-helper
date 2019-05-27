@@ -11,7 +11,7 @@ import java.util.Map;
  * 服务类
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface ConfService extends IService<Conf> {

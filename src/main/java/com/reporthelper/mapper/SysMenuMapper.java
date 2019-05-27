@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
  *  Mapper 接口
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface SysMenuMapper extends BaseMapper<SysMenu> {

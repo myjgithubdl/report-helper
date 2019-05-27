@@ -12,7 +12,7 @@ import java.util.Map;
  * 数据源配置信息表 服务类
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface DatasourceService extends IService<Datasource> {

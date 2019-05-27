@@ -13,7 +13,7 @@ import java.util.Map;
  *  系统角色服务类
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface SysRoleService extends IService<SysRole> {

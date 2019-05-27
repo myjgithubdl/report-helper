@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
  * 报表类别表 Mapper 接口
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface ReportCategoryMapper extends BaseMapper<ReportCategory> {

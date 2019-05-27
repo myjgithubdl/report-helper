@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Jdbc工具类.
  *
- * @author 缪应江
+ * @author Myron
  */
 public class JdbcUtil {
     private static final Logger logger = LoggerFactory.getLogger(JdbcUtil.class);

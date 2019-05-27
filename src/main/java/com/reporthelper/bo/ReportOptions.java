@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 报表配置选项(rh_report表的options字段)
  *
- * @author 缪应江
+ * @author Myron
  */
 @SuppressWarnings("serial")
 @Data

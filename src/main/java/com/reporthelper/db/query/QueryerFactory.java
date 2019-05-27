@@ -9,7 +9,7 @@ import java.lang.reflect.Constructor;
 /**
  * 报表查询器工厂方法类
  *
- * @author 缪应江
+ * @author Myron
  */
 public class QueryerFactory {
     public static Queryer create(final ReportDataSource dataSource) {

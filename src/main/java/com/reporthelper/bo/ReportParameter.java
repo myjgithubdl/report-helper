@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 报表查询时的参数类
  *
- * @author 缪应江
+ * @author Myron
  */
 @Data
 @Builder

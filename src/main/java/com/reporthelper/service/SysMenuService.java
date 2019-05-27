@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  *  服务类
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface SysMenuService extends IService<SysMenu> {

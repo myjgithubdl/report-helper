@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
  * 数据源配置信息表
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 @Data

@@ -11,7 +11,7 @@ import java.util.Map;
  *  Mapper 接口
  * </p>
  *
- * @author 缪应江
+ * @author Myron
  * @since 2018-12-27
  */
 public interface PermissionMapper extends BaseMapper<Permission> {
