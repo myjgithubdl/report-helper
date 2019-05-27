@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.myron.reporthelper.mapper.ConfMapper">
+<mapper namespace="com.reporthelper.mapper.ConfMapper">
 
 
 
@@ -38,7 +38,7 @@
 
 
 
-    <select id="selectByParentKey"  resultType="com.myron.reporthelper.entity.Conf"  parameterType="string">
+    <select id="selectByParentKey"  resultType="com.reporthelper.entity.Conf"  parameterType="string">
         select *
         from rh_conf
         where pid in (SELECT id FROM rh_conf where `key` = #{key,jdbcType=VARCHAR})

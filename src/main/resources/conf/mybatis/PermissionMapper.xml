@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.myron.reporthelper.mapper.PermissionMapper">
+<mapper namespace="com.reporthelper.mapper.PermissionMapper">
 
     <sql id="queryParams">
         <if test="menuId != null and menuId != '' ">
@@ -35,7 +35,7 @@
 
 
 
-    <select id="selectAllWithMenuPath" resultType="com.myron.reporthelper.entity.Permission">
+    <select id="selectAllWithMenuPath" resultType="com.reporthelper.entity.Permission">
         select t1.*, t2.path
         from rh_permission t1
         inner join rh_sys_menu t2 ON t1.menu_id = t2.id

@@ -83,7 +83,7 @@
         <appender-ref ref="FILE_ERROR"/>
     </appender>
 
-    <logger name="com.myron.reporthelper" level="${logging.level.default}"/>
+    <logger name="com.reporthelper" level="${logging.level.default}"/>
     <logger name="org.mybatis" level="${logging.level.mybatis}"/>
     <logger name="org.apache.ibatis" level="${logging.level.mybatis}"/>
 

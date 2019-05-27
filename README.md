@@ -53,10 +53,10 @@ ReportHelper报表生成工具，用户只需要简单的设置数据库连接�
 
    因为不同数据库的查询语言会有区别（比如分页查询），需要根据不同的数据库定制不同的查询器（queryerClass）。
 
-   - Mysql：com.myron.reporthelper.db.query.MySqlQueryer
-   - Oracle：com.myron.reporthelper.db.query.OracleQueryer
-   - SQLServer：com.myron.reporthelper.db.query.SqlServerQueryer
-   - Postgresql：com.myron.reporthelper.db.query.PostgresqlQueryer
+   - Mysql：com.reporthelper.db.query.MySqlQueryer
+   - Oracle：com.reporthelper.db.query.OracleQueryer
+   - SQLServer：com.reporthelper.db.query.SqlServerQueryer
+   - Postgresql：com.reporthelper.db.query.PostgresqlQueryer
 
 3. 连接URL
 
@@ -74,10 +74,10 @@ ReportHelper报表生成工具，用户只需要简单的设置数据库连接�
 因为需要读取各类型的数据库，数据库连接的创建和销毁是很耗时的操作，所以使用连接池来管理数据库连接，建议使用Druid作为数据库连接池。该部分需要设置连接池的创建类和连接池的相关属性。
 
 1. 连接池创建类
-   - Druid：com.myron.reporthelper.db.pool.DruidDataSourcePool
-   - C3p0：com.myron.reporthelper.db.pool.C3p0DataSourcePool
-   - DBCP2：com.myron.reporthelper.db.pool.DBCP2DataSourcePool
-   - 无连接池：com.myron.reporthelper.db.pool.NoDataSourcePool
+   - Druid：com.reporthelper.db.pool.DruidDataSourcePool
+   - C3p0：com.reporthelper.db.pool.C3p0DataSourcePool
+   - DBCP2：com.reporthelper.db.pool.DBCP2DataSourcePool
+   - 无连接池：com.reporthelper.db.pool.NoDataSourcePool
 
 ![例子](https://raw.githubusercontent.com/myjgithubdl/report-helper/master/docs/assets/imgs/db-pool.png)
 
