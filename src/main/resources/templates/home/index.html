@@ -31,6 +31,11 @@
             width: 0px;
             height: 0px;
         }
+
+        #indexPageTabs .tabs li a.tabs-close{
+            background: none;
+        }
+
     </style>
 
     <script th:inline="javascript">//引用
@@ -47,7 +52,7 @@ onCollapse:function(){IndexMVC.Data.westPanelState = 'collapse'},onExpand:functi
      fit="true">
     <!-- 顶部  start -->
     <div region="north" data-options="border:false" style="height: 40px;">
-        <div class="bg-1F2325 hep100 wip100">
+        <div class="bg-1F2325 hep100 wip100 overflow-hidden">
             <div class="f18 color-FFFFFF hep100">
                 <div class="fl mr15 hep100">
                     <div class="fl pt6 pl10 pr10"
@@ -83,7 +88,7 @@ onCollapse:function(){IndexMVC.Data.westPanelState = 'collapse'},onExpand:functi
                 </div>
 
                 <div class="fr ml8 mr2" style="">
-                    <div title="退出登录" class=" cursor-p mt12 ml8"
+                    <div title="退出登录" class=" cursor-p mt7 ml8"
                          onclick="$('#indexPageTopNavLogoutModal').modal({backdrop: 'static'});">
                         <i class="icon icon-signout" style="font-size: 18px;"></i>
                     </div>

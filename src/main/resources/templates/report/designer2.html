@@ -1,0 +1,605 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/common_layout}">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>报表设计</title>
+
+    <link rel="stylesheet" href="../../static/vendor/codemirror/lib/codemirror.css"
+          th:href="@{/vendor/codemirror/lib/codemirror.css}"/>
+    <link rel="stylesheet" href="../../static/vendor/codemirror/theme/rubyblue.css"
+          th:href="@{/vendor/codemirror/theme/rubyblue.css}"/>
+    <link rel="stylesheet" href="../../static/vendor/codemirror/addon/hint/show-hint.css"
+          th:href="@{/vendor/codemirror/addon/hint/show-hint.css}"/>
+    <script src="../../static/vendor/codemirror/lib/codemirror.js"
+            th:src="@{/vendor/codemirror/lib/codemirror.js}"></script>
+    <script src="../../static/vendor/codemirror/mode/sql/sql.js"
+            th:src="@{/vendor/codemirror/mode/sql/sql.js}"></script>
+    <script src="../../static/vendor/codemirror/addon/display/fullscreen.js"
+            th:src="@{/vendor/codemirror/addon/display/fullscreen.js}"></script>
+    <script src="../../static/vendor/codemirror/addon/hint/show-hint.js"
+            th:src="@{/vendor/codemirror/addon/hint/show-hint.js}"></script>
+    <script src="../../static/vendor/codemirror/addon/hint/sql-hint.js"
+            th:src="@{/vendor/codemirror/addon/hint/sql-hint.js}"></script>
+
+    <script charset="utf-8" src="../../static/vendor/kindeditor/kindeditor-all-min.js"
+            th:src="@{/vendor/kindeditor/kindeditor-all-min.js}"></script>
+
+    <script charset="utf-8" src="../../static/vendor/kindeditor/lang/zh_CN.js"
+            th:src="@{/vendor/kindeditor/lang/zh_CN.js}"></script>
+
+    <script charset="utf-8" src="../../static/vendor/underscore/underscore-min.js"
+            th:src="@{/vendor/underscore/underscore-min.js}"></script>
+
+    <script charset="utf-8" src="../../../static/js/utils/commonUtils.js"
+            th:src="@{'/js/utils/commonUtils.js?v='+${version}}"></script>
+
+    <script src="../../static/js/report/category2.js" th:src="@{'/js/report/category2.js?v='+${version}}"></script>
+    <script src="../../static/js/report/designer2.js"
+            th:src="@{'/js/report/designer2.js?v='+${version}}"></script>
+</head>
+<body layout:fragment="content" class="easyui-layout" style="padding: 0px;">
+
+<!-- 左边报表分类tree -->
+<div id="west" data-options="region:'west',split:true" title="报表分类"
+     class="west-panel-tree" style="background: none;width: 220px;">
+    <div class="easyui-panel" style="padding: 5px; border: none;">
+        <ul id="category-tree"></ul>
+        <input type="hidden" id="copyNodeId" name="copyNodeId" value="0"/>
+        <input id="modal-action" type="hidden" name="action" value=""/>
+        <input type="hidden" id="current-row-index" name="current-row-index" value="0"/>
+    </div>
+</div>
+<!-- 右边报表列表-->
+<div region="center" data-options="region:'center'">
+    <div id="toolbar1" class="toolbar">
+        名称:<input class="easyui-textbox" type="text" id="report-search-keyword" name="keyword" style="width:250px"/>
+        <a id="btn-report-search" href="#" class="easyui-linkbutton" iconCls="icon-search">查找 </a>
+    </div>
+    <div style="width: 100%; height: 94%;padding-top: 1px">
+        <div id="report-datagrid"></div>
+    </div>
+</div>
+<!-- 报表分类增加与编辑对话框 -->
+
+
+<div id="report-designer-dlg" class="overflow-hidden pb10 display-none" style="height: 99%">
+    <div id="reportShowContentTabs" class="easyui-tabs" fit="true" border="false" plain="true">
+        <div id="tab-basic-312b" title="报 表" style="padding: 5px;height:40%">
+            <div id="tab-content-basic-312b">
+                <div class="overflow-hidden cl-b">
+                    <form id="report-attr-basic-312b">
+                        <input type="hidden" name="id" value=""/>
+                        <input type="hidden" name="uid" value=""/>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表名称<span class="color-FF0202 pl3">*</span></div>
+                            <div class="fl">
+                                <input class="wi120 br-none h26 pl5" name="name"/>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">参数共用</div>
+                            <div class="fl">
+                                <select class="wi120 br-none h26 pl5" name="paramShare">
+                                    <option value="1">是</option>
+                                    <option value="0">否</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表分类</div>
+                            <div class="fl">
+                                <select class="wi120 br-none h26 pl5" name="categoryId" >
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">数据源</div>
+                            <div class="fl">
+                                <select class="wi120 br-none h26 pl5" name="dsId">
+
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">显示顺序</div>
+                            <div class="fl">
+                                <input class="wi120 br-none h26 pl5" name="sequence" onkeyup="CommonUtils.checkInteger(this,5);"/>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表状态</div>
+                            <div class="fl">
+                                <select class="wi120 br-none h26 pl5" name="status">
+                                    <option value="1" selected="selected">启用</option>
+                                    <option value="0">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">备注</div>
+                            <div class="fl">
+                                <input class="wi120 br-none h26 pl5" name="comment"/>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20">
+                            <div class="fl bg-0081C2 color-FFFFFF h26 lh26 wi100 tc"
+                                 style="cursor: pointer;border-radius: 5px;"
+                                 onclick="ReportDesignerMVC.Controller.addReportTab()">增加报表内容
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="report-common-query-param"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--新增报表数据展示模板 start -->
+<div id="report-set-template" class="report-set-template display-none">
+    <!-- 报表基本属性配置 start -->
+    <div class="f18 fb pt10">报表属性</div>
+    <div class="report-basic-attr">
+        <!--报表组成部分 基本属性表单 -->
+        <form class="report-basic-attr-form">
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表名称</div>
+                <div class="fl">
+                    <input class="wi120 br-none h26 pl5" name="name"/>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">数据源</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="dsId">
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表展示</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="showContent">
+                        <!-- 注意：数字5至20预留给图表（echart用） 因为查询数据的时候有判断逻辑、图表返回数据列表-->
+                        <option value="1">表格</option>
+                        <%--<option value="2">图表</option>--%>
+                        <%--<option value="3">画板</option>--%>
+                        <option value="4">透视表</option>
+
+                        <option value="11">折线图</option>
+                        <option value="12">柱状图</option>
+                        <option value="13">饼图</option>
+                        <option value="14">漏斗图</option>
+                        <option value="15">散点图</option>
+
+                        <option value="21">画板-折线图</option>
+                        <option value="22">画板-柱状图</option>
+                        <option value="23">画板-饼图</option>
+                        <option value="24">画板-漏斗图</option>
+                        <option value="25">画板-散点图</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">分页</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="enablePage">
+                        <option value="1" selected="selected">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">分页大小</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="pageSize">
+                        <option selected="selected">10</option>
+                        <option>30</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表状态</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="status">
+                        <option value="1" selected="selected">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">显示顺序</div>
+                <div class="fl">
+                    <input class="wi120 br-none h26 pl5" name="sequence" onkeyup="CommonUtils.checkInteger(this,2);"/>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">浮动属性</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="floatCss">
+                        <option value="none" selected="selected">无</option>
+                        <option value="left">左浮动</option>
+                        <option value="right">右浮动</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表宽度</div>
+                <div class="fl">
+                    <input class="wi70 br-none h26 pl5" name="reportWidth" onkeyup="CommonUtils.checkInteger(this,4);"/>
+                    <select class="br-none h26 pl5 br-l-1-s-e6e6e6" name="widthUnit" style="width: 46px;">
+                        <option value="%">%</option>
+                        <option value="px">px</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表高度</div>
+                <div class="fl">
+                    <input class="wi70 br-none h26 pl5" name="reportHeight"
+                           onkeyup="CommonUtils.checkInteger(this,4);"/>
+                    <select class="br-none wi46 h26 pl5 br-l-1-s-e6e6e6" name="heightUnit">
+                        <option value="px">px</option>
+                        <option value="%">%</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">外边距</div>
+                <div class="fl">
+                    <input class="wi18 br-none h26" placeholder="上" name="marginTop"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <input class="wi18 br-none h26 br-l-1-s-e6e6e6" placeholder="右" name="marginRight"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <input class="wi18 br-none h26 br-l-1-s-e6e6e6" placeholder="下" name="marginBottom"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <input class="wi18 br-none h26 br-l-1-s-e6e6e6" placeholder="左" name="marginLeft"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <select class="br-none wi34 h26 br-l-1-s-e6e6e6" name="marginUnit">
+                        <option value="px">px</option>
+                        <option value="%">%</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">内边距</div>
+                <div class="fl">
+                    <input class="wi18 br-none h26" placeholder="上" name="paddingTop"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <input class="wi18 br-none h26 br-l-1-s-e6e6e6" placeholder="右" name="paddingRight"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <input class="wi18 br-none h26 br-l-1-s-e6e6e6" placeholder="下" name="paddingBottom"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <input class="wi18 br-none h26 br-l-1-s-e6e6e6" placeholder="左" name="paddingLeft"
+                           onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    <select class="br-none wi34 h26 br-l-1-s-e6e6e6" name="paddingUnit">
+                        <option value="px">px</option>
+                        <option value="%">%</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">备注</div>
+                <div class="fl">
+                    <input class="wi120 br-none h26 pl5" name="comment"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- 报表基本属性配置 end -->
+
+    <!-- 报表SQL配置 start -->
+    <div class="report-sql cl-b">
+        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h80 tc" style="line-height: 80px">报表SQL<span class="color-FF0202 pl3">*</span></div>
+            <div class="fl">
+                <textarea name="sqlText" class="h80 report-sql-text" style="width: 567px;"></textarea>
+            </div>
+        </div>
+        <div class="fl mt10">
+            <div class="fl bg-0081C2 color-FFFFFF h26 lh26 wi60 tc cursor-p execute-sql-btn"
+                 style="border-radius: 5px;margin-top: 25px;">执行SQL
+            </div>
+        </div>
+    </div>
+    <!-- 报表SQL配置 end -->
+
+    <!-- 通过SQL配置解析出来的元数据列 start -->
+    <div class="report-meta-column cl-b pt15">
+        <table class="report-meta-column-grid-table" title="元数据列配置" style="height: 250px;"></table>
+    </div>
+    <!-- 通过SQL配置解析出来的元数据列 end -->
+
+    <!-- 报表参数配置页面 start -->
+    <div class="report-query-param cl-b">
+
+        <div class="f18 fb pt10 ">报表参数</div>
+
+        <!-- 报表参数属性 start -->
+        <div class="report-query-param-attr">
+            <!-- 报表查询参数表单 -->
+            <form class="report-query-param-form">
+                <input type="hidden" class="query-param-grid-update-row-index" value=""/><!-- 修改参数列表dategrid行索引 -->
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">标题</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="text"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">参数名</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="name"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">默认值</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="defaultValue"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">默认标题</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="defaultText"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">标题宽度</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="textWidth"
+                               onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">输入框宽度</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="nameWidth"
+                               onkeyup="CommonUtils.checkInteger(this,3);"/>
+                    </div>
+                </div>
+
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">表单控件</div>
+                    <div class="fl">
+                        <select class="wi120 br-none h26 pl5" name="formElement">
+                            <option value="text">文本框</option>
+                            <option value="select">下拉单选</option>
+                            <option value="selectMul">下拉多选</option>
+                            <option value="date">日期</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">数据类型</div>
+                    <div class="fl">
+                        <select class="wi120 br-none h26 pl5" name="dataType">
+                            <option value="string" selected="selected">字符串</option>
+                            <option value="integer">整数</option>
+                            <option value="double">小数</option>
+                            <option value="date">日期</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">是否必填</div>
+                    <div class="fl">
+                        <select class="wi120 br-none h26 pl5" name="required">
+                            <option value="0" selected="selected">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">值来源</div>
+                    <div class="fl">
+                        <select class="wi120 br-none h26 pl5" name="dataSource">
+                            <option value="none">无内容</option>
+                            <option value="sql">SQL语句</option>
+                            <option value="text">文本字符串</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">值内容</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="content"
+                               placeholder="(select col1 as name,col2 as text from table) or (name1,text1|name2,text2|...) or (name1|name2|...)"
+                               title="(select col1 as name,col2 as text from table) or (name1,text1|name2,text2|...) or (name1|name2|...)"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">日期格式</div>
+                    <div class="fl">
+                        <select class="wi120 br-none h26 pl5" name="dateFormat">
+                            <option value="yyyyMMdd">yyyyMMdd</option>
+                            <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">日期加减</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="dataRange"
+                               title="输入0则时间选择框无初始值" onkeyup="CommonUtils.checkInteger(this,3,1);"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                    <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">联动参数名</div>
+                    <div class="fl">
+                        <input class="wi120 br-none h26 pl5" name="triggerParamName"/>
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20">
+                    <div class="fl bg-0081C2 color-FFFFFF h26 lh26 wi50 tc query-param-add-btn"
+                         style="cursor: pointer;border-radius: 5px;">增加
+                    </div>
+                </div>
+
+                <div class="fl mt10 mr20">
+                    <div class="fl bg-0081C2 color-FFFFFF h26 lh26 wi50 tc query-param-update-btn"
+                         style="cursor: pointer;border-radius: 5px;">修改
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- 报表参数属性 end -->
+
+        <!-- 报表参数列表 start -->
+        <div class="report-query-param-grid cl-b pt15">
+            <table class="report-query-param-grid-table" title="查询参数列表" style="height:200px;"></table>
+        </div>
+        <!-- 报表参数列表 end -->
+    </div>
+    <!-- 报表参数配置页面 end -->
+
+    <!-- 报表说明 start -->
+    <div class="report-explain cl-b">
+        <!-- 报表说明属性 start -->
+        <div class="f18 fb pt10">报表说明</div>
+
+        <div class="pt5 pb5 pl5 pr5" style="background-color: #fff0d5;color: #ed980f;border-radius:5px;width: 723px;">
+            <h4 style="margin-top:0px;font-size: 14px;margin-bottom:10px;color: #ed980f;">提示</h4>
+            <ul style="list-style-type:decimal;">
+                <li>
+                    报表说明可以由【文本说明】和【动态说明(SQL查询)】构成，其中可以使用表达式\${sql查询列名}将SQL执行结果插入到文本说明中（目的是可以设置样式），如果SQL执行有多行则使用\${colname+行号(1开始)}。
+                </li>
+                <li>动态说明中SQL语句可以使用报表查询参数。</li>
+            </ul>
+        </div>
+
+        <div class="report-explain-attr">
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">说明位置</div>
+                <div class="fl">
+                    <select class="wi120 br-none h26 pl5" name="position">
+                        <option value="top">顶部</option>
+                        <option value="bottom">底部</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- 报表说明属性 end -->
+
+        <!-- 报表说明文本 start -->
+        <div class="fl mt10 mr20 br-1-s-e6e6e6 cl-b">
+            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h80 tc" style="line-height: 80px">文本说明</div>
+            <div class="fl">
+                <textarea name="explainHtml" class="h80 report-explain-textarea" style="width: 650px;"></textarea>
+            </div>
+        </div>
+
+        <!-- 报表说明文本 end -->
+
+        <!-- 报表说明SQL start -->
+        <div class="report-explain-sql cl-b">
+            <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h80 tc" style="line-height: 80px">报表SQL</div>
+                <div class="fl">
+                    <textarea name="explainSqlText" class="h80" style="width: 651px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <!-- 报表说明SQL end -->
+
+    </div>
+    <!-- 报表说明 end -->
+
+
+</div>
+<!--新增报表数据展示模板 end -->
+
+<!-- 报表分类增加与编辑对话框 -->
+<div id="category-dlg">
+    <form id="category-form" name="category-form" method="post">
+        <center>
+            <table cellpadding="0" class="form-table" cellspacing="0" style="width: 100%;">
+                <tr>
+                    <td>父报表分类:</td>
+                    <td colspan="3"><label id="category-parentName"></label></td>
+                </tr>
+                <tr>
+                    <td>名称:</td>
+                    <td colspan="3"><input class="easyui-textbox" type="text" id="category-name" name="name"
+                                           data-options="required:true" style="width: 380px"/></td>
+                </tr>
+                <tr>
+                    <td>状态:</td>
+                    <td><select class="easyui-combobox" id="category-status" name="status" style="width: 148px">
+                        <option selected="selected" value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select></td>
+                    <td>排序:</td>
+                    <td><input class="easyui-textbox" type="text" id="category-sequence" name="sequence"
+                               data-options="required:true,validType:'digit'" style="width: 138px"/></td>
+                </tr>
+                <tr>
+                    <td>备注:</td>
+                    <td colspan="3"><input class="easyui-textbox" type="text" id="category-comment" name="comment"
+                                           style="width: 380px"/>
+                        <input id="category-parentId" type="hidden" name="parentId" value="0"/></td>
+                    <input id="category-id" type="hidden" name="id" value=""/></td>
+                </tr>
+            </table>
+        </center>
+    </form>
+</div>
+
+<!-- tree右键菜单  -->
+<div id="category-tree-ctx-menu" class="easyui-menu" style="width: 150px;">
+    <div id="m-add-cate" data-options="name:'addCate',iconCls:'icon-category'">新增分类</div>
+    <div id="m-add-report" data-options="name:'addReport',iconCls:'icon-report'">新增报表</div>
+    <div class="menu-sep"></div>
+    <div id="m-copy" data-options="name:'copy',iconCls:'icon-copy'">复制</div>
+    <div id="m-paste" data-options="name:'paste',iconCls:'icon-paste',disabled:'true'">粘贴</div>
+    <div id="m-edit" data-options="name:'edit',iconCls:'icon-edit'">修改</div>
+    <div id="m-remove" data-options="name:'remove',iconCls:'icon-remove'">删除</div>
+    <div id="m-search" data-options="name:'search',iconCls:'icon-search'">查找</div>
+    <div class="menu-sep"></div>
+    <div id="m-refresh" data-options="name:'refresh',iconCls:'icon-reload'">刷新</div>
+</div>
+
+</body>
+</html>

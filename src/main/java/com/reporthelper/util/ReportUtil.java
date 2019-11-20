@@ -1,5 +1,6 @@
 package com.reporthelper.util;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.reporthelper.bo.*;
 import com.reporthelper.bo.form.DateHtmlForm;
@@ -183,12 +184,12 @@ public class ReportUtil {
                 return null;
             }
 
-            String html = StringUtils.trimToNull(reportExplain.getHtml());
+            String html = StringUtils.trimToNull(reportExplain.getExplainHtml());
             if (html == null) {
                 return null;
             }
 
-            String sqlText = StringUtils.trimToNull(reportExplain.getSqlText());
+            String sqlText = StringUtils.trimToNull(reportExplain.getExplainSqlText());
             if (sqlText != null) {
 
                 //报表提示强制限制为查询100条记录
@@ -212,26 +213,22 @@ public class ReportUtil {
                 JdbcTemplateQueryParams jdbcTemplateQueryParams = getNamedParameterJdbcTemplateQueryParams(report, sqlText, params);
                 List<Map<String, Object>> dataList = query.queryPageDataList(jdbcTemplateQueryParams.getSql(), params);
 
-                StringBuilder stringBuilder = new StringBuilder();
-                if (dataList != null && dataList.size() > 0) {
-                    for (Map<String, Object> map : dataList) {
-                        for (String key : map.keySet()) {
-                            stringBuilder.append(StringUtils.trimToEmpty(map.get(key) == null ? "" : (map.get(key).toString())));
+                if (CollUtil.isNotEmpty(dataList)) {
+                    int size = dataList.size();
+                    for (int i = 0; i < size; i++) {
+                        Map<String, Object> data = dataList.get(i);
+                        String keyIndex = "";
+                        if (size > 1) {
+                            keyIndex = (i + 1) + "";
+                        }
+                        for (String key : data.keySet()) {
+                            params.put(key.toLowerCase() + keyIndex, data.get(key));
                         }
                     }
                 }
-
-                if (html.indexOf("reportTipContent") != -1) {
-                    Map<String, Object> maps = new HashMap<>();
-                    maps.put("reportTipContent", stringBuilder.toString());
-                    html = ParamsUtil.replaceAllParams(html, Constant.REG_PARAMS_PATTERN, maps, "");
-                } else {
-                    html += stringBuilder.toString();
-                }
+                html = ParamsUtil.replaceAllParams(html, Constant.REG_PARAMS_PATTERN, params, "");
             }
-
-            reportExplain.setHtml(html);
-
+            reportExplain.setExplainHtml(html);
             return reportExplain;
         } catch (Exception e) {
             e.printStackTrace();
@@ -351,7 +348,6 @@ public class ReportUtil {
 
         List<HtmlFormElement> htmlFormElementList = new ArrayList<>();
         List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
-
 
         for (ReportQueryParameter reportQueryParameter : reportQueryParameters) {
             HtmlFormElement htmlFormElement;

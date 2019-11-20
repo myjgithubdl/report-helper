@@ -4,16 +4,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.easydata.head.TheadColumn;
 import com.reporthelper.annotation.CurrentUser;
 import com.reporthelper.annotation.OpLog;
-import com.reporthelper.entity.Report;
-import com.reporthelper.entity.ReportHistory;
-import com.reporthelper.entity.User;
+import com.reporthelper.entity.*;
 import com.reporthelper.resp.ResponseResult;
+import com.reporthelper.service.ReportComposeHistoryService;
+import com.reporthelper.service.ReportComposeService;
 import com.reporthelper.service.ReportHistoryService;
 import com.reporthelper.service.ReportService;
 import com.reporthelper.util.DataGridPager;
 import com.reporthelper.util.PageInfo;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +37,13 @@ public class ReportController {
     private ReportHistoryService reportHistoryService;
 
     @Resource
-    private ReportService service;
+    private ReportService reportService;
+
+    @Resource
+    private ReportComposeService reportComposeService;
+
+    @Resource
+    private ReportComposeHistoryService reportComposeHistoryService;
 
     @RequestMapping(value = "/list")
     @OpLog(name = "分页获取报表列表")
@@ -53,14 +62,20 @@ public class ReportController {
             params.put("likeKeyword", keyword);
         }
 
-        int count = service.getReportCount(params);
+        int count = reportService.getReportCount(params);
         List<Map<String, Object>> list = null;
         if (count > 0) {
-
             params.put("pageSize", dataGridPager.getRows());
             params.put("startRowIndex", (dataGridPager.getPage() - 1) * dataGridPager.getRows());
 
-            list = service.getReportList(params);
+            list = reportService.getReportList(params);
+        }
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (Map<String , Object> report : list) {
+                Integer reportId = MapUtils.getInteger(report,"id",0);
+                List<ReportCompose> reportComposeList = reportComposeService.getReportComposeList(reportId);
+                report.put("reportComposeList",reportComposeList);
+            }
         }
 
         modelMap.put("total", count);
@@ -73,7 +88,7 @@ public class ReportController {
     @RequiresPermissions("report.designer:view")
     public Map<String, Object> find(final PageInfo pager, final String fieldName, final String keyword) {
         //final PageInfo pageInfo = this.getPageInfo(pager);
-        // final List<Report> list = this.service.getByPage(pageInfo, "t1." + fieldName, "%" + keyword + "%");
+        // final List<Report> list = this.reportService.getByPage(pageInfo, "t1." + fieldName, "%" + keyword + "%");
         final Map<String, Object> modelMap = new HashMap<>(2);
         //  modelMap.put("total", pageInfo.getTotals());
         //  modelMap.put("rows", list);
@@ -84,7 +99,7 @@ public class ReportController {
     @OpLog(name = "获取所有报表")
     @RequiresPermissions("report.designer:view")
     public List<IdNamePair> getAll(@CurrentUser final User loginUser) {
-        final List<Report> reportList = this.service.list();
+        final List<Report> reportList = this.reportService.list();
         if (CollectionUtils.isEmpty(reportList)) {
             return new ArrayList<>(0);
         }
@@ -100,16 +115,22 @@ public class ReportController {
     @OpLog(name = "新增报表")
     @RequiresPermissions("report.designer:add")
     public ResponseResult add(@CurrentUser final User loginUser, final Report po) {
+        po.setUid(UUID.randomUUID().toString());
         po.setCreateUser(loginUser.getId());
         po.setCreateDate(new Date());
 
         po.setUpdateUser(loginUser.getId());
         po.setUpdateDate(new Date());
 
-        po.setUid(UUID.randomUUID().toString());
-        po.setComment("");
-        this.service.save(po);
-        this.reportHistoryService.save(this.getReportHistory(loginUser, po));
+        this.reportService.save(po);
+        Integer reportId = po.getId();
+        List<ReportCompose> reportComposeList = po.getReportComposeList();
+        reportComposeList.stream().forEach(r -> r.setReportId(reportId));
+
+        reportComposeService.saveBatch(reportComposeList);
+
+        this.saveReportHis(loginUser, po);
+
         return ResponseResult.success("添加成功");
     }
 
@@ -117,13 +138,21 @@ public class ReportController {
     @OpLog(name = "修改报表")
     @RequiresPermissions("report.designer:edit")
     public ResponseResult edit(@CurrentUser final User loginUser, final Report po) {
-
         po.setUpdateUser(loginUser.getId());
         po.setUpdateDate(new Date());
 
-        this.service.updateById(po);
+        this.reportService.updateById(po);
 
-        this.reportHistoryService.save(this.getReportHistory(loginUser, po));
+        Integer reportId = po.getId();
+        reportComposeService.deleteByReportId(reportId);
+
+        List<ReportCompose> reportComposeList = po.getReportComposeList();
+        reportComposeList.stream().forEach(r -> r.setReportId(reportId));
+
+        reportComposeService.saveBatch(reportComposeList);
+
+        this.saveReportHis(loginUser, po);
+
         return ResponseResult.success("修改成功");
     }
 
@@ -131,9 +160,40 @@ public class ReportController {
     @OpLog(name = "删除报表")
     @RequiresPermissions("report.designer:remove")
     public ResponseResult remove(final Integer id) {
-        this.service.removeById(id);
+        this.reportService.removeById(id);
+        this.reportComposeService.deleteByReportId(id);
         return ResponseResult.success("");
     }
+
+    /**
+     * 保存历史
+     *
+     * @param loginUser
+     * @param po
+     */
+    private void saveReportHis(User loginUser, Report po) {
+        List<ReportCompose> reportComposeList = po.getReportComposeList();
+        //保存报表历史
+        ReportHistory reportHistory = this.getReportHistory(loginUser, po);
+        this.reportHistoryService.save(reportHistory);
+        Integer hisId = reportHistory.getId();
+
+        List<ReportComposeHistory> reportComposeHistoryList = new ArrayList<>(reportComposeList.size());
+        for (ReportCompose reportCompose : reportComposeList) {
+            ReportComposeHistory reportComposeHistory = this.getReportComposeHistory(loginUser, hisId, reportCompose);
+            reportComposeHistoryList.add(reportComposeHistory);
+        }
+        //保存报表组成历史
+        reportComposeHistoryService.saveBatch(reportComposeHistoryList);
+    }
+
+    private ReportComposeHistory getReportComposeHistory(@CurrentUser User loginUser, Integer reportHistoryId, ReportCompose po) {
+        ReportComposeHistory reportComposeHistory = new ReportComposeHistory();
+        BeanUtils.copyProperties(po, reportComposeHistory, "id");
+        reportComposeHistory.setReportHisId(reportHistoryId);
+        return reportComposeHistory;
+    }
+
 
     @PostMapping(value = "/execSqlText")
     @OpLog(name = "获取报表元数据列集合")
@@ -146,7 +206,7 @@ public class ReportController {
             }
             //sqlText = this.getSqlText(sqlText, dataRange, queryParams, request);
             try {
-                List<TheadColumn> list = this.service.getMetaDataColumns(dsId, sqlText);
+                List<TheadColumn> list = this.reportService.getMetaDataColumns(dsId, sqlText);
                 return ResponseResult.success(list);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -166,7 +226,7 @@ public class ReportController {
                 dataRange = 7;
             }
             //sqlText = this.getSqlText(sqlText, dataRange, queryParams, request);
-            // this.service.explainSqlText(dsId, sqlText);
+            // this.reportService.explainSqlText(dsId, sqlText);
             return ResponseResult.success(sqlText);
         }
         return ResponseResult.error("没有选择数据源");

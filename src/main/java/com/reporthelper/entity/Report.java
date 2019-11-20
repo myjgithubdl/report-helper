@@ -1,16 +1,10 @@
 package com.reporthelper.entity;
 
 import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.time.LocalDateTime;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.easydata.head.TheadColumn;
 import com.easydata.head.TheadColumnTree;
 import com.reporthelper.bo.CompositionReport;
@@ -20,6 +14,11 @@ import com.reporthelper.bo.ReportQueryParameter;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -38,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 @TableName("rh_report")
 public class Report implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 943493487321L;
 
     /**
      * 报表ID
@@ -95,6 +94,12 @@ public class Report implements Serializable {
     private String queryParams;
 
     /**
+     * 是否公用查询参数
+     * 1：是、0：否
+     */
+    private Integer paramShare;
+
+    /**
      * 报表说明,支持静态或SQL注释(JSON格式)
      * 在静态文档中支持使用${reportExplain}将SQL查询的结果引入
      *
@@ -137,6 +142,25 @@ public class Report implements Serializable {
      */
     private Date updateDate;
 
+
+    /**
+     * 该报表的的组成部分
+     */
+    @TableField(exist = false)
+    private List<ReportCompose> reportComposeList;
+
+
+    /**
+     * 报表分类名称
+     */
+    @TableField(exist = false)
+    private String categoryName;
+
+    /**
+     * 报表数据源名称
+     */
+    @TableField(exist = false)
+    private String dsName;
 
     /**
      * 解析json格式的报表查询参数为QueryParameter对象集合

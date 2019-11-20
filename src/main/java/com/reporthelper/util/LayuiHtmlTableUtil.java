@@ -1,6 +1,7 @@
 package com.reporthelper.util;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.easydata.data.DataColumnTree;
 import com.easydata.data.DataColumnTreeUtil;
 import com.easydata.head.TheadColumn;
@@ -23,13 +24,16 @@ public class LayuiHtmlTableUtil {
      * @param dataList
      * @return
      */
-    public static String getHtmlTable(List<TheadColumn> theadColumnList, List<Map<String, Object>> dataList) {
+    public static String getHtmlTable(List<TheadColumn> theadColumnList, List<Map<String, Object>> dataList,String layFilter) {
         if (theadColumnList == null || theadColumnList.size() == 0) {
             return null;
         }
+        if(StrUtil.isBlank(layFilter)){
+            layFilter="static-table";
+        }
 
         StringBuilder htmlSb = new StringBuilder();
-        htmlSb.append("<table lay-filter=\"static-table\"> ");
+        htmlSb.append("<table lay-filter=\""+layFilter+"\"> ");
         //将表头列转化为Excel导出需要的的表头
         List<List<TheadColumnTree>> theadColumnLists = TheadColumnTreeUtil.getFromtTheadColumnTreeList(theadColumnList, false);
         List<TheadColumnTree> lastRowTheadColumns = TheadColumnTreeUtil.getLeafNodes(theadColumnLists);
@@ -256,8 +260,8 @@ public class LayuiHtmlTableUtil {
      */
     public static String getColumnWidth(TheadColumnTree theadColumnTree) {
         String columnWidth = "";
-        if (theadColumnTree.getColumnWidth() != null && theadColumnTree.getColumnWidth() > 0) {
-            columnWidth = theadColumnTree.getColumnWidth() + "px";
+        if (theadColumnTree.getWidth() != null && theadColumnTree.getWidth() > 0) {
+            columnWidth = theadColumnTree.getWidth() + "px";
         }
         //其实，这个参数的单位是1/256个字符宽度，也就是说，这里是把B列的宽度设置为了columnWidth个字符。
         return columnWidth;

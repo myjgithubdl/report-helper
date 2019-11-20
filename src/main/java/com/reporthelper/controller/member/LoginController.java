@@ -132,6 +132,8 @@ public class LoginController {
                 respBean.setRespDesc("验证码错误");
             }
         }
+        //开发始终返回true,上线删除该行
+        respBean = ResponseResult.success("验证成功！");
         return respBean;
     }
 

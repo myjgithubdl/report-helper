@@ -7,7 +7,6 @@ import com.reporthelper.bo.ReportPageInfo;
 import com.reporthelper.bo.ReportParameter;
 import com.reporthelper.bo.pair.TextValuePair;
 import com.reporthelper.util.JdbcUtil;
-import com.reporthelper.util.JdbcUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
@@ -85,11 +84,11 @@ public abstract class AbstractQueryer {
             columns = new ArrayList<>(count);
             for (int i = 1; i <= count; i++) {
                 final TheadColumn column = new TheadColumn();
-                column.setId(i + "");
+                //column.setId(i + "");
                 column.setName(rsMataData.getColumnLabel(i));
                 column.setText(rsMataData.getColumnLabel(i));
                 column.setDataType(rsMataData.getColumnTypeName(i));
-                column.setColumnWidth(rsMataData.getColumnDisplaySize(i));
+                column.setWidth(rsMataData.getColumnDisplaySize(i));
                 columns.add(column);
             }
         } catch (final SQLException ex) {

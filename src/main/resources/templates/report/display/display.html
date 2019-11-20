@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/report_preview_layout}">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title th:text="${report.name}"></title>
+
+    <script charset="utf-8" src="../../../static/vendor/underscore/underscore-min.js"
+            th:src="@{'/vendor/underscore/underscore-min.js?v='+${version}}"></script>
+    <script charset="utf-8" src="../../../static/js/utils/queryFormUtils.js"
+            th:src="@{'/js/utils/queryFormUtils.js?v='+${version}}"></script>
+
+    <link rel="stylesheet" href="../../static/css/main.css"
+            th:href="@{'/css/main.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/vendor/zui-1.8.1/js/zui.min.js"
+            th:src="@{'/vendor/zui-1.8.1/js/zui.min.js?v='+${version}}"></script>
+    <link rel="stylesheet" href="../../vendor/zui-1.8.1/css/zui.css"
+          th:href="@{'/vendor/zui-1.8.1/css/zui.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/vendor/zui-1.8.1/lib/chosen/chosen.min.js"
+            th:src="@{'/vendor/zui-1.8.1/lib/chosen/chosen.min.js?v='+${version}}"></script>
+    <link rel="stylesheet" href="../../vendor/zui-1.8.1/dist/lib/chosen/chosen.css"
+          th:href="@{'/vendor/zui-1.8.1/lib/chosen/chosen.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.js"
+            th:src="@{'/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.js?v='+${version}}"></script>
+    <link rel="stylesheet" href="../../vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.css"
+          th:href="@{'/vendor/zui-1.8.1/lib/datetimepicker/datetimepicker.css?v='+${version}}"/>
+
+    <link rel="stylesheet" href="../../vendor/layui-2.4.5/css/layui.css"
+          th:href="@{'/vendor/layui-2.4.5/css/layui.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/vendor/layui-2.4.5/layui.js"
+            th:src="@{'/vendor/layui-2.4.5/layui.js?v='+${version}}"></script>
+    <script charset="utf-8" src="../../../static/vendor/jquery.fileDownload.js"
+            th:src="@{'/vendor/jquery.fileDownload.js?v='+${version}}"></script>
+    <script charset="utf-8" src="../../../static/vendor/jquery/jquery.extension.js"
+            th:src="@{'/vendor/jquery/jquery.extension.js?v='+${version}}"></script>
+
+    <script charset="utf-8" src="../../../static/vendor/echarts/echarts.min.js"
+            th:src="@{'/vendor/echarts/echarts.min.js?v='+${version}}"></script>
+
+
+    <script charset="utf-8" src="../../../static/js/report/display/displayChart.js"
+            th:src="@{'/js/report/display/displayChart.js?v='+${version}}"></script>
+
+    <script charset="utf-8" src="../../../static/js/report/display/display.js"
+            th:src="@{'/js/report/display/display.js?v='+${version}}"></script>
+
+    <script th:inline="javascript">//引用
+        var reportId = [[${report.id}]];
+        var reportUid = [[${report.uid}]];
+        var reportObj = [[${report}]] ;
+        console.log(reportUid)
+        console.log(reportObj)
+    </script>
+
+    <style>
+
+         body{overflow-y: scroll;} /* 禁止刷新后出现横向滚动条 */
+
+        chosen-container {
+            height: 24px;
+            overflow: scroll;
+        }
+        .chosen-container-multi .chosen-choices{
+            border: none;
+            min-height: 20px;
+            overflow-y: scroll;
+            height: 24px;
+            border-radius: 0px;
+            box-shadow:none;
+        }
+
+        .chosen-container-multi .chosen-choices li.search-field{
+            margin-bottom: 0px;
+        }
+
+        .chosen-container-multi .chosen-choices li {
+            padding: 0 3px;
+            margin: 3px 0 0 2px;
+        }
+
+        .chosen-container-multi .chosen-choices li.search-choice{
+            padding: 3px 20px 2px 3px;
+        }
+
+        .layui-laypage{
+            margin: 0px;
+        }
+
+        #publishV2Body .chosen-container .chosen-results li:hover{
+            background: #009688;
+        }
+        #publishV2Body .chosen-container .chosen-results li.highlighted {
+             color: #fff;
+             background-color: #009688;
+         }
+
+        #publishV2Body .dropdown-menu li a:hover{
+            background: #009688;
+        }
+        #publishV2Body .datetimepicker .active{
+            background: #009688;
+        }
+
+        #publishV2Body .boardDiv{
+            float: left;
+            padding: 10px 5px;
+        }
+        #publishV2Body .boardChart{
+            height: 300px;
+        }
+
+    </style>
+
+</head>
+<body id="publishV2Body" class="pt5 pr5 pb10 pl5" layout:fragment="report-preview-content" >
+<!-- 隐藏属性值 -->
+<input id="report-main-id" type="hidden" name="id" value="${report.id}"/><!-- 报表ID -->
+<input id="report-main-uid" type="hidden" name="uid" value="${report.uid}"/><!-- 报表uid -->
+<input id="report-main-paramShare" type="hidden" name="paramShare" value="${report.paramShare}"/><!-- 报表参数公用 -->
+<!-- URL链接中的参数  start div -->
+<div class="display-none" id="request-param-div">
+    <form id="request-param-form">
+        <input th:each=" requestParam: ${requestParams }" type="hidden" th:name="${requestParam.getKey()}" th:value="${requestParam.getValue()}"/>
+
+
+    </form>
+</div>
+<!-- URL链接中的参数  end div -->
+
+
+<!-- 报表公用参数 div -->
+<div id="param-div-common" class="pb5  display-none">
+    <form id="param-form-common">
+    </form>
+    <div class="fl mt10 mr20">
+        <div class="fl bg-009688 color-FFFFFF h26 lh26 wi80 tc mr10"
+             style="cursor: pointer;border-radius: 5px;"
+             onclick="PublishReportMVC.Controller.submitQueryReport()">提交查询
+        </div>
+        <div class="fl mr20">
+            <div class=" dropdown dropdown-hover">
+                <button class="btn h26 lh26 wi80" type="button"
+                        data-toggle="dropdown" style="padding: 0px;">导出&nbsp;&nbsp;<span class="caret"></span></button>
+                <ul class="dropdown-menu" style="width: 100px;min-width: 80px;">
+                    <li><a href="javascript:void(0)" onclick="PublishReportMVC.Controller.exportToFile('','excel')">导出Excel</a></li>
+                    <li class="display-none"><a href="javascript:void(0)" onclick="PublishReportMVC.Controller.exportToFile('','csv','GB2312')">导出CSV</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 报表公用参数 div -->
+
+<!-- 报表组成 start -->
+<div id="report-compose-list-div" class="cl-b">
+    <div th:each="reportCompose : ${report.reportComposeList}">
+        <div th:id="'report-compose-'+${reportCompose.uid}" class="overflow-y-auto">
+            <!-- 报表参数 div  start -->
+            <div th:id="'param-div-'+${reportCompose.uid}" class="display-none">
+                <form th:id="'param-form-'+${reportCompose.uid}">
+                    <input type="hidden" name="reportComposeUid" th:value="${reportCompose.uid}"/><!-- 报表UID  -->
+                </form>
+
+                <div class="report-compose-btn-group fl mt10 mr20">
+                    <div class="fl bg-009688 color-FFFFFF h26 lh26 wi80 tc mr10"
+                         style="cursor: pointer;border-radius: 5px;"
+                         th:onclick="PublishReportMVC.Controller.submitQueryReport([[${reportCompose.uid}]]);">提交查询
+                    </div>
+                    <div class="fl mr10">
+                        <div class="dropdown dropdown-hover">
+                            <button class="btn h26 lh26 wi80" type="button"
+                                    data-toggle="dropdown" style="padding: 0px;">导出&nbsp;&nbsp;<span class="caret"></span></button>
+                            <ul class="dropdown-menu" style="width: 100px;min-width: 80px;">
+                                <li><a href="javascript:void(0)" th:onclick="PublishReportMVC.Controller.exportToFile([[${reportCompose.uid}]],'excel')">导出Excel</a></li>
+                                <li class="display-none"><a href="javascript:void(0)" th:onclick="PublishReportMVC.Controller.exportToFile([[${reportCompose.uid}]],'csv','GB2312')">导出CSV</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 报表参数 div  end -->
+            <!-- 报表展示 start -->
+            <div th:id="'report-compose-show-'+${reportCompose.uid}" class="pt1 cl-b"></div>
+            <!-- 报表展示 end -->
+        </div>
+    </div>
+</div>
+<!-- 报表组成 end -->
+
+<div id="chartDataTableDlg" class="display-none" style="width:500px;height:350px;over-flow:hidden">
+    <div style="padding-left:10px;"><table id="chartDataTable" class="layui-hide"></table></div>
+</div>
+
+</body>
+</html>

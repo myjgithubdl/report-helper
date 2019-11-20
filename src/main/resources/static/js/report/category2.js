@@ -51,12 +51,12 @@ var CategoryMVC = {
         initControl: function () {
             // 左边字典树
             $('#west').panel({
-                tools: [/*{
+                tools: [{
                     iconCls: 'icon-search',
                     handler: CategoryMVC.Controller.openSearchDlg
-                },*/ {
+                }, {
                     iconCls: 'icon-add',
-                    handler: CategoryMVC.Controller.addRoot
+                    handler: CategoryMVC.Controller.add
                 }, {
                     iconCls: 'icon-reload',
                     handler: CategoryMVC.Controller.reload
@@ -68,11 +68,9 @@ var CategoryMVC = {
                 method: 'get',
                 animate: true,
                 dnd: true,
-                onClick: function (node) {
-                    $('#category-tree').tree('expand', node.target);
-                },
                 onSelect: function (node) {
-                    MetaDataDesigner.listReports(node)
+                	$('#category-tree').tree('toggle', node.target);
+                    ReportDesignerMVC.Controller.listReports(node.id);
                 },
                 onDblClick: function (node) {
                     $('#category-tree').tree('expand', node.target);
@@ -83,10 +81,10 @@ var CategoryMVC = {
                         $.post(CategoryMVC.URLs.move.url, {
                             sourceId: source.id,
                             targetId: targetNode.id,
-                            sourcePid: source.attributes.pid,
+                            sourcePid: source.attributes.parentId,
                             sourcePath: source.attributes.path
                         }, function (data) {
-                            if (data.respCode != '100') {
+                            if (result.respCode != '100') {
                                 $.messager.alert('错误', data.respDesc, 'error');
                             }
                         }, 'json');
@@ -104,20 +102,33 @@ var CategoryMVC = {
                     $('#category-tree-ctx-menu').menu(copyNodeId == 0 ? 'disableItem' : 'enableItem', item.target);
                 }
             });
-            
-            $('#comb-report-category-tree').tree({
-                checkbox: false,
-                method: 'get',
-                animate: true,
-                dnd: true,
+
+            //转移分类树
+            $('#move-to-category-tree').tree({
+
                 onClick: function (node) {
-                    $('#comb-report-category-tree').tree('expand', node.target);
+                    $('#move-to-category-tree').tree('expand', node.target);
                 },
                 onSelect: function (node) {
-                    MetaDataDesigner.listSelectCombReports(node)
+                    $("#move-to-category-id").val(node.id);
                 },
                 onDblClick: function (node) {
-                    $('#comb-report-category-tree').tree('expand', node.target);
+                    $('#move-to-category-tree').tree('expand', node.target);
+                }
+            });
+
+            //多报表构建连接分类树
+            $('#multiple-report-composition-category-tree').tree({
+
+                onClick: function (node) {
+                    $('#multiple-report-composition-category-tree').tree('expand', node.target);
+                },
+                onSelect: function (node) {
+                    $("#multiple-report-composition-category-id").val(node.id);
+
+                },
+                onDblClick: function (node) {
+                    $('#multiple-report-composition-category-tree').tree('expand', node.target);
                 }
             });
 
@@ -198,7 +209,7 @@ var CategoryMVC = {
                 singleSelect: true,
                 pageSize: 10,
                 loadFilter: function (src) {
-                    if (src.respCode != '100') {
+                    if (result.respCode == '100') {
                         return src.respData;
                     }
                     return EasyUIUtils.getEmptyDatagridRows();
@@ -208,7 +219,7 @@ var CategoryMVC = {
                     title: '标识',
                     width: 50
                 }, {
-                    field: 'pid',
+                    field: 'parentId',
                     title: '父标识',
                     hidden: true
                 }, {
@@ -233,7 +244,7 @@ var CategoryMVC = {
         bindValidate: function () {
         },
         initData: function () {
-            CategoryMVC.Util.loadCategories();
+            CategoryMVC.Util.loadCategories('init');
         }
     },
     Controller: {
@@ -244,6 +255,7 @@ var CategoryMVC = {
         },
         add: function () {
             var node = $('#category-tree').tree('getSelected');
+            console.log(node)
             if (node) {
                 var name = node.attributes.name;
                 var id = node.id;
@@ -284,10 +296,10 @@ var CategoryMVC = {
                     url: CategoryMVC.URLs.remove.url,
                     data: {
                         id: node.id,
-                        pid: node.attributes.pid
+                        pid: node.attributes.parentId
                     },
                     callback: function (rows) {
-                        CategoryMVC.Controller.reload(rows[0].pid);
+                        CategoryMVC.Controller.reload(rows[0].parentId);
                     }
                 };
                 EasyUIUtils.remove(options);
@@ -338,12 +350,12 @@ var CategoryMVC = {
                     $('#copyNodeId').val(0);
 
                     if (result.respCode != '100' || !result.respData.length) {
-                        return $.messager.alert('错误', result.msg, 'error');
+                        return $.messager.alert('错误', result.respDesc, 'error');
                     }
 
-                    var nodeData = result.respData;
+                    var nodeData = result.data;
                     var newNode = nodeData[0];
-                    var pid = newNode.attributes.pid;
+                    var pid = newNode.attributes.parentId;
 
                     // 如果是增加根节点
                     if (pid == "0") {
@@ -373,7 +385,7 @@ var CategoryMVC = {
             options.title = '新增[' + name + ']的分类';
             EasyUIUtils.openAddDlg(options);
 
-            $('#category-pid').val(id);
+            $('#category-parentId').val(id);
             $('#category-parentName').text(name);
             $('#category-status').combobox('setValue', 1);
             $('#category-sequence').textbox('setValue', "10");
@@ -389,7 +401,7 @@ var CategoryMVC = {
                 data: {},
                 callback: function (arg) {
                 },
-                gridId: null,
+                gridId: null
             };
         },
         loadCategories: function (id) {
@@ -397,7 +409,7 @@ var CategoryMVC = {
                 if (src.respCode == '100') {
                     $('#category-tree').tree('loadData', src.respData);
                     var node = null;
-                    if (id) {
+                    if (id && (typeof id) != 'object' && id != 'init'  ) {
                         node = $('#category-tree').tree('find', id);
                         CategoryMVC.Util.expandByPath(node.attributes.path);
                     } else {
@@ -407,7 +419,10 @@ var CategoryMVC = {
                         }
                     }
                     if (node) {
-                        $('#category-tree').tree('select', node.target);
+                        //$('#category-tree').tree('select', node.target);
+                    }
+                    if(id != 'init'){
+                        ReportDesignerMVC.Controller.listReports();
                     }
                 }
             });

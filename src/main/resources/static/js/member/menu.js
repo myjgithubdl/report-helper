@@ -172,6 +172,9 @@ var MenuMVC = {
                     title: '图标',
                     width: 20,
                     formatter: function (value, row, index) {
+                        if(!value){
+                            return '';
+                        }
                         var fileName = value.replace("icon-", "");
                         var imgSrc = MenuCommon.baseIconUrl + fileName;
                         return '<img src="' + imgSrc + '.png" alt="图标"/">'

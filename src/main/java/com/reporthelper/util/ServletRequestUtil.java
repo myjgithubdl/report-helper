@@ -1,8 +1,10 @@
 package com.reporthelper.util;
 
+import com.google.common.collect.Maps;
 import com.reporthelper.bo.ReportQueryParameter;
 import com.reporthelper.entity.Report;
-import com.reporthelper.entity.Report;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +54,7 @@ public class ServletRequestUtil {
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, String> returnMap = new HashMap<>();
 
-        if(StringUtils.isBlank(sqlText)){
+        if (StringUtils.isBlank(sqlText)) {
             returnMap.putAll(getRequestParameter(request));
 
             return returnMap;
@@ -103,90 +105,102 @@ public class ServletRequestUtil {
      * @return
      */
     public static Map<String, Object> getObjectValParameterMap(HttpServletRequest request, Report report, String sql) {
-        List<ReportQueryParameter> queryParameters = report.parseQueryParams();
+        List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
 
         //请求参数
         Map<String, String[]> parameterMap = request.getParameterMap();
         //返回数据
         Map<String, Object> returnMap = new HashMap<>();
-
-        if(StringUtils.isBlank(sql)){
-            returnMap.putAll(getRequestParameter(request));
-
-            return returnMap;
-        }
-
-        sql = sql.replaceAll(" ", "");
-
-        //处理报表参数
-        for (String key : parameterMap.keySet()) {
-            List<String> valueList = new ArrayList<>();
-            String[] valueArray = parameterMap.get(key);
-            for (String value : valueArray) {
-                try {
-                    //valueList.add(new String(value.getBytes("ISO-8859-1"), "utf-8"));
-                    valueList.add(value);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        returnMap.putAll(getRequestParameter(request));
+        if (CollectionUtils.isNotEmpty(reportQueryParameters)) {
+            for (ReportQueryParameter queryParameter : reportQueryParameters) {
+                String queryParameterName = queryParameter.getName();
+                String dataType = queryParameter.getDataType();
+                String formElement = queryParameter.getFormElement();
+                Object val = returnMap.get(queryParameterName);
+                if (val == null) {
+                    continue;
                 }
-            }
-            //数组key去除[]
-            String reKey = key.replace("[]", "");
-
-            boolean isReportParam = false;//是否是报表参数
-
-            //报表参数
-            for (ReportQueryParameter parameter : queryParameters) {
-                if (reKey.equals(parameter.getName())) {
-                    //简单的校验是不是in表达式
-                    List<String> sqlInParamEl = new ArrayList<>();
-                    sqlInParamEl.add("in(${" + parameter.getName() + "})");
-                    sqlInParamEl.add("in(#{" + parameter.getName() + "})");
-                    sqlInParamEl.add("in('${" + parameter.getName() + "})'");
-                    sqlInParamEl.add("in('#{" + parameter.getName() + "})'");
-
-                    if (sql.indexOf(sqlInParamEl.get(0)) > 0
-                            || sql.indexOf(sqlInParamEl.get(1)) > 0
-                            || sql.indexOf(sqlInParamEl.get(2)) > 0
-                            || sql.indexOf(sqlInParamEl.get(3)) > 0) {//将其判断为in表达式 值则为数组
-                        if ("string".equals(parameter.getDataType())) {
-                            returnMap.put(reKey, valueList);
-                        } else if ("float".equals(parameter.getDataType())) {
-                            List<Double> valueDoubleList = new ArrayList<>();
-                            valueList.stream().forEach(s -> valueDoubleList.add(Double.parseDouble(s)));
-                            returnMap.put(reKey, valueDoubleList);
-                        } else if ("integer".equals(parameter.getDataType())) {
-                            List<Integer> valueIntegerList = new ArrayList<>();
-                            valueList.stream().forEach(s -> valueIntegerList.add(Integer.parseInt(s)));
-                            returnMap.put(reKey, valueIntegerList);
-                        } else {
-                            returnMap.put(reKey, valueList);
-                        }
+                //多选情况
+                if ("selectMul".equals(formElement)) {
+                    if ("string".equals(dataType)) {
+                        returnMap.put(queryParameterName, ValueUtil.getStringList(val, ","));
+                    } else if ("double".equals(dataType)) {
+                        returnMap.put(queryParameterName, ValueUtil.getDoubleList(val, ","));
+                    } else if ("integer".equals(dataType)) {
+                        returnMap.put(queryParameterName, ValueUtil.getIntegerList(val, ","));
                     } else {
-                        if ("string".equals(parameter.getDataType())) {
-                            returnMap.put(reKey, String.join(",", valueList).toString());
-                        } else if ("float".equals(parameter.getDataType())) {
-                            returnMap.put(reKey, Double.parseDouble(valueList.get(0)));
-                        } else if ("integer".equals(parameter.getDataType())) {
-                            returnMap.put(reKey, Integer.parseInt(valueList.get(0)));
-                        } else {
-                            returnMap.put(reKey, String.join(",", valueList));
-                        }
+                        returnMap.put(queryParameterName, ValueUtil.getStringList(val, ","));
                     }
-
-                    isReportParam = true;
+                } else {
+                    if ("string".equals(dataType)) {
+                        returnMap.put(queryParameterName, ValueUtil.getString(val));
+                    } else if ("double".equals(dataType)) {
+                        returnMap.put(queryParameterName, ValueUtil.getDouble(val));
+                    } else if ("integer".equals(dataType)) {
+                        returnMap.put(queryParameterName, ValueUtil.getInteger(val));
+                    } else {
+                        returnMap.put(queryParameterName, ValueUtil.getString(val));
+                    }
                 }
-
             }
-
-            if (!isReportParam) {//不是报表参数
-                returnMap.put(reKey, String.join(",", valueList));
-            }
-
         }
-
-
         return returnMap;
     }
 
+
+    public static Map<String, Object> getObjectValParameterMap(Report report,
+                                                               Map<String, Object> params) {
+        if (report == null || params == null || CollectionUtils.isEmpty(params.keySet())) {
+            return params;
+        }
+
+        Map<String, Object> returnMap = Maps.newLinkedHashMap();
+        returnMap.putAll(params);
+        String sqlText = report.getSqlText();
+        //替换所有空格  容易判SQL in查询
+        String noneBlankSqlText = RegExUtils.replaceAll(sqlText, " ", "");
+        List<ReportQueryParameter> reportQueryParameters = report.parseQueryParams();
+
+        for (ReportQueryParameter queryParameter : reportQueryParameters) {
+            String queryParameterName = queryParameter.getName();
+            String dataType = queryParameter.getDataType();
+            String formElement = queryParameter.getFormElement();
+            Object val = returnMap.get(queryParameterName);
+            if (val == null) {
+                continue;
+            }
+            //多选情况
+            if ("selectMul".equals(formElement)) {
+                if ("string".equals(dataType)) {
+                    returnMap.put(queryParameterName, ValueUtil.getStringList(val, ","));
+                } else if ("double".equals(dataType)) {
+                    returnMap.put(queryParameterName, ValueUtil.getDoubleList(val, ","));
+                } else if ("integer".equals(dataType)) {
+                    returnMap.put(queryParameterName, ValueUtil.getIntegerList(val, ","));
+                } else {
+                    returnMap.put(queryParameterName, ValueUtil.getStringList(val, ","));
+                }
+            } else {
+                if ("string".equals(dataType)) {
+                    returnMap.put(queryParameterName, ValueUtil.getString(val));
+                } else if ("double".equals(dataType)) {
+                    returnMap.put(queryParameterName, ValueUtil.getDouble(val));
+                } else if ("integer".equals(dataType)) {
+                    returnMap.put(queryParameterName, ValueUtil.getInteger(val));
+                } else {
+                    returnMap.put(queryParameterName, ValueUtil.getString(val));
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    public static Map<String, Object> getObjectValParameterMap(HttpServletRequest request,
+                                                               Report report,
+                                                               Map<String, Object> params) {
+        Map<String, Object> returnMap = Maps.newLinkedHashMap();
+
+        return returnMap;
+    }
 }

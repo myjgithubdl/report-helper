@@ -6,16 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-import java.util.Date;
-
 /**
- * <p>
- * 报表修改历史表
- * </p>
- *
  * @author Myron
- * @since 2018-12-27
  */
 @Data
 @Builder
@@ -23,19 +15,22 @@ import java.util.Date;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("rh_report_history")
-public class ReportHistory implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+@TableName("rh_report_compose_history")
+public class ReportComposeHistory {
 
     /**
-     * 报表历史记录id
+     * 报表ID
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 报表ID
+     * ReportHistory表的ID
+     */
+    private Integer reportHisId;
+
+    /**
+     * Report的id
      */
     private Integer reportId;
 
@@ -64,23 +59,34 @@ public class ReportHistory implements Serializable {
      */
     private String sqlText;
 
-    /**
-     * 报表列集合元数据(JSON格式)
-     */
-    private String metaColumns;
-
-    /**
-     * 查询条件列属性集合(JSON格式)
-     */
-    private String queryParams;
 
     /**
      * 报表配置选项(JSON格式)
+     *
+     * @see com.reporthelper.bo.ReportOptions
      */
     private String options;
 
     /**
-     * 报表注释,支持静态或SQL注释(JSON格式)
+     * 报表列集合元数据(JSON格式)
+     *
+     * @see com.easydata.head.TheadColumn
+     */
+    private String metaColumns;
+
+
+    /**
+     * 查询条件列属性集合(JSON格式)
+     *
+     * @see com.reporthelper.bo.ReportQueryParameter
+     */
+    private String queryParams;
+
+    /**
+     * 报表说明,支持静态或SQL注释(JSON格式)
+     * 在静态文档中支持使用${reportExplain}将SQL查询的结果引入
+     *
+     * @see com.reporthelper.bo.ReportExplain
      */
     private String reportExplain;
 
@@ -98,26 +104,6 @@ public class ReportHistory implements Serializable {
      * 说明备注
      */
     private String comment;
-
-    /**
-     * 记录创建用户ID
-     */
-    private Integer createUser;
-
-    /**
-     * 记录创建时间
-     */
-    private Date createDate;
-
-    /**
-     * 记录修改用户ID
-     */
-    private Integer updateUser;
-
-    /**
-     * 记录修改时间
-     */
-    private Date updateDate;
 
 
 }
