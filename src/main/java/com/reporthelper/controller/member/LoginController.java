@@ -133,7 +133,7 @@ public class LoginController {
             }
         }
         //开发始终返回true,上线删除该行
-        respBean = ResponseResult.success("验证成功！");
+        //respBean = ResponseResult.success("验证成功！");
         return respBean;
     }
 

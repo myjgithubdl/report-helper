@@ -594,11 +594,11 @@ var ReportDesigner = {
                 text: '增加',
                 iconCls: 'icon-add',
                 handler: ReportDesignerMVC.Controller.add
-            }, '-', {
+            }, /*'-', {
                 text: '组合',
                 iconCls: 'icon-add',
                 handler: ReportDesignerMVC.Controller.addMultipleReport
-            }, '-', {
+            }, */'-', {
                 text: '修改',
                 iconCls: 'icon-edit1',
                 handler: ReportDesignerMVC.Controller.edit
@@ -663,12 +663,12 @@ var ReportDesigner = {
              title: '说明',
              width: 100,
              sortable: true
-             },*/ {
+             },{
                 field: 'updateDate',
                 title: '修改时间',
                 width: 80,
                 sortable: true
-            }, {
+            },*/  {
                 field: 'options',
                 title: '操作',
                 hidden: true,

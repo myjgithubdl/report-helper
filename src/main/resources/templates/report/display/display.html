@@ -118,7 +118,7 @@
     </style>
 
 </head>
-<body id="publishV2Body" class="pt5 pr5 pb10 pl5" layout:fragment="report-preview-content" >
+<body id="publishV2Body" class="pt5 pr5 pb10 pl5 bg-F2F2F2" layout:fragment="report-preview-content" >
 <!-- 隐藏属性值 -->
 <input id="report-main-id" type="hidden" name="id" value="${report.id}"/><!-- 报表ID -->
 <input id="report-main-uid" type="hidden" name="uid" value="${report.uid}"/><!-- 报表uid -->
@@ -135,10 +135,10 @@
 
 
 <!-- 报表公用参数 div -->
-<div id="param-div-common" class="pb5  display-none">
-    <form id="param-form-common">
+<div id="param-div-common" class="bg-FFFFFF pb10 display-none mt10 pl10 pr10" style="overflow: visible">
+    <form id="param-form-common" class="">
     </form>
-    <div class="fl mt10 mr20">
+    <div class=" fl mt10 mr20">
         <div class="fl bg-009688 color-FFFFFF h26 lh26 wi80 tc mr10"
              style="cursor: pointer;border-radius: 5px;"
              onclick="PublishReportMVC.Controller.submitQueryReport()">提交查询
@@ -154,42 +154,45 @@
             </div>
         </div>
     </div>
+    <div class="cl-b"></div><!-- 可以让父级div包住整一块 -->
 </div>
 <!-- 报表公用参数 div -->
 
 <!-- 报表组成 start -->
 <div id="report-compose-list-div" class="cl-b">
-    <div th:each="reportCompose : ${report.reportComposeList}">
-        <div th:id="'report-compose-'+${reportCompose.uid}" class="overflow-y-auto">
-            <!-- 报表参数 div  start -->
-            <div th:id="'param-div-'+${reportCompose.uid}" class="display-none">
-                <form th:id="'param-form-'+${reportCompose.uid}">
-                    <input type="hidden" name="reportComposeUid" th:value="${reportCompose.uid}"/><!-- 报表UID  -->
-                </form>
 
-                <div class="report-compose-btn-group fl mt10 mr20">
-                    <div class="fl bg-009688 color-FFFFFF h26 lh26 wi80 tc mr10"
-                         style="cursor: pointer;border-radius: 5px;"
-                         th:onclick="PublishReportMVC.Controller.submitQueryReport([[${reportCompose.uid}]]);">提交查询
-                    </div>
-                    <div class="fl mr10">
-                        <div class="dropdown dropdown-hover">
-                            <button class="btn h26 lh26 wi80" type="button"
-                                    data-toggle="dropdown" style="padding: 0px;">导出&nbsp;&nbsp;<span class="caret"></span></button>
-                            <ul class="dropdown-menu" style="width: 100px;min-width: 80px;">
-                                <li><a href="javascript:void(0)" th:onclick="PublishReportMVC.Controller.exportToFile([[${reportCompose.uid}]],'excel')">导出Excel</a></li>
-                                <li class="display-none"><a href="javascript:void(0)" th:onclick="PublishReportMVC.Controller.exportToFile([[${reportCompose.uid}]],'csv','GB2312')">导出CSV</a></li>
-                            </ul>
-                        </div>
+    <div th:each="reportCompose : ${report.reportComposeList}"
+         th:id="'report-compose-'+${reportCompose.uid}"
+         class="bg-FFFFFF overflow-y-auto mb10 mt10">
+        <!-- 报表参数 div  start -->
+        <div th:id="'param-div-'+${reportCompose.uid}" class="display-none pl10 pr10">
+            <form th:id="'param-form-'+${reportCompose.uid}">
+                <input type="hidden" name="reportComposeUid" th:value="${reportCompose.uid}"/><!-- 报表UID  -->
+            </form>
+
+            <div class="report-compose-btn-group fl mt10 mr20">
+                <div class="fl bg-009688 color-FFFFFF h26 lh26 wi80 tc mr10"
+                     style="cursor: pointer;border-radius: 5px;"
+                     th:onclick="PublishReportMVC.Controller.submitQueryReport([[${reportCompose.uid}]]);">提交查询
+                </div>
+                <div class="fl mr10">
+                    <div class="dropdown dropdown-hover">
+                        <button class="btn h26 lh26 wi80" type="button"
+                                data-toggle="dropdown" style="padding: 0px;">导出&nbsp;&nbsp;<span class="caret"></span></button>
+                        <ul class="dropdown-menu" style="width: 100px;min-width: 80px;">
+                            <li><a href="javascript:void(0)" th:onclick="PublishReportMVC.Controller.exportToFile([[${reportCompose.uid}]],'excel')">导出Excel</a></li>
+                            <li class="display-none"><a href="javascript:void(0)" th:onclick="PublishReportMVC.Controller.exportToFile([[${reportCompose.uid}]],'csv','GB2312')">导出CSV</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <!-- 报表参数 div  end -->
-            <!-- 报表展示 start -->
-            <div th:id="'report-compose-show-'+${reportCompose.uid}" class="pt1 cl-b"></div>
-            <!-- 报表展示 end -->
         </div>
+        <!-- 报表参数 div  end -->
+        <!-- 报表展示 start -->
+        <div th:id="'report-compose-show-'+${reportCompose.uid}" class="pt1 pl10 pr10 cl-b"></div>
+        <!-- 报表展示 end -->
     </div>
+
 </div>
 <!-- 报表组成 end -->
 

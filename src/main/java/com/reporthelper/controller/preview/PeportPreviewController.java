@@ -3,6 +3,7 @@ package com.reporthelper.controller.preview;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.easydata.export.ExportCSVUtil;
 import com.easydata.export.ExportExcelUtil;
@@ -185,6 +186,8 @@ public class PeportPreviewController {
             //导出，查询全部数据
             if (isExportData) {
                 if (showContent == 4) {
+                    JSONObject reportComposeParamJson = allParamJson.getJSONObject(reportCompose.getUid());
+                    params.putAll(reportComposeParamJson.getJSONObject("pivotTableParam"));
                     ReportParameter reportParameter = ReportUtil.queryReportPageData(reportCompose, params);
                     PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, params);
                     theadColumns = pivotTableData.getPivotTableTheadColumnList();
@@ -205,6 +208,8 @@ public class PeportPreviewController {
                     tableHtml = LayuiHtmlTableUtil.getHtmlTable(reportParameter.getMetaColumns(), dataList, "static-table-" + reportCompose.getUid());
                 } else if (showContent == 4) {
                     //透视表
+                    JSONObject reportComposeParamJson = allParamJson.getJSONObject(reportCompose.getUid());
+                    params.putAll(reportComposeParamJson.getJSONObject("pivotTableParam"));
                     PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, params);
                     theadColumns = pivotTableData.getPivotTableTheadColumnList();
                     dataList = pivotTableData.getPivotTableDataList();
@@ -525,11 +530,27 @@ public class PeportPreviewController {
     }
 
 
+    /**
+     * 转化为透视表数据
+     * @param reportParameter
+     * @param requestParams
+     * @return
+     */
     private PivotTableDataCore getPivotTableData(ReportParameter reportParameter, Map<String, Object> requestParams) {
-        List<String> rows = Arrays.asList(MapUtils.getString(requestParams, "rowColNames", ""));
-        List<String> cols = Arrays.asList(MapUtils.getString(requestParams, "colColNames", ""));
-        String valColNames = MapUtils.getString(requestParams, "valColNames", "");
-        AggFunc func = AggFunc.getAggFunc(MapUtils.getString(requestParams, "func", ""));
+        List<String> rows = CollUtil.newArrayList(Arrays.asList(MapUtils.getString(requestParams, "pivotTableRow", "").split(",")));
+        if (requestParams.containsKey("pivotTableRow")) {
+            if (requestParams.get("pivotTableRow") instanceof JSONArray) {
+                JSONArray pivotTableRowArray= (JSONArray) requestParams.get("pivotTableRow");
+                rows.clear();
+                pivotTableRowArray.forEach(name -> {
+                    rows.add(name.toString());
+                });
+            }
+        }
+
+        List<String> cols = Arrays.asList(MapUtils.getString(requestParams, "pivotTableColumn", ""));
+        String valColNames = MapUtils.getString(requestParams, "pivotTableValue", "");
+        AggFunc func = AggFunc.getAggFunc(MapUtils.getString(requestParams, "pivotTableAggfunc", ""));
 
         PivotTableCalCol pivotTableCalCol = new PivotTableCalCol(valColNames, func);
         List<PivotTableCalCol> calCols = new ArrayList<>();

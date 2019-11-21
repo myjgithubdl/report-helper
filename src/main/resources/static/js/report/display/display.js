@@ -861,21 +861,21 @@ var PublishReportMVC = {
             _.each(metaColumns, function (item, index) {
                 var obj = {value: item.name, text: item.text};
                 pivotTableRowValue.push(obj);
-
             })
-            var pivotTableRow = {name: 'pivotTableRow', text: '透视表-行', value: pivotTableRowValue, multipled: true};
+            console.log(pivotTableRowValue)
+            var pivotTableRow = {name: 'pivotTableRow', text: '透视表-行', optionList: pivotTableRowValue, multiple: true};
             queryFormUtils.createComboboxDom(pivotTableParamFormId, pivotTableRow);
-            var pivotTableCol = {name: 'pivotTableColumn', text: '透视表-列', value: pivotTableRowValue};
+            var pivotTableCol = {name: 'pivotTableColumn', text: '透视表-列', optionList: pivotTableRowValue};
             queryFormUtils.createComboboxDom(pivotTableParamFormId, pivotTableCol);
-            var pivotTableVal = {name: 'pivotTableValue', text: '透视表-值', value: pivotTableRowValue, nameWidth: 65};
+            var pivotTableVal = {name: 'pivotTableValue', text: '透视表-值', optionList: pivotTableRowValue, nameWidth: 65};
             queryFormUtils.createComboboxDom(pivotTableParamFormId, pivotTableVal);
             //增加值选项
             var pivotTableValCalFunValue = [
-                {text: '求和', value: 'sum'},
-                {text: '平均', value: 'avg'},
-                {text: '统计', value: 'count'},
-                {text: '最大', value: 'max'},
-                {text: '最小', value: 'min'},
+                {text: '求和', value: 'SUM'},
+                {text: '平均', value: 'AVG'},
+                {text: '统计', value: 'COUNT'},
+                {text: '最大', value: 'MAX'},
+                {text: '最小', value: 'MIN'},
             ];
             var options = '';
             _.each(pivotTableValCalFunValue, function (value) {
