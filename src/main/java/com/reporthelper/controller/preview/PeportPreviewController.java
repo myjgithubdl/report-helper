@@ -85,6 +85,7 @@ public class PeportPreviewController {
 
     /**
      * 查询报表数据
+     *
      * @param loginUser
      * @param report
      * @param reportComposeList
@@ -244,6 +245,7 @@ public class PeportPreviewController {
 
     /**
      * 查询报表数据
+     *
      * @param loginUser
      * @param uid
      * @param paramBody
@@ -284,6 +286,7 @@ public class PeportPreviewController {
 
     /**
      * 导出Excel数据
+     *
      * @param loginUser
      * @param uid
      * @param paramBody
@@ -340,55 +343,9 @@ public class PeportPreviewController {
         }
     }
 
-    @OpLog(name = "查询报表表格数据")
-    @PostMapping(value = {"/queryReportTableData/uid/{uid}"})
-    @ResponseBody
-    public ResponseResult queryReportTableData(final HttpServletRequest request,
-                                               @PathVariable final String uid) {
-        Report report = reportService.getReportByUid(uid);
-        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
-        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
-        String htmlTable = LayuiHtmlTableUtil.getHtmlTable(reportParameter.getMetaColumns(), reportParameter.getReportPageInfo().getRows(), null);
 
-        ReportExplain reportExplain = ReportUtil.getReportExplain(report, requestParams);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("htmlTable", htmlTable);
-        data.put("reportExplain", reportExplain);
-        reportParameter.getReportPageInfo().setRows(null);
-        data.put("reportPageInfo", reportParameter.getReportPageInfo());
-
-        return ResponseResult.success(data);
-    }
-
-    @OpLog(name = "查询报表图表")
-    @PostMapping(value = {"/queryReportChartData/uid/{uid}"})
-    @ResponseBody
-    public ResponseResult queryReportChartData(final HttpServletRequest request,
-                                               @PathVariable final String uid) {
-        Report report = reportService.getReportByUid(uid);
-        //Map<String, String> requestParams = ServletRequestUtil.getStringValParameterMap(request, report, report.getSqlText());
-        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
-        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
-
-        ReportExplain reportExplain = ReportUtil.getReportExplain(report, requestParams);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("reportExplain", reportExplain);
-        data.put("reportPageInfo", reportParameter.getReportPageInfo());
-
-        return ResponseResult.success(data);
-    }
-
-    /**
-     * 查询报表的查询参数
-     *
-     * @param request
-     * @param uid
-     * @return
-     */
     @OpLog(name = "查询报表查询参数")
-    @PostMapping(value = {"/queryReportParameter/uid/{uid}"})
+    @PostMapping(value = {"/queryReportParameter/{uid}"})
     @ResponseBody
     public ResponseResult queryReportParameter(final HttpServletRequest request,
                                                @PathVariable final String uid) {
@@ -426,7 +383,7 @@ public class PeportPreviewController {
      * @return
      */
     @OpLog(name = "查询报表选择框参数")
-    @PostMapping(value = {"/reloadSelectParamOption/uid/{uid}"})
+    @PostMapping(value = {"/reloadSelectParamOption/{uid}"})
     @ResponseBody
     public ResponseResult reloadSelectParamOption(final HttpServletRequest request,
                                                   @PathVariable final String uid,
@@ -502,36 +459,9 @@ public class PeportPreviewController {
     }
 
 
-    @OpLog(name = "查询透视表格数据")
-    @PostMapping(value = {"/queryPivotTableData/uid/{uid}"})
-    @ResponseBody
-    public ResponseResult queryPivotTableData(final HttpServletRequest request,
-                                              @PathVariable final String uid) {
-        Report report = reportService.getReportByUid(uid);
-        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
-        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
-
-        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
-        PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, requestParams);
-        List<TheadColumn> pivotTableTheadColumnList = pivotTableData.getPivotTableTheadColumnList();
-        List<Map<String, Object>> pivotTableDataList = pivotTableData.getPivotTableDataList();
-
-        String htmlTable = LayuiHtmlTableUtil.getHtmlTable(pivotTableTheadColumnList, pivotTableDataList, null);
-
-        ReportExplain reportExplain = ReportUtil.getReportExplain(report, requestParams);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("htmlTable", htmlTable);
-        data.put("reportExplain", reportExplain);
-        reportParameter.getReportPageInfo().setRows(null);
-        data.put("reportPageInfo", reportParameter.getReportPageInfo());
-
-        return ResponseResult.success(data);
-    }
-
-
     /**
      * 转化为透视表数据
+     *
      * @param reportParameter
      * @param requestParams
      * @return
@@ -540,7 +470,7 @@ public class PeportPreviewController {
         List<String> rows = CollUtil.newArrayList(Arrays.asList(MapUtils.getString(requestParams, "pivotTableRow", "").split(",")));
         if (requestParams.containsKey("pivotTableRow")) {
             if (requestParams.get("pivotTableRow") instanceof JSONArray) {
-                JSONArray pivotTableRowArray= (JSONArray) requestParams.get("pivotTableRow");
+                JSONArray pivotTableRowArray = (JSONArray) requestParams.get("pivotTableRow");
                 rows.clear();
                 pivotTableRowArray.forEach(name -> {
                     rows.add(name.toString());
@@ -559,32 +489,6 @@ public class PeportPreviewController {
         PivotTableDataCore pivotTableData = PivotTableDataUtil.getPivotTableData(rows, cols, calCols, reportParameter.getMetaColumns(), reportParameter.getReportPageInfo().getRows());
 
         return pivotTableData;
-    }
-
-
-    @OpLog(name = "导出透视表数据")
-    @PostMapping(value = {"/exportPivotTableData/uid/{uid}"})
-    public void exportPivotTableData(final HttpServletRequest request, final HttpServletResponse response,
-                                     @PathVariable final String uid, String exportFileType, String charsetName) {
-        Report report = reportService.getReportByUid(uid);
-        //Map<String, String> requestParams = ServletRequestUtil.getParameterMapBySQLAndQueryparam(request, report, report.getSqlText());
-        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
-
-        ReportParameter reportParameter = ReportUtil.queryReportPageData(report, requestParams);
-        PivotTableDataCore pivotTableData = this.getPivotTableData(reportParameter, requestParams);
-        List<TheadColumn> pivotTableTheadColumnList = pivotTableData.getPivotTableTheadColumnList();
-        List<Map<String, Object>> pivotTableDataList = pivotTableData.getPivotTableDataList();
-
-        if ("excel".equals(exportFileType)) {
-            ExportExcelParams exportExcelParams = new ExportExcelParams();
-            exportExcelParams.setDataList(pivotTableDataList);
-            exportExcelParams.setTheadColumnList(pivotTableTheadColumnList);
-            exportExcelParams.setSheetName(report.getName());
-            ExportExcelUtil.exportExcel(response, report.getName(), exportExcelParams);
-        } else {
-            ExportCSVUtil.exportCSV(response, report.getName(), charsetName, pivotTableTheadColumnList, pivotTableDataList);
-        }
-
     }
 
 }

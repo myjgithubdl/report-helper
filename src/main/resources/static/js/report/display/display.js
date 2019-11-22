@@ -192,7 +192,7 @@ var PublishReportMVC = {
      */
     URLs: {
         getReportQueryParam: {
-            url: ReportHelper.ctxPath + '/report/preview/queryReportParameter/uid/',
+            url: ReportHelper.ctxPath + '/report/preview/queryReportParameter/',
             method: 'POST'
         },
         GetReportData: {
@@ -204,7 +204,7 @@ var PublishReportMVC = {
             method: 'post'
         },
         ReloadSelectParamOption: {
-            url: ReportHelper.ctxPath + '/report/preview/reloadSelectParamOption/uid/',
+            url: ReportHelper.ctxPath + '/report/preview/reloadSelectParamOption/',
             method: 'post'
         },
         ExportToFile: {
