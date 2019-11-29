@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/report_preview_layout}">
-<html>
+<html style="width: 100%;height: 100%">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title th:text="${report.name}"></title>
@@ -43,7 +43,6 @@
     <script charset="utf-8" src="../../../static/vendor/echarts/echarts.min.js"
             th:src="@{'/vendor/echarts/echarts.min.js?v='+${version}}"></script>
 
-
     <script charset="utf-8" src="../../../static/js/report/display/displayChart.js"
             th:src="@{'/js/report/display/displayChart.js?v='+${version}}"></script>
 
@@ -51,21 +50,21 @@
             th:src="@{'/js/report/display/display.js?v='+${version}}"></script>
 
     <script th:inline="javascript">//引用
+        //报表组成是引用外部页面的数量
+        var reportComposeHrefSize = [[${reportComposeHrefSize}]];
         var reportId = [[${report.id}]];
         var reportUid = [[${report.uid}]];
         var reportObj = [[${report}]] ;
-        console.log(reportUid)
-        console.log(reportObj)
     </script>
 
     <style>
-
-         body{overflow-y: scroll;} /* 禁止刷新后出现横向滚动条 */
+        body{overflow-y: scroll;} /* 禁止刷新后出现横向滚动条 */
 
         chosen-container {
             height: 24px;
             overflow: scroll;
         }
+
         .chosen-container-multi .chosen-choices{
             border: none;
             min-height: 20px;
@@ -127,8 +126,6 @@
 <div class="display-none" id="request-param-div">
     <form id="request-param-form">
         <input th:each=" requestParam: ${requestParams }" type="hidden" th:name="${requestParam.getKey()}" th:value="${requestParam.getValue()}"/>
-
-
     </form>
 </div>
 <!-- URL链接中的参数  end div -->

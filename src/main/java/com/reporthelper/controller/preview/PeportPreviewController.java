@@ -74,9 +74,21 @@ public class PeportPreviewController {
         }
         report.setReportComposeList(reportComposeList);
 
+        int reportComposeHrefSize = 0;
+        //查找报表组成的数量和引用报表的页面
+        if (CollUtil.isNotEmpty(reportComposeList)) {
+            for (ReportCompose reportCompose : reportComposeList) {
+                ReportOptions options = reportCompose.parseOptions();
+                Integer showContent = options.getShowContent();
+                if (showContent == 51) {
+                    reportComposeHrefSize++;
+                }
+            }
+        }
         Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
         //是否是通过表格查看数据
         modelAndView.setViewName("report/display/display");
+        modelAndView.addObject("reportComposeHrefSize", reportComposeHrefSize);
         modelAndView.addObject("report", report);
         modelAndView.addObject("requestParams", requestParams);
         modelAndView.addObject("reportStr", JSONObject.toJSONString(report));
@@ -178,7 +190,6 @@ public class PeportPreviewController {
             ReportOptions options = reportCompose.parseOptions();
             List<TheadColumn> theadColumns = reportCompose.parseMetaColumns();
 
-
             Integer showContent = options.getShowContent();
             //表格导出数据则禁用分页、查询所有数据
             List<Map<String, Object>> dataList = null;
@@ -201,7 +212,7 @@ public class PeportPreviewController {
             } else {
                 ReportParameter reportParameter = ReportUtil.queryReportPageData(reportCompose, params);
                 dataList = reportParameter.getReportPageInfo().getRows();
-                count = reportParameter.getReportPageInfo().getTotalRows();
+                count = reportParameter.getReportPageInfo().getTotalRows() == null ? 0 : reportParameter.getReportPageInfo().getTotalRows();
                 pageSize = reportParameter.getReportPageInfo().getPageSize();
 
                 if (showContent == 1) {
@@ -367,8 +378,11 @@ public class PeportPreviewController {
         //不共享参数
         if (paramShare == 0 && reportComposeList != null) {
             for (ReportCompose reportCompose : reportComposeList) {
+                ReportOptions options = reportCompose.parseOptions();
+
                 List<HtmlFormElement> htmlFormElementList2 = ReportUtil.getHtmlFormElement(reportCompose, requestParams);
                 Map<String, Object> composeParams = MapUtil.of("queryElements", htmlFormElementList2);
+                composeParams.put("showContent",options.getShowContent());
                 dataMap.put("params_" + reportCompose.getUid(), composeParams);
             }
         }

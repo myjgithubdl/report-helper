@@ -45,7 +45,7 @@ public class ReportOptions implements Serializable {
 
 
     /**
-     * 是否增加统计航
+     * 是否增加统计行
      */
     private boolean isStatistics;
 
@@ -56,6 +56,52 @@ public class ReportOptions implements Serializable {
      */
     private String statisticsRowPosition;
 
+    /**
+     * left:左浮动  right:右浮动
+     */
+    private String floatCss;
 
+    /**
+     * 报表宽度
+     */
+    private Integer reportWidth;
+
+    /**
+     * 宽度单位
+     */
+    private String widthUnit;
+
+    /**
+     * 报表高度
+     */
+    private Integer reportHeight;
+
+    /**
+     * 高度单位
+     */
+    private String heightUnit;
+
+    /**
+     * 当showContent是外部资源时的内容显示地址
+     */
+    private String href;
+
+    /**
+     * 外边框值与单位
+     */
+    private Integer marginTop;
+    private Integer marginRight;
+    private Integer marginBottom;
+    private Integer marginLeft;
+    private String marginUnit;
+
+    /**
+     * 外边框值与单位
+     */
+    private Integer paddingTop;
+    private Integer paddingRight;
+    private Integer paddingBottom;
+    private Integer paddingLeft;
+    private String paddingUnit;
 
 }

@@ -1150,7 +1150,7 @@ var ReportDesignerMVC = {
             var tabContentId = ReportDesignerMVC.Util.getTabContentId(tabId);
             var metaColumnGridId = ReportDesignerMVC.Util.getMetaColumnGridId(tabId);
 
-            var sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId);
+            var sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId,true);
 
             var dsSelect = "#" + tabContentId + " select[name='dsId']"
             var dsId = $(dsSelect).val();
@@ -1202,11 +1202,6 @@ var ReportDesignerMVC = {
             var commonQueryParams = ReportDesignerMVC.Util.getQueryParamsGridData(reportDefaultTabId);
             data.queryParams = commonQueryParams;
 
-            //ReportDesignerMVC.Util.updateTreegridSelectRow('#report-meta-column-grid');
-            //var rows = EasyUIUtils.getTreegridRows('#report-meta-column-grid');
-            //var metaColumns = ReportDesignerMVC.Util.getMetaColumns(rows);
-
-
             var tabs = $("#reportShowContentTabs").tabs('tabs');
             if (tabs.length > 1) {
                 for (var i = 1, j = tabs.length; i < j; i++) {
@@ -1221,33 +1216,38 @@ var ReportDesignerMVC = {
                     var showContent = tabBasicAttrFormData["showContent"];//展示方式
 
                     //报表查询SQL
-                    var sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId);
+                    var sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId,false);
+                    var metaColumns = ReportDesignerMVC.Util.getMetaColumns(tabId);//元数据列
+
+                    //报表展示内容通过连接引入
+                    if(showContent == '51'){
+                        if ($.trim(tabBasicAttrFormData["href"]) == '') {
+                            ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "显示内容为路径引用且没有设置引用路径！", true);
+                        }
+                    }else{
+                        var metaColumnTypes = []//列类型对象
+                        if (metaColumns.length < 1) {
+                            ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中没有配置元数据列！", true);
+                        } else {//校验名称是否为空
+                            _.each(metaColumns, function (metaColumn) {
+                                metaColumnTypes.push(metaColumn.type);
+                                if (!metaColumn.name) {
+                                    ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中元数据列名称不能为空！", true);
+                                }
+                            })
+                        }
+
+                        var metaColumnTypeCountBy = _.countBy(metaColumnTypes)
+                        //图表只能设置一列布局列、一列维度列、一列统计列
+                        var chartShowContents = ['11', '12', '13', '14', '15', '21', '22', '23', '24', '25'];
+                        if (_.indexOf(chartShowContents, showContent) >= 0
+                            && (metaColumnTypeCountBy['1'] != 1 || metaColumnTypeCountBy['2'] != 1 || metaColumnTypeCountBy['3'] != 1)) {
+                            ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中元数据列类型应有布局列、维度列、统计列应唯一！", true);
+                        }
+                    }
+
                     data['reportComposeList[' + (i - 1) + '].sqlText'] = sqlText
 
-                    var metaColumns = ReportDesignerMVC.Util.getMetaColumns(tabId);//元数据列
-                    console.log(tabId,metaColumns)
-                    var metaColumnTypes = []//列类型对象
-                    if (metaColumns.length < 1) {
-                        ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中没有配置元数据列！", true);
-                    } else {//校验名称是否为空
-                        _.each(metaColumns, function (metaColumn) {
-                            metaColumnTypes.push(metaColumn.type);
-                            if (!metaColumn.name) {
-                                ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中元数据列名称不能为空！", true);
-                            }
-                        })
-                    }
-
-                    var metaColumnTypeCountBy = _.countBy(metaColumnTypes)
-                    //图表只能设置一列布局列、一列维度列、一列统计列
-                    console.log(showContent)
-                    console.log(metaColumnTypeCountBy)
-                    console.log(_.indexOf(chartShowContents, showContent))
-                    var chartShowContents = ['11', '12', '13', '14', '15', '21', '22', '23', '24', '25'];
-                    if (_.indexOf(chartShowContents, showContent) >= 0
-                        && (metaColumnTypeCountBy['1'] != 1 || metaColumnTypeCountBy['2'] != 1 || metaColumnTypeCountBy['3'] != 1)) {
-                        ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中元数据列类型应有布局列、维度列、统计列应唯一！", true);
-                    }
                     data['reportComposeList[' + (i - 1) + '].metaColumns'] = JSON.stringify(metaColumns)
                     data['reportComposeList[' + (i - 1) + '].name'] = tabBasicAttrFormData["name"];
                     data['reportComposeList[' + (i - 1) + '].uid'] = tabId;
@@ -1274,9 +1274,9 @@ var ReportDesignerMVC = {
                         paddingRight: tabBasicAttrFormData["paddingRight"],
                         paddingBottom: tabBasicAttrFormData["paddingBottom"],
                         paddingLeft: tabBasicAttrFormData["paddingLeft"],
-                        paddingUnit: tabBasicAttrFormData["paddingUnit"]
+                        paddingUnit: tabBasicAttrFormData["paddingUnit"],
+                        href: tabBasicAttrFormData["href"]
                     }
-
 
                     data['reportComposeList[' + (i - 1) + '].options'] = JSON.stringify(options);
 
@@ -1815,15 +1815,14 @@ var ReportDesignerMVC = {
          * @param tabId
          * @returns {*}
          */
-        getReportQuerySQL: function (tabId) {
+        getReportQuerySQL: function (tabId , isThrow) {
             var tabContentId = ReportDesignerMVC.Util.getTabContentId(tabId);
 
             var sqlTextArea = "#" + tabContentId + " .report-sql-text";
             var sqlText = $.trim($(sqlTextArea).val());
 
-            if (!sqlText) {
+            if (isThrow && !sqlText ) {
                 ReportDesignerMVC.Util.alterAndThrow("报表SQL参数为空！", true);
-
             }
             return sqlText;
         },

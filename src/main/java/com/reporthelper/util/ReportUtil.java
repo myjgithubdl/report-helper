@@ -53,13 +53,17 @@ public class ReportUtil {
      */
     public static ReportParameter queryReportPageData(Report report, Map<String, Object> params) {
         try {
-            ReportDataSource reportDataSource = reportService.getReportDataSource(report.getDsId());
             ReportOptions options = report.parseOptions();
-
             //创建分页信息
             ReportPageInfo pageInfo = ReportPageInfo.builder()
                     .isEnablePage(options.getEnablePage() != null && options.getEnablePage() == 1)
                     .pageSize(options.getPageSize()).build();
+            ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(report.getSqlText()).reportPageInfo(pageInfo).build();
+            if (StringUtils.isBlank(report.getSqlText())) {
+                return reportParameter;
+            }
+
+            ReportDataSource reportDataSource = reportService.getReportDataSource(report.getDsId());
 
             if (params.get("pageIndex") != null && StringUtils.isNotEmpty(params.get("pageIndex").toString())) {
                 pageInfo.setPageIndex(Integer.parseInt(params.get("pageIndex").toString()));
@@ -72,7 +76,6 @@ public class ReportUtil {
                 pageInfo.setTotalRows(Integer.parseInt(params.get("totalRows").toString()));
             }
 
-            ReportParameter reportParameter = ReportParameter.builder().report(report).sqlText(report.getSqlText()).build();
             reportParameter.setReportPageInfo(pageInfo);
             reportParameter.setMetaColumns(report.parseMetaColumns());
 
