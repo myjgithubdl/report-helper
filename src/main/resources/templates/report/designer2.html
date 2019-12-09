@@ -89,12 +89,11 @@
                             </div>
                         </div>
 
-                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6 category-id">
                             <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表分类</div>
                             <div class="fl">
-                                <select class="wi120 br-none h26 pl5" name="categoryId" >
-
-                                </select>
+                                <!--<select class="wi120 br-none h26 pl5" name="categoryId" ></select>-->
+                                <input id="reportCategoryId" class="wi120 br-none h26 pl5" name="categoryId"/>
                             </div>
                         </div>
 
@@ -120,6 +119,14 @@
                                 <select class="wi120 br-none h26 pl5" name="status">
                                     <option value="1" selected="selected">启用</option>
                                     <option value="0">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="fl mt10 mr20 br-1-s-e6e6e6">
+                            <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表展示</div>
+                            <div class="fl">
+                                <select class="wi120 br-none h26 pl5" name="showContent">
                                 </select>
                             </div>
                         </div>
@@ -172,29 +179,9 @@
             </div>
 
             <div class="fl mt10 mr20 br-1-s-e6e6e6">
-                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">报表展示</div>
+                <div class="fl wi80 f14 bg-FBFBFB br-r-1-s-e6e6e6 h26 lh26 tc">展示形式</div>
                 <div class="fl">
                     <select class="wi120 br-none h26 pl5" name="showContent">
-                        <!-- 注意：数字5至20预留给图表（echart用） 因为查询数据的时候有判断逻辑、图表返回数据列表-->
-                        <option value="1">表格</option>
-                        <%--<option value="2">图表</option>--%>
-                        <%--<option value="3">画板</option>--%>
-                        <option value="4">透视表</option>
-
-                        <option value="11">折线图</option>
-                        <option value="12">柱状图</option>
-                        <option value="13">饼图</option>
-                        <option value="14">漏斗图</option>
-                        <option value="15">散点图</option>
-
-                        <option value="21">画板-折线图</option>
-                        <option value="22">画板-柱状图</option>
-                        <option value="23">画板-饼图</option>
-                        <option value="24">画板-漏斗图</option>
-                        <option value="25">画板-散点图</option>
-
-                        <option value="51">路径引用</option>
-
                     </select>
                 </div>
             </div>
@@ -463,6 +450,9 @@
                         <select class="wi120 br-none h26 pl5" name="dateFormat">
                             <option value="yyyyMMdd">yyyyMMdd</option>
                             <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+                            <option value="yyyyMM">yyyyMM</option>
+                            <option value="yyyy-MM">yyyy-MM</option>
+                            <option value="yyyy">yyyy</option>
                         </select>
                     </div>
                 </div>
@@ -564,6 +554,10 @@
 <!-- 报表分类增加与编辑对话框 -->
 <div id="category-dlg">
     <form id="category-form" name="category-form" method="post">
+
+        <input id="category-parentId" type="hidden" name="pid" value="0"/></td>
+        <input id="category-id" type="hidden" name="id" value=""/></td>
+
         <center>
             <table cellpadding="0" class="form-table" cellspacing="0" style="width: 100%;">
                 <tr>
@@ -589,8 +583,6 @@
                     <td>备注:</td>
                     <td colspan="3"><input class="easyui-textbox" type="text" id="category-comment" name="comment"
                                            style="width: 380px"/>
-                        <input id="category-parentId" type="hidden" name="parentId" value="0"/></td>
-                    <input id="category-id" type="hidden" name="id" value=""/></td>
                 </tr>
             </table>
         </center>

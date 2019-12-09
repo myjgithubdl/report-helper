@@ -365,33 +365,41 @@ public class ReportUtil {
                 htmlFormElement = new TextHtmlForm();
             } else if ("date".equals(reportQueryParameter.getFormElement())) {//日期
                 htmlFormElement = new DateHtmlForm(reportQueryParameter.getDateFormat(), reportQueryParameter.getDateRange());
-                //查找默认值
-                if (reportQueryParameter.getDateRange() != null) {
-                    if (StringUtils.isNotEmpty(reportQueryParameter.getDefaultValue()) ||
-                            reportQueryParameter.getDateRange() == null) {
-                        defaultValue = reportQueryParameter.getDefaultValue();
-                    } else if (StringUtils.isNotEmpty(reportQueryParameter.getDateFormat())) {
-                        if ("YYYY-MM-DD".equals(reportQueryParameter.getDateFormat())) {
-                            Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
-                            defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM_DD);
-                        } else if ("YYYYMMDD".equals(reportQueryParameter.getDateFormat())) {
-                            Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
-                            defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYYMMDD);
-                        } else if ("YYYY-MM".equals(reportQueryParameter.getDateFormat())) {
-                            Date date = DateUtil.addDate(new Date(), 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0);
-                            defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM);
-                        } else if ("YYYYMM".equals(reportQueryParameter.getDateFormat())) {
-                            Date date = DateUtil.addDate(new Date(), 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0);
-                            defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYYMM);
-                        } else if ("YYYY".equals(reportQueryParameter.getDateFormat())) {
-                            Date date = DateUtil.addDate(new Date(), reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0, 0);
-                            defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY);
+                //有默认值则取默认值
+                if (StringUtils.isNotEmpty(reportQueryParameter.getDefaultValue())
+                        && reportQueryParameter.getDefaultValue().length() == reportQueryParameter.getDateFormat().length()) {
+                    defaultValue = reportQueryParameter.getDefaultValue();
+                }else{
+                    //查找默认值
+                    if (reportQueryParameter.getDateRange() != null) {
+                        //为0标识没有默认值
+                        if (reportQueryParameter.getDateRange() == 0) {
+                            defaultValue = "";
+                        } else if (StringUtils.isNotEmpty(reportQueryParameter.getDateFormat())) {
+                            if ("YYYY-MM-DD".equals(reportQueryParameter.getDateFormat())) {
+                                Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
+                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM_DD);
+                            } else if ("YYYYMMDD".equals(reportQueryParameter.getDateFormat())) {
+                                Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
+                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYYMMDD);
+                            } else if ("YYYY-MM".equals(reportQueryParameter.getDateFormat())) {
+                                Date date = DateUtil.addDate(new Date(), 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0);
+                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM);
+                            } else if ("YYYYMM".equals(reportQueryParameter.getDateFormat())) {
+                                Date date = DateUtil.addDate(new Date(), 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0);
+                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYYMM);
+                            } else if ("YYYY".equals(reportQueryParameter.getDateFormat())) {
+                                Date date = DateUtil.addDate(new Date(), reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0, 0);
+                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY);
+                            } else {
+                                Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
+                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM_DD);
+                            }
                         } else {
-                            Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
-                            defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM_DD);
+                            defaultValue = DateUtil.parseDateToStr(new Date(), DateUtil.DATE_FORMAT_YYYY_MM_DD);
                         }
                     } else {
-                        defaultValue = DateUtil.parseDateToStr(new Date(), DateUtil.DATE_FORMAT_YYYY_MM_DD);
+                        defaultValue = DateUtil.parseDateToStr(new Date(), reportQueryParameter.getDateFormat());
                     }
                 }
             } else {

@@ -104,10 +104,11 @@ var queryFormUtils={
     createDateboxDom:function (formId,queryParam) {
         var labelStyle=queryFormUtils.getLabelStyle(queryParam);
         var valueStyle=queryFormUtils.getValueStyle(queryParam);
+        var value=queryParam.defaultValue ? queryParam.defaultValue : '';
         var html='<div class="fl mt10 mr20 br-1-s-e6e6e6">'+
             '   <div class="fl f14 bg-FBFBFB br-r-1-s-e6e6e6 tc" style="'+labelStyle+'">'+queryParam.text+'</div>'+
             '   <div class="fl">'+
-            '       <input type="text" readonly class="br-none pl5" name="'+queryParam.name+'" value="'+queryParam.value+'" style="'+valueStyle+'"/>'+
+            '       <input type="text" readonly class="br-none pl5" name="'+queryParam.name+'" value="'+value+'" style="'+valueStyle+'"/>'+
             '   </div>'+
             '</div>';
         $("#"+formId).append(html);
@@ -117,8 +118,8 @@ var queryFormUtils={
 
         queryFormUtils.initDateInput($("#"+formId).find("input[name='"+queryParam.name+"']").get(0),op );
 
-        if(queryParam.value && format=='yyyymmdd' && queryParam.value.length==8){//解决yyyymmdd显示的时候1899问题
-            var date=new Date(queryParam.value.substring(0,4),parseInt(queryParam.value.substring(4,6)-1),queryParam.value.substring(6))
+        if(queryParam.value && format=='yyyymmdd' && value.length==8){//解决yyyymmdd显示的时候1899问题
+            var date=new Date(value.substring(0,4),parseInt(value.substring(4,6)-1),value.substring(6))
             $($("#"+formId).find("input[name='"+queryParam.name+"']").get(0)).datetimepicker('update',date)
         }
     },
@@ -152,9 +153,9 @@ var queryFormUtils={
             todayBtn:1,
             autoclose:1,
             todayHighlight:1,
-            startView:2,
-            minView:2,
-            forceParse:0,
+            startView:3,
+            minView:3, //4:10年内，3：显示1至12月，2：一月内，1:1天内，0:1小时内
+            forceParse:1,//强制分析
             format:'yyyy-mm-dd'
         };
         if(options){
@@ -162,15 +163,33 @@ var queryFormUtils={
                 op[k]=v;
             })
         }
-        $(jqObj).datetimepicker(op)
-        //解决yyyymmdd显示的时候1899问题
-        /*$(jqObj).datetimepicker(op).on('show',function () {
+        if(op.format == 'yyyy-mm-dd' || op.format == 'yyyymmdd'){
+            op["startView"]=2;
+            op["minView"]=2;
+        }else if(op.format == 'yyyy-mm' || op.format == 'yyyymm'){
+            op["startView"]=3;
+            op["minView"]=3;
+        }else if(op.format == 'yyyy' ){
+            op["startView"]=4;
+            op["minView"]=4;
+        }
+
+        $(jqObj).datetimepicker(op);
+
+        //解决yyyymmdd yyyymm 显示的时候1899问题
+        $(jqObj).datetimepicker(op).on('show',function () {
             var val=$(this).val();
-            if(val && val.length==8){
-                var date=new Date(val.substring(0,4),parseInt(val.substring(4,6)-1),val.substring(6))
-                $(this).datetimepicker('update',date)
+            if(val){
+                if(val.length==8){
+                    var date=new Date(val.substring(0,4),parseInt(val.substring(4,6)-1),val.substring(6))
+                    $(this).datetimepicker('update',date)
+                }else if(val.length==6){
+                    var date=new Date(val.substring(0,4),parseInt(val.substring(4,6)-1),1)
+                    $(this).datetimepicker('update',date)
+                }
             }
-        });*/
+
+        });
     }
-    
+
 }

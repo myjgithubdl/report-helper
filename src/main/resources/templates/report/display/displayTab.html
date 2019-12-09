@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/report_preview_layout}">
+<html style="width: 100%;height: 100%">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title th:text="${report.name}"></title>
+
+    <script charset="utf-8" src="../../../static/vendor/underscore/underscore-min.js"
+            th:src="@{'/vendor/underscore/underscore-min.js?v='+${version}}"></script>
+
+    <link rel="stylesheet" href="../../static/css/main.css"
+            th:href="@{'/css/main.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/vendor/zui-1.8.1/js/zui.min.js"
+            th:src="@{'/vendor/zui-1.8.1/js/zui.min.js?v='+${version}}"></script>
+    <link rel="stylesheet" href="../../vendor/zui-1.8.1/css/zui.css"
+          th:href="@{'/vendor/zui-1.8.1/css/zui.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/vendor/zui-1.8.1/lib/tabs/zui.tabs.js"
+            th:src="@{'/vendor/zui-1.8.1/lib/tabs/zui.tabs.js?v='+${version}}"></script>
+    <link rel="stylesheet" href="../../vendor/zui-1.8.1/dist/lib/tabs/zui.tabs.css"
+          th:href="@{'/vendor/zui-1.8.1/lib/tabs/zui.tabs.css?v='+${version}}"/>
+
+    <script charset="utf-8" src="../../../static/js/report/display/displayTab.js"
+            th:src="@{'/js/report/display/displayTab.js?v='+${version}}"></script>
+
+    <script th:inline="javascript">//引用
+        //报表组成是引用外部页面的数量
+        var reportComposeHrefSize = [[${reportComposeHrefSize}]];
+        var reportId = [[${report.id}]];
+        var reportUid = [[${report.uid}]];
+        var reportObj = [[${report}]] ;
+    </script>
+
+    <style>
+        body{overflow-y: scroll;} /* 禁止刷新后出现横向滚动条 */
+
+        #displayTabs .tabs-navbar li.tab-nav-item{
+
+        }
+        #displayTabs .tabs-navbar .tab-nav-link  .title{
+            left:10px;
+        }
+        #displayTabs .tabs-navbar li a i.icon {
+            display: none;
+        }
+    </style>
+
+</head>
+<body id="displayTabBody" class="pt5 pb5 pl5 bg-FFFFFF" layout:fragment="report-preview-content" >
+
+    <div class="tabs" id="displayTabs" style="width: 100%;height: 100%">
+        <div id="nav-tabs-div" class=""><ul id="nav-tabs-ul" class="nav nav-tabs"></ul></div>
+        <div id="tab-content-div" class=""><div id="tab-content" class="tab-content"></div></div>
+    </div>
+
+</body>
+</html>

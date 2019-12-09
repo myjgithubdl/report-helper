@@ -62,9 +62,17 @@ public class PeportPreviewController {
     @OpLog(name = "预览报表")
     @GetMapping(value = {"/uid/{uid}"})
     public ModelAndView preview(final HttpServletRequest request, @PathVariable final String uid) {
-        final ModelAndView modelAndView = new ModelAndView("report/display/");
         Report report = reportService.getReportByUid(uid);
+        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
+
+        ReportOptions reportOptions = report.parseOptions();
         List<ReportCompose> reportComposeList = reportComposeService.getReportComposeList(report.getId());
+
+        //如果指定进查询的报表
+        String queryReportComposeUid = MapUtils.getString(requestParams, "queryReportComposeUid");
+        if (CollUtil.isNotEmpty(reportComposeList) && StrUtil.isNotBlank(queryReportComposeUid)) {
+            reportComposeList = reportComposeList.stream().filter(r -> queryReportComposeUid.equals(r.getUid())).collect(Collectors.toList());
+        }
 
         //剔除禁用报表
         if (CollUtil.isNotEmpty(reportComposeList)) {
@@ -85,9 +93,17 @@ public class PeportPreviewController {
                 }
             }
         }
-        Map<String, Object> requestParams = ServletRequestUtil.getObjectValParameterMap(request, report, report.getSqlText());
+        final ModelAndView modelAndView = new ModelAndView();
         //是否是通过表格查看数据
         modelAndView.setViewName("report/display/display");
+        if (reportOptions != null) {
+            //以Tab的方式展示
+            if ((reportOptions.getShowContent() == 102 || reportOptions.getShowContent() == 103)
+                    && StrUtil.isBlank(queryReportComposeUid)) {
+                modelAndView.setViewName("report/display/displayTab");
+            }
+        }
+
         modelAndView.addObject("reportComposeHrefSize", reportComposeHrefSize);
         modelAndView.addObject("report", report);
         modelAndView.addObject("requestParams", requestParams);
@@ -382,7 +398,7 @@ public class PeportPreviewController {
 
                 List<HtmlFormElement> htmlFormElementList2 = ReportUtil.getHtmlFormElement(reportCompose, requestParams);
                 Map<String, Object> composeParams = MapUtil.of("queryElements", htmlFormElementList2);
-                composeParams.put("showContent",options.getShowContent());
+                composeParams.put("showContent", options.getShowContent());
                 dataMap.put("params_" + reportCompose.getUid(), composeParams);
             }
         }

@@ -13,6 +13,8 @@ var ReportDesigner = {
      * 初始化方法
      */
     init: function () {
+        ReportDesigner.initShowContentOptions();
+
         ReportDesigner.initReportCommonQueryParam();
         ReportDesigner.initReportShowContentTabs();
 
@@ -212,7 +214,7 @@ var ReportDesigner = {
                 width: 80,
                 formatter: function (value, row, index) {
                     var id = "width" + row.id;
-                    if (!row.width) {
+                    if (!row.width || row.width < 80) {
                         row.width = '120';
                     }
                     var tmpl = '<input style="width:98%;height: 20px;" onkeyup="CommonUtils.checkInteger(this,3);" type="text" id="${id}" name="width" value="${value}" />';
@@ -583,7 +585,6 @@ var ReportDesigner = {
             singleSelect: true,
             sortName: 'sequence',
             sortOrder: 'asc',
-            queryParams: {ctlVersion: 2},
             toolbar: [/*{
              text: '详细信息',
              iconCls: 'icon-info',
@@ -594,11 +595,11 @@ var ReportDesigner = {
                 text: '增加',
                 iconCls: 'icon-add',
                 handler: ReportDesignerMVC.Controller.add
-            }, /*'-', {
+            }/*, '-', {
                 text: '组合',
                 iconCls: 'icon-add',
                 handler: ReportDesignerMVC.Controller.addMultipleReport
-            }, */'-', {
+            }*/, '-', {
                 text: '修改',
                 iconCls: 'icon-edit1',
                 handler: ReportDesignerMVC.Controller.edit
@@ -623,13 +624,6 @@ var ReportDesigner = {
                 iconCls: 'icon-remove',
                 handler: ReportDesignerMVC.Controller.remove
             }],
-            loadFilter: function (src) {
-                if (src.respCode == '100') {
-                    return src.respData;
-                }
-                $.messager.alert('失败', src.respDesc, 'error');
-                return EasyUIUtils.getEmptyDatagridRows();
-            },
             columns: [[{
                 field: 'id',
                 title: 'ID',
@@ -658,17 +652,12 @@ var ReportDesigner = {
                 title: '修改人',
                 width: 100,
                 sortable: true
-            }, /* {
+            }/*,  {
              field: 'comment',
              title: '说明',
              width: 100,
              sortable: true
-             },{
-                field: 'updateDate',
-                title: '修改时间',
-                width: 80,
-                sortable: true
-            },*/  {
+             },*/, {
                 field: 'options',
                 title: '操作',
                 hidden: true,
@@ -719,7 +708,6 @@ var ReportDesigner = {
             },
             loadFilter: function (src) {
                 if (src.respCode == '100') {
-                    console.log(src.respData)
                     return src.respData;
                 }
                 $.messager.alert('失败', src.respDesc, 'error');
@@ -756,6 +744,27 @@ var ReportDesigner = {
                 ReportDesignerMVC.Controller.resetAddOrEditDlgVal()
             }
         });
+    },
+
+    /**
+     * 实例化报表设计页面的报表展示方式select  option
+     */
+    initShowContentOptions:function () {
+        var basicAttrFormId = ReportDesignerMVC.Util.getReportBasicAttrFormId(reportDefaultTabId);
+        var options1='';
+        var options2='';
+
+        _.each(ReportDesignerMVC.Model.ShowContents,function (item) {
+            if(item.value >= 101 && item.value <= 103){
+                options1 +='<option value="'+item.value+'">'+item.name+'</option>';
+            }
+            if(item.value != 101 && item.value != 102 && item.value != 103){
+                options2 +='<option value="'+item.value+'">'+item.name+'</option>';
+            }
+        })
+
+        $("#"+basicAttrFormId).find("select[name='showContent']").empty().append(options1);
+        $("#report-set-template .report-basic-attr-form").find("select[name='showContent']").empty().append(options2);
     }
 
 }
@@ -939,7 +948,26 @@ var ReportDesignerMVC = {
         metaDataGridCheckedRow: {//元数据列是选中的行
             id: null,//操作行的ID
             state: null//状态为选中和不选中  select   和  unselect
-        }
+        },
+        //报表展示内容
+        ShowContents:[
+            {name:'表格',      value:'1'},
+            {name:'透视表',     value:'4' },
+            {name:'折线图',     value:'11'},
+            {name:'柱状图',     value:'12'},
+            {name:'饼图',       value:'13'},
+            {name:'漏斗图',     value:'14'},
+            {name:'散点图',     value:'15'},
+            {name:'画板-折线图',value:'21'},
+            {name:'画板-柱状图',value:'22'},
+            {name:'画板-饼图',  value:'23'},
+            {name:'画板-漏斗图',value:'24'},
+            {name:'画板-散点图',value:'25'},
+            {name:'路径引用',   value:'51'},
+            {name:'正常',   value:'101'},
+            {name:'水平-标签页',   value:'102'},
+            {name:'垂直-标签页',   value:'103'}
+        ]
     },
     View: {},
     Controller: {
@@ -990,7 +1018,6 @@ var ReportDesignerMVC = {
                     ReportDesignerMVC.Variables.reportTabIds.push(id);
                 }
             }
-            console.log(ReportDesignerMVC.Variables.reportTabIds)
         },
         /**
          * 在指定tab下增加报表配置内容
@@ -1133,13 +1160,15 @@ var ReportDesignerMVC = {
         setReportCategoryOption: function () {
             if (ReportDesignerMVC.Variables.Categorys) {
                 var basicAttrFormId = ReportDesignerMVC.Util.getReportBasicAttrFormId(reportDefaultTabId);
-                var selectObj = $("#" + basicAttrFormId + " select[name='categoryId']");
-                selectObj.empty();
-                for (var index in ReportDesignerMVC.Variables.Categorys) {
-                    var category = ReportDesignerMVC.Variables.Categorys[index];
-                    var option = '<option value="' + category.id + '">' + category.name + '</option>';
-                    selectObj.append(option);
-                }
+                /* var selectObj = $("#" + basicAttrFormId + " select[name='categoryId']");
+                 selectObj.empty();
+                 for (var index in ReportDesignerMVC.Variables.Categorys) {
+                     var category = ReportDesignerMVC.Variables.Categorys[index];
+                     var option = '<option value="' + category.id + '">' + category.name + '</option>';
+                     selectObj.append(option);
+                 }*/
+
+                ReportDesignerMVC.Util.initCategoryTree();
             }
         },
         /**
@@ -1183,7 +1212,6 @@ var ReportDesignerMVC = {
         getReportSaveData: function () {
             var data = {};//
             //查询报表基本信息、公用参数部分
-
             var qeryParamGridId = ReportDesignerMVC.Util.getReportQueryParamGridId(reportDefaultTabId);
             var reportBasicAttrFormId = ReportDesignerMVC.Util.getReportBasicAttrFormId(reportDefaultTabId);
             //报表基本的名称
@@ -1202,6 +1230,10 @@ var ReportDesignerMVC = {
             var commonQueryParams = ReportDesignerMVC.Util.getQueryParamsGridData(reportDefaultTabId);
             data.queryParams = commonQueryParams;
 
+            //报表options
+            var reportOptions = {showContent: formData['showContent']};
+            data.options=JSON.stringify(reportOptions);
+
             var tabs = $("#reportShowContentTabs").tabs('tabs');
             if (tabs.length > 1) {
                 for (var i = 1, j = tabs.length; i < j; i++) {
@@ -1215,23 +1247,34 @@ var ReportDesignerMVC = {
                     var tabBasicAttrFormData = $("#" + tabBasicAttrFormId).serializeObject();//报表组成tab 属性数据
                     var showContent = tabBasicAttrFormData["showContent"];//展示方式
 
-                    //报表查询SQL
-                    var sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId,false);
-                    var metaColumns = ReportDesignerMVC.Util.getMetaColumns(tabId);//元数据列
-
-                    //报表展示内容通过连接引入
-                    if(showContent == '51'){
+                    //引用外部地址
+                    if (showContent == '51') {
                         if ($.trim(tabBasicAttrFormData["href"]) == '') {
-                            ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "显示内容为路径引用且没有设置引用路径！", true);
+                            ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "显示内容为外部页面且没有设置页面地址！", true);
+                        }
+                    }
+
+                    //报表查询SQL
+                    var sqlText = "";
+                    var metaColumns = ReportDesignerMVC.Util.getMetaColumns(tabId);//元数据列
+                    //引用外部地址
+                    if (showContent == '51') {
+                        sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId,false);
+
+                        if ($.trim(tabBasicAttrFormData["href"]) == '') {
+                            ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "显示内容为外部页面且没有设置页面地址！", true);
                         }
                     }else{
+                        sqlText = ReportDesignerMVC.Util.getReportQuerySQL(tabId,true);
+
                         var metaColumnTypes = []//列类型对象
                         if (metaColumns.length < 1) {
                             ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中没有配置元数据列！", true);
                         } else {//校验名称是否为空
                             _.each(metaColumns, function (metaColumn) {
                                 metaColumnTypes.push(metaColumn.type);
-                                if (!metaColumn.name) {
+                                var hasChild=metaColumn.hasChild;
+                                if (hasChild == "N" &&!metaColumn.name) {
                                     ReportDesignerMVC.Util.alterAndThrow("报表-" + tabId + "中元数据列名称不能为空！", true);
                                 }
                             })
@@ -1246,9 +1289,11 @@ var ReportDesignerMVC = {
                         }
                     }
 
-                    data['reportComposeList[' + (i - 1) + '].sqlText'] = sqlText
+                    data['reportComposeList[' + (i - 1) + '].sqlText'] = sqlText;
+                    if(metaColumns){
+                        data['reportComposeList[' + (i - 1) + '].metaColumns'] = JSON.stringify(metaColumns)
+                    }
 
-                    data['reportComposeList[' + (i - 1) + '].metaColumns'] = JSON.stringify(metaColumns)
                     data['reportComposeList[' + (i - 1) + '].name'] = tabBasicAttrFormData["name"];
                     data['reportComposeList[' + (i - 1) + '].uid'] = tabId;
                     data['reportComposeList[' + (i - 1) + '].dsId'] = tabBasicAttrFormData["dsId"];
@@ -1297,7 +1342,6 @@ var ReportDesignerMVC = {
             } else {
                 ReportDesignerMVC.Util.alterAndThrow("请点击增加报表内容并配置！", true);
             }
-            console.log(data)
             return data;
         },
         /**
@@ -1313,8 +1357,7 @@ var ReportDesignerMVC = {
                 if (result.respCode = '100') {
                     return $.messager.alert('操作提示', "保存成功", 'info', function () {
                         $("#report-designer-dlg").dialog('close');
-
-                        ReportDesignerMVC.Controller.listReports(reportParams.categoryId);
+                        ReportDesignerMVC.Controller.reloadReports();
                     });
                 }
                 $.messager.alert('操作提示', result.respDesc, 'error');
@@ -1333,8 +1376,8 @@ var ReportDesignerMVC = {
                 var commQueryParamGridId = ReportDesignerMVC.Util.getReportQueryParamGridId(reportDefaultTabId);
                 $("#" + commQueryParamGridId).datagrid("resize", {})
 
-                var basicAttrFormId = ReportDesignerMVC.Util.getReportBasicAttrFormId(reportDefaultTabId);
-                $("#" + basicAttrFormId + " select[name='categoryId']").val(category.id);
+                //设置报表分类
+                $("#reportCategoryId").combotree('setValue',category.id+'');
 
             } else {
                 $.messager.alert('警告', '请选中一个报表分类!', 'info');
@@ -1345,11 +1388,8 @@ var ReportDesignerMVC = {
          */
         edit: function () {
             ReportDesignerMVC.Util.isRowSelected(function (row) {
-                console.log(row)
-
                 $("#report-designer-dlg").dialog('open').dialog('center').dialog('setTitle', "报表设计--修改报表");
 
-                var reportBasicAttrFormId = ReportDesignerMVC.Util.getReportBasicAttrFormId(reportDefaultTabId);
                 var qeryParamGridId = ReportDesignerMVC.Util.getReportQueryParamGridId(reportDefaultTabId);
                 var reportBasicAttrFormId = ReportDesignerMVC.Util.getReportBasicAttrFormId(reportDefaultTabId);
 
@@ -1364,6 +1404,18 @@ var ReportDesignerMVC = {
                         $("#" + reportBasicAttrFormId).find("input[name='" + key + "']").val(row[key]);
                     } else if ($("#" + reportBasicAttrFormId).find("select[name='" + key + "']").size() == 1) {
                         $("#" + reportBasicAttrFormId).find("select[name='" + key + "']").val(row[key]);
+                    }
+                }
+
+                //设置报表分类
+                $("#reportCategoryId").combotree('setValue',row.categoryId+'');
+
+                var options = $.toJSON(row.options);
+                for (var key in options) {
+                    if ($("#" + reportBasicAttrFormId).find("input[name='" + key + "']").size() == 1) {
+                        $("#" + reportBasicAttrFormId).find("input[name='" + key + "']").val(options[key]);
+                    } else if ($("#" + reportBasicAttrFormId).find("select[name='" + key + "']").size() == 1) {
+                        $("#" + reportBasicAttrFormId).find("select[name='" + key + "']").val(options[key]);
                     }
                 }
 
@@ -1405,8 +1457,6 @@ var ReportDesignerMVC = {
             var metaColumnGridId = ReportDesignerMVC.Util.getMetaColumnGridId(tabId);
             var queryParamGridId = ReportDesignerMVC.Util.getReportQueryParamGridId(tabId);
 
-            var options = $.toJSON(reportCompose.options);
-
             for (var key in reportCompose) {
                 if ($("#" + basicAttrFormId).find("input[name='" + key + "']").size() == 1) {
                     $("#" + basicAttrFormId).find("input[name='" + key + "']").val(reportCompose[key]);
@@ -1414,6 +1464,8 @@ var ReportDesignerMVC = {
                     $("#" + basicAttrFormId).find("select[name='" + key + "']").val(reportCompose[key]);
                 }
             }
+
+            var options = $.toJSON(reportCompose.options);
             for (var key in options) {
                 if ($("#" + basicAttrFormId).find("input[name='" + key + "']").size() == 1) {
                     $("#" + basicAttrFormId).find("input[name='" + key + "']").val(options[key]);
@@ -1437,12 +1489,12 @@ var ReportDesignerMVC = {
 
             //设置报表说明
             //报表说明部分  说明位置
-            var reportExplain = $.toJSON(reportCompose.reportExplain);
-            $("#" + tabContentId + " select[name='position']").val(reportExplain.position);
+            var explains = $.toJSON(reportCompose.explains);
+            $("#" + tabContentId + " select[name='position']").val(explains.position);
             //报表说明部分  说明html
-            ReportDesignerMVC.Variables.reportTabKindEditor['explain-' + tabId].html(reportExplain.explainHtml)
+            ReportDesignerMVC.Variables.reportTabKindEditor['explain-' + tabId].html(explains.explainHtml)
             //报表说明部分  说明sql
-            $("#" + tabContentId + " textarea[name='explainSqlText']").val(reportExplain.explainSqlText);
+            $("#" + tabContentId + " textarea[name='explainSqlText']").val(explains.explainSqlText);
 
         },
         /**
@@ -1479,12 +1531,22 @@ var ReportDesignerMVC = {
          * @param id
          */
         listReports: function (id) {
-            var params = {ctlVersion: 2};
+            var params = {};
             if (id) {
                 params.categoryId = id;
             }
             $('#report-datagrid').datagrid('load', params)
-
+        },
+        /**
+         * 加载报表
+         */
+        reloadReports:function(){
+            var categorys = $('#category-tree').tree('getChecked');
+            if (categorys.length > 0) {
+                ReportDesignerMVC.Controller.listReports(categorys[0].id);
+            } else {
+                ReportDesignerMVC.Controller.find();
+            }
         },
         /**
          * 删除报表
@@ -1497,14 +1559,8 @@ var ReportDesignerMVC = {
                         $.post(ReportDesignerMVC.URLs.remove.url, {id: row.id}, function (result) {
                             ReportDesignerMVC.Util.closeMessagerProgress();
                             if (result.respCode == '100') {
-                                var categorys = $('#category-tree').tree('getChecked');
-                                if (categorys.length > 0) {
-                                    ReportDesignerMVC.Controller.listReports(categorys[0].id);
-                                } else {
-                                    ReportDesignerMVC.Controller.find();
-                                }
-                                return $.messager.alert('操作提示', "删除成功", 'info', function () {
-                                });
+                                ReportDesignerMVC.Controller.reloadReports();
+                                return $.messager.alert('操作提示', "删除成功", 'info', function () {});
                             }
                             $.messager.alert('操作提示', result.respDesc, 'error');
                         }, 'json');
@@ -1514,23 +1570,14 @@ var ReportDesignerMVC = {
         },
         preview: function () {
             ReportDesignerMVC.Util.isRowSelected(function (row) {
-                //原来实现
-                //var url = DesignerMVC.URLs.Report.url + row.uid;
-                //parent.HomeIndex.addTab(row.id, row.name, url, "");
-                //parent.HomeIndex.selectedTab();
-                //修改后
                 var host = window.location.host;
                 if (host.substring(0, 4) != "http") {
                     host = "http://" + host;
                 }
-                //  var url=host+'/bd-tool-ReportHelper/report/publish/uid/'+ row.uid;
-                var url = ReportHelper.ctxPath + '/lakalaReport/publish/uid/' + row.uid;
                 var url ='/report/preview/uid/' + row.uid;
                 window.open(url);
             });
         },
-
-
     },
     Data: {
         /**
@@ -1538,7 +1585,6 @@ var ReportDesignerMVC = {
          */
         loadDataSourceList: function () {
             $.getJSON(ReportDesignerMVC.URLs.DataSource.listAll.url, function (result) {
-                console.log(result)
                 if (result.respCode != '100') {
                     ReportDesignerMVC.Util.alterAndThrow("加载数据源错误，原因：" + result.respDesc + "！", true);
                 }
@@ -1552,9 +1598,9 @@ var ReportDesignerMVC = {
          * 加载报表分类
          */
         loadCategoryList: function () {
-            $.getJSON(CategoryMVC.URLs.list.url, {sort: 'sequence', order: 'asc'}, function (result) {
+            $.getJSON(CategoryMVC.URLs.list.url, {sort: 'sequence', order: 'asc',rows:10000}, function (result) {
                 if (result.respCode != '100') {
-                    ReportDesignerMVC.Util.alterAndThrow("加载报表分类错误，原因：" + result.respDesc + "！", true);
+                    ReportDesignerMVC.Util.alterAndThrow("加载报表分类错误，原因：" + result.msg + "！", true);
                 }
                 ReportDesignerMVC.Variables.Categorys = result.respData.rows;
 
@@ -1613,7 +1659,6 @@ var ReportDesignerMVC = {
             return "report-explain-textarea-" + tabId;
         },
         updateTreegridSelectRow: function (treegridId) {/*更新元数据列选中的行*/
-            console.log(treegridId)
             var rows = EasyUIUtils.getTreegridRows(treegridId)
             if (rows && rows.length > 0) {
                 for (var i = 0, j = rows.length; i < j; i++) {
@@ -1628,9 +1673,9 @@ var ReportDesignerMVC = {
                     node["decimals"] = $("#decimals" + id).val();
                     node["href"] = $("#href" + id).val();
                     node["hrefTarget"] = $("#hrefTarget" + id).val();
-                    node["hidden"] = $("#hidden" + id).val();
+                    node["displayStyle"] = $("#displayStyle" + id).val();
                     node["downMergeCells"] = $("#downMergeCells" + id).val();
-                    node["theadTextAlign"] = $("#theadTextAlign" + id).val();
+                    node["textAlign"] = $("#textAlign" + id).val();
                     node["showDecimals"] = $("#showDecimals" + id).val();
                     node["exportDecimals"] = $("#exportDecimals" + id).val();
                     $(treegridId).treegrid('update', {
@@ -1726,10 +1771,8 @@ var ReportDesignerMVC = {
                     newColumns[i] = oldRowMap[name];
                 }
             }
-            console.log(newColumns)
             //return $("#report-meta-column-grid").treegrid('loadData', newColumns);
             return $('#' + metaColumnGridId).treegrid('loadData', {rows: newColumns});
-
         },
         /**
          * 查询报表组成tab下的元数据配置
@@ -1805,17 +1848,14 @@ var ReportDesignerMVC = {
                 items: items,
                 resizeType: 0//0:不允许改变框 1：只能改变高度  2：可以改变宽高
             })
-
             return
-
-
         },
         /**
          * 获取报表组成tab下的查询SQL
          * @param tabId
          * @returns {*}
          */
-        getReportQuerySQL: function (tabId , isThrow) {
+        getReportQuerySQL: function (tabId ,isThrow) {
             var tabContentId = ReportDesignerMVC.Util.getTabContentId(tabId);
 
             var sqlTextArea = "#" + tabContentId + " .report-sql-text";
@@ -1868,8 +1908,39 @@ var ReportDesignerMVC = {
             if (isThrow) {
                 throw errorTips;
             }
-        }
+        },
+        /**
+         * 实例化报表分类
+         */
+        initCategoryTree:function(){
+            var categoryTree=ReportDesignerMVC.Util.getCategoryTree(0);
+            $("#reportCategoryId").combotree({valueField:'id',data:categoryTree});
+        },
 
+        /**
+         * 获取分类
+         * @param parentId
+         * @returns {[]}
+         */
+        getCategoryTree:function (parentId) {
+            var itemArr = [];
+            if(ReportDesignerMVC.Variables.Categorys){
+                var length=ReportDesignerMVC.Variables.Categorys.length;
+                for (var i = 0; i < length; i++) {
+                    var node = ReportDesignerMVC.Variables.Categorys[i];
+                    if (node.pid == parentId) {
+                        var newNode = {};
+                        newNode.id = node.id;
+                        newNode.text = node.name;
+                        newNode.state='null';
+                        newNode.attributes=node;
+                        newNode.children = ReportDesignerMVC.Util.getCategoryTree(node.id);
+                        itemArr.push(newNode);
+                    }
+                }
+            }
+            return itemArr;
+        }
     }
 
 }

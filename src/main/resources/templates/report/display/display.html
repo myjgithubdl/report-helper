@@ -160,7 +160,7 @@
 
     <div th:each="reportCompose : ${report.reportComposeList}"
          th:id="'report-compose-'+${reportCompose.uid}"
-         class="bg-FFFFFF overflow-y-auto mb10 mt10">
+         class="bg-FFFFFF report-compose overflow-y-auto mb10 mt10">
         <!-- 报表参数 div  start -->
         <div th:id="'param-div-'+${reportCompose.uid}" class="display-none pl10 pr10">
             <form th:id="'param-form-'+${reportCompose.uid}">

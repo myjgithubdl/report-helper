@@ -81,7 +81,7 @@ var CategoryMVC = {
                         $.post(CategoryMVC.URLs.move.url, {
                             sourceId: source.id,
                             targetId: targetNode.id,
-                            sourcePid: source.attributes.parentId,
+                            sourcePid: source.attributes.pid,
                             sourcePath: source.attributes.path
                         }, function (data) {
                             if (result.respCode != '100') {
@@ -219,7 +219,7 @@ var CategoryMVC = {
                     title: '标识',
                     width: 50
                 }, {
-                    field: 'parentId',
+                    field: 'pid',
                     title: '父标识',
                     hidden: true
                 }, {
@@ -290,16 +290,17 @@ var CategoryMVC = {
         },
         remove: function () {
             var node = $('#category-tree').tree('getSelected');
+            console.log(node)
             if (node) {
                 var options = {
                     rows: [node.attributes],
                     url: CategoryMVC.URLs.remove.url,
                     data: {
                         id: node.id,
-                        pid: node.attributes.parentId
+                        pid: node.attributes.pid
                     },
                     callback: function (rows) {
-                        CategoryMVC.Controller.reload(rows[0].parentId);
+                        CategoryMVC.Controller.reload(rows[0].pid);
                     }
                 };
                 EasyUIUtils.remove(options);
@@ -355,7 +356,7 @@ var CategoryMVC = {
 
                     var nodeData = result.data;
                     var newNode = nodeData[0];
-                    var pid = newNode.attributes.parentId;
+                    var pid = newNode.attributes.pid;
 
                     // 如果是增加根节点
                     if (pid == "0") {

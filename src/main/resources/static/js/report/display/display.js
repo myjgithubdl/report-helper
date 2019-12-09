@@ -3,6 +3,8 @@
  */
 var reportCommonSuffix = 'common';//报表公共部分id后缀
 var layer;
+var laypage;
+var laytable;
 
 $(function () {
     PublishReport.init();
@@ -11,26 +13,33 @@ $(function () {
 var PublishReport = {
     //初始化方法
     init: function () {
-        layui.use(["layer"], function () {//layui加载完成
-            layer = layui.layer;
-            PublishReport.setReportComposeCssAndUids();
+        PublishReportMVC.Variables.bodyHeight = parseInt($("html").css("height"));
 
+        layui.use(["layer", "laypage","table"], function () {//layui加载完成
+            layer = layui.layer;
+            laypage = layui.laypage;
+            laytable = layui.table;
+            PublishReport.setReportComposeCssAndUids();
             PublishReport.createReportQueryParams();
 
             PublishReport.initAllReportQueryParamVals();
 
             PublishReportMVC.Controller.submitQueryReport();
 
-            PublishReportMVC.Variables.isInitPageLoadData=false;//初始化完成重置为false
+            PublishReportMVC.Variables.isInitPageLoadData = false;//初始化完成重置为false
         });
     },
     /**
      * 设置Css属性和获取uid
      */
     setReportComposeCssAndUids: function () {
-        console.log(reportObj)
         var reportComposeList = reportObj.reportComposeList;
         if (reportComposeList) {
+            if (reportComposeList.length == 1) {
+                $("#publishV2Body").css({'padding': '0px'}).removeClass("bg-F2F2F2").addClass("bg-FFFFFF");
+                $("#report-compose-list-div .report-compose").css({'padding': '0px', 'margin': '0px'});
+            }
+
             _.each(reportComposeList, function (reportCompose) {
                 var uid = reportCompose.uid;
                 PublishReportMVC.Variables.reportComposeMap[uid] = reportCompose;
@@ -87,22 +96,31 @@ var PublishReport = {
                     }
 
                     var composeShowId = PublishReportMVC.Util.getReportComposeShowId(uid);
-                    if (showContent == 1) {//数据表格
+                    //数据表格
+                    if (showContent == 1) {
+                        //表格ID
                         $("#" + composeShowId).append('<div id="' + PublishReportMVC.Util.getReportComposeTableDivId(uid) + '"></div>');
-                        if (options.enablePage) {//启用分页
+                        if (options.enablePage == 1) {//启用分页
                             $("#" + composeShowId).append('<div id="' + PublishReportMVC.Util.getReportComposePageDivId(uid) + '"></div>');
                         }
-                    } else if (showContent == 4) {//透视表
+                    }
+                    //透视表
+                    else if (showContent == 4) {
                         PublishReportMVC.Util.createReportPivotTableDiv(uid, reportCompose);
-                    } else if (_.indexOf(PublishReportMVC.Variables.showContentChartVals, showContent) != -1) {
+                    }
+                    //echart 图表
+                    else if (_.indexOf(PublishReportMVC.Variables.showContentChartVals, showContent) != -1) {
                         PublishReportMVC.Util.createReportComposeChartDiv(uid);
-                    } else if (_.indexOf(PublishReportMVC.Variables.showContentBoardChartVals, showContent) != -1) {
+                    }
+                    //画板
+                    else if (_.indexOf(PublishReportMVC.Variables.showContentBoardChartVals, showContent) != -1) {
                         PublishReportMVC.Util.createReportComposeBoardChartDiv(uid);
-                    }else if (showContent == 51) {//透视表
-                        PublishReportMVC.Util.createReportComposeIframeDiv(uid);
+                    }
+                    //通过url iframe 的页面
+                    else if (showContent == 51) {
+                        PublishReportMVC.Util.createReportComposeIframe(uid,reportCompose);
                     }
                     PublishReportMVC.Util.addReportExplainHtml(uid);//增加报表说明
-
                 }
             })
         }
@@ -111,30 +129,27 @@ var PublishReport = {
      * 实例化报表查询参数
      */
     createReportQueryParams: function () {
-        console.log(PublishReportMVC)
-        console.log(PublishReportMVC.URLs)
+        if (reportComposeHrefSize == _.size(reportObj.reportComposeList)) {
+            return;
+        }
         $.ajax({
             type: "POST",
             async: false,
             url: PublishReportMVC.URLs.getReportQueryParam.url + reportUid,
             success: function (data) {
-                console.log(data.respData)
                 PublishReportMVC.Variables.reportQueryParams = data.respData;
                 var paramShare = data.respData.paramShare;
+                //参数公用
                 if (paramShare == 1) {
-                    $("#" + PublishReportMVC.Util.getReportParamDivId(reportCommonSuffix)).show();
+                    $("#" + PublishReportMVC.Util.getReportParamDivId(reportCommonSuffix)).removeClass("display-none").show();
                     queryFormUtils.createQueryForm(PublishReportMVC.Util.getReportParamFormId(reportCommonSuffix), data.respData["params_" + reportCommonSuffix]["queryElements"]);
                     PublishReport.resetReportQueryParamsCss()
                 } else {
                     //创建每一个报表组成的查询参数
                     _.each(PublishReportMVC.Variables.reportComposeUids, function (uid) {
-                        if(data.respData["params_" + uid]["showContent"] == 51){
-
-                        }else{
-                            $("#" + PublishReportMVC.Util.getReportParamDivId(uid)).show();
-                            queryFormUtils.createQueryForm(PublishReportMVC.Util.getReportParamFormId(uid), data.respData["params_" + uid]["queryElements"]);
-                            PublishReport.resetReportQueryParamsCss(uid)
-                        }
+                        $("#" + PublishReportMVC.Util.getReportParamDivId(uid)).removeClass("display-none").show();
+                        queryFormUtils.createQueryForm(PublishReportMVC.Util.getReportParamFormId(uid), data.respData["params_" + uid]["queryElements"]);
+                        PublishReport.resetReportQueryParamsCss(uid)
                     })
                 }
             }
@@ -164,14 +179,7 @@ var PublishReport = {
         }
     },
     resetReportQueryParamsCss: function (composeUid) {
-        //不控制高度，原本控制高度的目的是计算数据展示区的高度，
-        // 修改为在获取参数高度、注释高度、透视表参数时给div加class overflow-hidden,获取到后remove该class即可
-        return;
-        var paramDiv = $("#" + PublishReportMVC.Util.getReportParamDivId(composeUid));
-        if (paramDiv.size() == 1) {
-            var paramHeight = parseInt(paramDiv.css("height")) + 2;//参数div需要先设置overflow-hidden，把高度计算出现再删除属性，不删除选择框会有隐藏
-            paramDiv.css({height: paramHeight + 'px'}).removeClass("overflow-hidden");
-        }
+
     }
 }
 
@@ -180,7 +188,7 @@ var PublishReportMVC = {
      * 变量
      */
     Variables: {
-        isInitPageLoadData:true,//是否初始化页面加载数据，因为初始化时数据不完整不报错，页面加载完成因查询报表参数不完整需要报错
+        isInitPageLoadData: true,//是否初始化页面加载数据，因为初始化时数据不完整不报错，页面加载完成因查询报表参数不完整需要报错
         reportComposeMap: {},//报表组成对象，key为uid属性
         reportComposeUids: [],//报表组成的UID
         reportQueryParams: {},//报表设置的查询参数
@@ -195,7 +203,11 @@ var PublishReportMVC = {
 
         reportQueryData: {},//报表查询数据，key为reportCompose的uid，value为JSON 数据
 
-        zuiMessager:null,//zui 提示
+        zuiMessager: null,//zui 提示
+
+        bodyHeight: 1000,//body高度
+
+
     },
     /**
      * 地址集
@@ -232,9 +244,8 @@ var PublishReportMVC = {
          * @returns {*}
          */
         getReportQueryFormParams: function (cuid) {
-            //如果没有指定获取那一部分参数则获取公共参数
-            if(cuid == null || cuid==undefined){
-                cuid=reportCommonSuffix;
+            if (cuid == null || cuid == undefined) {
+                cuid = reportCommonSuffix;
             }
             var retParams = $("#" + PublishReportMVC.Util.getReportParamFormId(cuid)).serializeObject()
             var requestParam = $("#request-param-form").serializeObject(); //链接参数
@@ -268,7 +279,7 @@ var PublishReportMVC = {
                                 var pivotTableFormParam = formDom.serializeObject(); //透视表表单
                                 console.log(pivotTableFormParam)
                                 PublishReportMVC.Variables.reportFormQueryParam[uid].pivotTableFormParam = pivotTableFormParam;
-                                returnParams[uid]=pivotTableFormParam;
+                                returnParams[uid] = pivotTableFormParam;
                             }
                         }
                     }
@@ -281,6 +292,9 @@ var PublishReportMVC = {
          * @param cuid
          */
         submitQueryReport: function (cuid) {
+            //重新计算高度，如果报表是由多个tab组成的话、打开报表时默认显示第一个tab，后面tab的body高度是有问题的，所以需重新计算
+            PublishReportMVC.Variables.bodyHeight = parseInt($("html").css("height"));
+
             var cuidTmpl = PublishReportMVC.Util.getOptReportUid(cuid);
 
             PublishReportMVC.Util.setIsChangeFormVal(cuid, true);//设置所有报表查询参数都为改变状态
@@ -333,19 +347,16 @@ var PublishReportMVC = {
                     layer.closeAll();
                 }
             });
-            layui.use("table", function () {
-                var table = layui.table;
-                table.render({
-                    elem: "#chartDataTable",
-                    width: 480,
-                    limit: 2000,
-                    cols: [[
-                        {field: layoutMetaColumn.name, title: layoutMetaColumn.text, width: 150},
-                        {field: dimensionMetaColumn.name, title: dimensionMetaColumn.text, width: 150},
-                        {field: statisticalMetaColumn.name, title: statisticalMetaColumn.text, width: 150}
-                    ]],
-                    data: data
-                });
+            laytable.render({
+                elem: "#chartDataTable",
+                width: 480,
+                limit: 2000,
+                cols: [[
+                    {field: layoutMetaColumn.name, title: layoutMetaColumn.text, width: 150},
+                    {field: dimensionMetaColumn.name, title: dimensionMetaColumn.text, width: 150},
+                    {field: statisticalMetaColumn.name, title: statisticalMetaColumn.text, width: 150}
+                ]],
+                data: data
             });
         },
 
@@ -356,7 +367,6 @@ var PublishReportMVC = {
          * @param thisVal
          */
         triggerParamReloadSelectOption: function (formId, triggerParamName, thisVal) {
-            console.log(formId, triggerParamName, thisVal)
             if (formId && triggerParamName) {//reportComposeUid
                 var selectObj = $("#" + formId).find("select[name='" + triggerParamName + "']");
                 if (selectObj.size() < 1) {
@@ -470,7 +480,6 @@ var PublishReportMVC = {
         loadReportData: function () {
             var params = PublishReportMVC.Util.getLoadDataReportFormParams();
             params['uid'] = reportUid;
-            console.log('提交查询参数', params)
             var paramStr = JSON.stringify(params);
             var layerLoad = layer.load(1, {shade: [0.3, '#ccc']});
             $.ajax({
@@ -479,8 +488,9 @@ var PublishReportMVC = {
                 //data: params,
                 data: {paramBody: paramStr},
                 url: PublishReportMVC.URLs.GetReportData.url+reportUid,
-                //url: ReportHelper.ctxPath + '/lakalaReport/getReportData' ,
+                //url: EasyReport.ctxPath + '/lakalaReport/getReportData' ,
                 //contentType : 'application/json;charset=UTF-8',
+
                 success: function (respData) {
                     if (respData.respCode !='100') {
                         layer.close(layerLoad);
@@ -502,13 +512,13 @@ var PublishReportMVC = {
                                 $("#" + divId).empty();
                                 $("#" + divId).append(v.tableHtml);
 
-                                if(showContent == 1 ){
+                                if (showContent == 1) {
                                     PublishReportMVC.Util.initTablePageInfo(cuid,v.count,v.pageSize);
                                     PublishReportMVC.Util.initTableGrid(cuid);
-                                }else{
+                                } else {
                                     PublishReportMVC.Util.initPivotTable(cuid);
                                 }
-                            }  else if (_.indexOf(PublishReportMVC.Variables.showContentChartVals, showContent) != -1) {
+                            } else if (_.indexOf(PublishReportMVC.Variables.showContentChartVals, showContent) != -1) {
                                 PublishReportMVC.Util.setReportComposeChartHeight(cuid);
                                 PublishReportChartMVC.showReportComposeChart(reportCompose, showContent, v.data);
                             } else if (_.indexOf(PublishReportMVC.Variables.showContentBoardChartVals, showContent) != -1) {
@@ -624,42 +634,72 @@ var PublishReportMVC = {
          * 获取展示数据区域的高度
          * @param composeUid
          */
-        getShowDataAreaHeight:function(composeUid){
+        getShowDataAreaHeight: function (composeUid) {
+            var options=PublishReportMVC.Variables.reportComposeOptions[composeUid];
             //计算高度
-            var reportHeight = PublishReportMVC.Variables.reportComposeOptions[composeUid].reportHeight;
-            if (PublishReportMVC.Variables.reportComposeOptions[composeUid].heightUnit == 'px') {
-                reportHeight = parseInt(reportHeight) - 60;//减60已经很准确  请别乱动啊
+            var reportHeight =options.reportHeight;
+            var showContent =options.showContent;
+            if (!reportHeight) {
+                reportHeight = PublishReportMVC.Variables.bodyHeight;
+
             }
             //检查是否有报表参数、有的话减去高度
+            var paramShare = reportObj.paramShare;
             var paramDiv = $("#" + PublishReportMVC.Util.getReportParamDivId(composeUid));
-            if (paramDiv.size() == 1) {
-                var hasClassOverflowHidden=paramDiv.hasClass("overflow-hidden");
-                if(!hasClassOverflowHidden){
-                    paramDiv.addClass("overflow-hidden");
-                }
-                var paramHeight = parseInt(paramDiv.css("height"));//参数div需要先设置overflow-hidden，把高度计算出现再删除属性，不删除选择框会有隐藏
-                reportHeight = reportHeight - paramHeight;
-                console.log("参数高度："+paramHeight)
-                if(!hasClassOverflowHidden){
-                    paramDiv.removeClass("overflow-hidden");
+            if (paramShare == 1) {
+                paramDiv = $("#" + PublishReportMVC.Util.getReportParamDivId(reportCommonSuffix));
+            }
+            if (paramDiv && paramDiv.size() == 1) {
+                var display=paramDiv.css("display");
+                if(display != 'none'){
+                    var hasClassOverflowHidden = paramDiv.hasClass("overflow-hidden");
+                    if (!hasClassOverflowHidden) {
+                        paramDiv.addClass("overflow-hidden");
+                    }
+                    var paramHeight = parseInt(paramDiv.css("height"));//参数div需要先设置overflow-hidden，把高度计算出现再删除属性，不删除选择框会有隐藏
+                    reportHeight = reportHeight - paramHeight;
+                    if (!hasClassOverflowHidden) {
+                        paramDiv.removeClass("overflow-hidden");
+                    }
+                    console.log("参数高度："+paramHeight)
                 }
             }
+
+            //检查是否存在分页，存在则减去高度
+            var pageDivId = PublishReportMVC.Util.getReportComposePageDivId(composeUid);
+            var pageDiv = $("#" + pageDivId);
+            if (pageDiv && pageDiv.size() == 1) {
+                var pageHeight = parseInt(pageDiv.css("height"));//参数div需要先设置overflow-hidden，把高度计算出现再删除属性，不删除选择框会有隐藏
+                reportHeight = reportHeight - pageHeight;
+            }
+
 
             //检查是否有报表注释、有的话减去高度
             var explainDiv = $("#" + PublishReportMVC.Util.getReportComposeExplainDivId(composeUid));
             if (explainDiv.size() == 1) {
                 var explainHeight = parseInt(explainDiv.css("height"));
-                console.log("报表注释高度："+paramHeight)
                 reportHeight = reportHeight - explainHeight;
             }
             //是否是透视表，是透视表进去透视表参数部分高度
+
+            //数据表格或透视表
+            if(showContent ==1 || showContent ==4 ){
+                //因为layui表格的上边距和下边距分别为10
+                reportHeight = reportHeight - 20;
+            }
+            //iframe页面
+            if(showContent == 51){
+
+            }else{
+                reportHeight = reportHeight - 15;
+            }
 
             var minHeight = 200
             if (reportHeight < minHeight) {
                 reportHeight = minHeight;
                 console.log("计算出数据表格高度" + reportHeight + "小于" + minHeight + "，置为" + minHeight)
             }
-            console.log(composeUid+"计算出数据表格高度:" + reportHeight)
+            console.log(composeUid + "计算出数据表格高度:" + reportHeight)
             return reportHeight;
         },
         /**
@@ -667,74 +707,78 @@ var PublishReportMVC = {
          * @param composeUid
          */
         initTableGrid: function (composeUid) {
-            var reportHeight=PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
+            var reportHeight = PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
             //console.log("数据表格高度:"+reportHeight)
             var layFilter = 'static-table-' + composeUid;
-            layui.use('table', function () {
-                var table = layui.table;
-                table.init(layFilter, {
-                    tbodyIsSetField: true,
-                    height: reportHeight,
-                    page: false,
-                    limit: 999999999
-                })
-            });
+            laytable.init(layFilter, {
+                tbodyIsSetField: true,
+                height: reportHeight,
+                page: false,
+                limit: 999999999
+            })
         },
-        initPivotTable:function(composeUid){
-            var reportHeight=PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
+        initPivotTable: function (composeUid) {
+            var reportHeight = PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
             var layFilter = 'static-table-' + composeUid;
-            layui.use('table', function(){
-                var table = layui.table;
-                table.init(layFilter,{
-                    height: reportHeight,
-                    page:false,
-                    limit:500000
-                });
+            laytable.init(layFilter, {
+                height: reportHeight,
+                page: false,
+                limit: 500000
             });
         },
         /**
          * 实例化分页信息
          */
-        initTablePageInfo: function (composeUid, count,pageSize) {
+        initTablePageInfo: function (composeUid, count) {
+            var options = PublishReportMVC.Variables.reportComposeOptions[composeUid];
+            if (!options) {
+                return;
+            }
+            //没有启用分页
+            if (options.enablePage != 1) {
+                return;
+            }
+
             if (PublishReportMVC.Variables.reportFormQueryParam[composeUid].isChangeFormParam) {
-                layui.use('laypage', function () {
-                    var limit = 10;
-                    if(pageSize > 0){
-                        limit=pageSize;
-                    }else if (PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo
-                        && PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo.limit > 0) {
-                        limit = PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo.limit;
-                    }
+                var limit = 10;
+                //先查找是否已设置
+                if (PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo
+                    && PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo.limit > 0) {
+                    limit = PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo.limit;
+                }
+                //没有找到变量缓存的分页大小  则使用报表默认设置的数量
+                else if (options.pageSize) {
+                    limit = options.pageSize;
+                }
 
-                    var laypage = layui.laypage;
-                    var divId = PublishReportMVC.Util.getReportComposePageDivId(composeUid)
-                    laypage.render({
-                        elem: divId,
-                        count: count,
-                        limit: limit,
-                        groups: 3, //连续出现的页码个数
-                        layout: ['count', 'prev', 'page', 'next', 'limit', 'skip'],
-                        limits: [10, 30, 50, 100],
-                        jump: function (obj, isFirst) {
-                            console.log(obj, isFirst)
-                            PublishReportMVC.Variables.queryReportComposeUid = obj.elem.substring(20);
-                            console.log("是否首次：" + (isFirst == true))
-                            if (!isFirst) {
-                                console.log("改变分页");
-                                PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo = obj;
-                                //PublishReportMVC.Variables.reportFormQueryParam.enablePage = 1;
+                var divId = PublishReportMVC.Util.getReportComposePageDivId(composeUid)
+                laypage.render({
+                    elem: divId,
+                    count: count,
+                    limit: limit,
+                    groups: 3, //连续出现的页码个数
+                    layout: ['count', 'prev', 'page', 'next', 'limit', 'skip'],
+                    limits: [10, 30, 50, 100],
+                    jump: function (obj, isFirst) {
+                        console.log(obj, isFirst)
+                        PublishReportMVC.Variables.queryReportComposeUid = obj.elem.substring(20);
+                        console.log("是否首次：" + (isFirst == true))
+                        if (!isFirst) {
+                            console.log("改变分页");
+                            PublishReportMVC.Variables.reportFormQueryParam[composeUid].pageInfo = obj;
+                            //PublishReportMVC.Variables.reportFormQueryParam.enablePage = 1;
 
-                                PublishReportMVC.Util.addPageParams(PublishReportMVC.Variables.queryReportComposeUid);
+                            PublishReportMVC.Util.addPageParams(PublishReportMVC.Variables.queryReportComposeUid);
 
-                                PublishReportMVC.Variables.queryReportComposeUid = composeUid;
+                            PublishReportMVC.Variables.queryReportComposeUid = composeUid;
 
-                                PublishReportMVC.Data.loadReportData();
-                            }
-                            //加载表格数据
-                            return false;
+                            PublishReportMVC.Data.loadReportData();
                         }
-                    })
-                });
+                        //加载表格数据
+                        return false;
+                    }
+                })
+
             }
         },
         filterQueryFormParam: function (params) {
@@ -760,6 +804,7 @@ var PublishReportMVC = {
                     PublishReportMVC.Variables.reportFormQueryParam[cuid]["formParam"]["pageSize"] = PublishReportMVC.Variables.reportFormQueryParam[cuid].pageInfo.limit;
                     PublishReportMVC.Variables.reportFormQueryParam[cuid]["formParam"]["pageIndex"] = PublishReportMVC.Variables.reportFormQueryParam[cuid].pageInfo.curr;
                 } else {
+                    //查找设置的分页大小，没有找到则为0
                     PublishReportMVC.Variables.reportFormQueryParam[cuid]["formParam"]["pageSize"] = 10;
                     PublishReportMVC.Variables.reportFormQueryParam[cuid]["formParam"]["pageIndex"] = 1;
                 }
@@ -817,7 +862,7 @@ var PublishReportMVC = {
         createReportComposeChartDiv: function (composeUid) {
             var chartId = PublishReportMVC.Util.getReportComposeChartDivId(composeUid);
             var composeShowId = PublishReportMVC.Util.getReportComposeShowId(composeUid);
-            if($("#" + chartId).size()<1){
+            if ($("#" + chartId).size() < 1) {
                 $("#" + composeShowId).append('<div class="pt10 pr2 pb10 pl2"><div id="' + chartId + '"></div></div>');
             }
             PublishReportMVC.Util.setReportComposeChartHeight(composeUid);
@@ -826,9 +871,9 @@ var PublishReportMVC = {
          * 设置图表显示高度
          * @param composeUid
          */
-        setReportComposeChartHeight:function(composeUid){
+        setReportComposeChartHeight: function (composeUid) {
             var chartId = PublishReportMVC.Util.getReportComposeChartDivId(composeUid);
-            var reportHeight=PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
+            var reportHeight = PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
             $("#" + chartId).css({height: reportHeight + 'px'});
         },
         /**
@@ -841,41 +886,6 @@ var PublishReportMVC = {
             $("#" + composeShowId).append('<div id="' + chartId + '"></div>');
         },
         /**
-         * 创建Iframe
-         * @param composeUid
-         */
-        createReportComposeIframeDiv:function(composeUid){
-            var reportComposeId = PublishReportMVC.Util.getReportComposeId(composeUid);
-            //如果全部为引用外部页面
-            if(reportComposeHrefSize == _.size(reportObj.reportComposeList)){
-                $("#" + PublishReportMVC.Util.getReportParamDivId(reportCommonSuffix)).hide();
-                $("#publishV2Body").attr("class",'').addClass("wp100 hp100");
-                $("#report-compose-list-div").attr("class",'').addClass("wp100 hp100");
-                $("#"+reportComposeId).attr("class",'');
-            }
-            $("#"+reportComposeId).empty().removeClass("mb10").removeClass("mt5");
-            var options=PublishReportMVC.Variables.reportComposeOptions[composeUid] ;
-            var href=options.href;
-            if(href.indexOf("http") !=0 ){
-                var host = window.location.host;
-                if (host.substring(0, 4) != "http") {
-                    host = "http://"+ host;
-                }
-                href=host+ReportHelper.ctxPath+"/"+href;
-            }
-            var css={"width":"100%","height":"100%"};
-            var reportWidth = options.reportWidth;
-            if (reportWidth && $.trim(reportWidth).length > 0) {
-                css["width"] = reportWidth + options.widthUnit;
-            }
-            var reportHeight = options.reportHeight;
-            if (reportHeight && $.trim(reportHeight).length > 0) {
-                css["height"] = reportHeight + options.heightUnit;
-            }
-            $("#" + reportComposeId).css(css);
-            $("#" + reportComposeId).append('<iframe id="report-compose-iframe-'+composeUid +'" class="wp100 br-none overflow-y-auto" style="height: 100%" src="'+href+'"></iframe>');
-        },
-        /**
          * 创建透视表
          * @param composeUid
          */
@@ -883,8 +893,8 @@ var PublishReportMVC = {
             var composeShowId = PublishReportMVC.Util.getReportComposeShowId(composeUid);
             var pivotTableId = PublishReportMVC.Util.getReportComposePivotTableDivId(composeUid);
             var paramFormId = PublishReportMVC.Util.getReportParamFormId(composeUid);
-            var paramDivId=PublishReportMVC.Util.getReportParamDivId(composeUid)
-            $("#" +paramDivId ).show();
+            var paramDivId = PublishReportMVC.Util.getReportParamDivId(composeUid)
+            $("#" + paramDivId).show();
             var paramShare = reportObj.paramShare;
             //如果参数共用 则隐藏查询按钮
             if (paramShare == 1) {
@@ -906,9 +916,9 @@ var PublishReportMVC = {
             _.each(metaColumns, function (item, index) {
                 var obj = {value: item.name, text: item.text};
                 pivotTableRowValue.push(obj);
+
             })
-            console.log(pivotTableRowValue)
-            var pivotTableRow = {name: 'pivotTableRow', text: '透视表-行', optionList: pivotTableRowValue, multiple: true};
+            var pivotTableRow = {name: 'pivotTableRow', text: '透视表-行', optionList: pivotTableRowValue, multipled: true};
             queryFormUtils.createComboboxDom(pivotTableParamFormId, pivotTableRow);
             var pivotTableCol = {name: 'pivotTableColumn', text: '透视表-列', optionList: pivotTableRowValue};
             queryFormUtils.createComboboxDom(pivotTableParamFormId, pivotTableCol);
@@ -927,6 +937,49 @@ var PublishReportMVC = {
                 options += '<option  value="' + value.value + '">' + value.text + '</option>';
             })
             $("#" + pivotTableParamFormId).find("select[name='pivotTableValue']").after('<select class="br-none pl5 wi55 h25" name="pivotTableAggfunc" style="border-left: 1px solid #e6e6e6" >' + options + '</select>');
+        },
+        /**
+         * 创建iframe类型的报表
+         * @param composeUid
+         * @param reportCompose
+         */
+        createReportComposeIframe:function(composeUid, reportCompose){
+            var reportHeight = PublishReportMVC.Util.getShowDataAreaHeight(composeUid);
+            if(reportHeight < 500 ){
+                reportHeight=500;
+            }
+            var reportComposeId = PublishReportMVC.Util.getReportComposeId(composeUid);
+            $("#report-compose-list-div").addClass("wp100 hp100");
+            if (reportComposeHrefSize == _.size(reportObj.reportComposeList)) {
+                $("#publishV2Body").attr("class", '').addClass("wp100 hp100");
+                $("#" + reportComposeId).attr("class", '').addClass("wp100 overflow-hidden").css({height:reportHeight+'px'});
+            }
+
+            $("#" + reportComposeId).empty().removeClass("mb10").removeClass("mt5");
+            var options=PublishReportMVC.Variables.reportComposeOptions[composeUid];
+            var href = options.href;
+            if (href.indexOf("http") != 0) {
+                var host = window.location.host;
+                if (host.substring(0, 4) != "http") {
+                    host = "http://" + host;
+                }
+                href = host + ReportHelper.ctxPath + "/" + href;
+            }
+            var iframeId='report-compose-iframe-' + composeUid ;
+            $("#" + reportComposeId).append('<iframe id="' + iframeId + '" class="wp100 br-none overflow-y-auto" style="height:'+reportHeight+'px" src="' + href + '"></iframe>');
+
+            //根据ID获取iframe对象,解决当iframe在被iframe时高度偏低问题
+            var iframe = document.getElementById(iframeId)
+            iframe.onload = function() {
+                var reHeight = parseInt($("html").css("height"));
+                if(reportHeight != reHeight ){
+                    console.log("iframe高度不一致，需重新渲染,原高度和新高度分别为：",reportHeight , reHeight);
+                    $("#"+ reportComposeId).css({height:reHeight+'px'});
+                    //解决打开高度太高的页面后再打开高度较小页面滚动条不收缩,第一步置为绝对不能少，否则后面会一直保持一个高度
+                    $("#"+iframeId).css({"height":reHeight + 'px'})
+                }
+            }
+
         },
         /**
          * 获取加载数据的参数
@@ -964,29 +1017,46 @@ var PublishReportMVC = {
                 }
             }
 
-            var pivotTableComposeUid=reportComposeUidTmpl? reportComposeUidTmpl : reportCommonSuffix ;
-            var pivotTableParamObj=PublishReportMVC.Controller.getPivotTableFormParams(pivotTableComposeUid);
-            console.log('透视表参数',pivotTableComposeUid,pivotTableParamObj);
-            _.each(pivotTableParamObj,function (pivotTableParam, pivotTableUid) {
+            var pivotTableComposeUid = reportComposeUidTmpl ? reportComposeUidTmpl : reportCommonSuffix;
+            var pivotTableParamObj = PublishReportMVC.Controller.getPivotTableFormParams(pivotTableComposeUid);
+            _.each(pivotTableParamObj, function (pivotTableParam, pivotTableUid) {
                 //需校验数据完整性
-                if(!PublishReportMVC.Variables.isInitPageLoadData){
-                    if(!pivotTableParam.pivotTableRow){
-                        if(PublishReportMVC.Variables.zuiMessager){
+                if (!PublishReportMVC.Variables.isInitPageLoadData) {
+                    if (!pivotTableParam.pivotTableRow) {
+                        if (PublishReportMVC.Variables.zuiMessager) {
                             PublishReportMVC.Variables.zuiMessager.destroy();
                         }
-                        PublishReportMVC.Variables.zuiMessager=new $.zui.Messager("透视表-行未选择",{type:'danger'});
+                        PublishReportMVC.Variables.zuiMessager = new $.zui.Messager("透视表-行未选择", {type: 'danger'});
                         PublishReportMVC.Variables.zuiMessager.show();
                         throw "透视表-行未选择";
                     }
                 }
-                if(!respParams[pivotTableUid]){
-                    respParams[pivotTableUid]={};
+                if (!respParams[pivotTableUid]) {
+                    respParams[pivotTableUid] = {};
                 }
-                respParams[pivotTableUid]['pivotTableParam']=pivotTableParam;
+                respParams[pivotTableUid]['pivotTableParam'] = pivotTableParam;
             })
+
+            //如果公共参数有queryReportComposeUid 则是连接请求中的参数，指定了只查询其中报表组成中分润一个报表数据
+            var requestQueryReportComposeUid=PublishReportMVC.Util.getRequestQueryReportComposeUid();
+            if(requestQueryReportComposeUid){
+                respParams["queryReportComposeUid"] = requestQueryReportComposeUid;
+            }
 
             console.log("加载报表数据查询参数", respParams)
             return respParams;
+        },
+        /**
+         * 获取请求参数中的queryReportComposeUid的值
+         * @returns {*}
+         */
+        getRequestQueryReportComposeUid:function () {
+            var queryReportComposeUid=null;
+            var requestComposeUidObj=$("#request-param-form input[name='queryReportComposeUid']");
+            if(requestComposeUidObj.size() ==1){
+                queryReportComposeUid = requestComposeUidObj.val();
+            }
+            return queryReportComposeUid;
         }
     }
 }
