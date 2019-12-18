@@ -65,8 +65,13 @@ var DisplayTabManageMVC = {
                     }
                 })
 
-                //监听tab显示事件，即点击tab时
-                $('#displayTabs').on('show.zui.tab', function (e) {
+                /**
+                 * 监听tab显示事件，即点击tab时
+                 * 当显示一个新的标签页时，这些事件会被触发：
+                 * •show.zui.tab：当前标签页在显示时触发；
+                 * •shown.zui.tab：当前标签页在显示后（动画执行完毕）触发。
+                 */
+                $('#displayTabs').on('shown.zui.tab', function (e) {
                     var reportComposeUid = $(e.target).attr("report-uid");
                     DisplayTabManageMVC.Util.tabAppendIframe(reportComposeUid);
                 });

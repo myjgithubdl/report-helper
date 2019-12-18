@@ -92,6 +92,7 @@ var queryFormUtils={
         if(queryParam.triggerParamName){
             selectObj.on('change',function () {
                 var thisVal=$(this).val();
+                console.log(thisVal)
                 PublishReportMVC.Controller.triggerParamReloadSelectOption(formId,queryParam.triggerParamName,thisVal)
             })
         }

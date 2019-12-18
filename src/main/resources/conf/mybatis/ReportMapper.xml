@@ -22,7 +22,9 @@
     </select>
 
     <select id="getReportList" resultType="map" parameterType="map">
-        select rr.id, rr.uid, category_id categoryId,rc.`name` categoryName, ds_id dsId, rr.name, sql_text sqlText, meta_columns metaColumns,
+        select rr.id, rr.uid, category_id categoryId,rc.`name` categoryName, ds_id dsId,
+        rr.param_share paramShare,
+        rr.name, sql_text sqlText, meta_columns metaColumns,
         query_params queryParams,
         rr.options, report_explain reportExplain, rr.status, rr.sequence,
         rr.comment, rr.create_user createUser, rr.create_date createDate, rr.update_user updateUser, rr.update_date

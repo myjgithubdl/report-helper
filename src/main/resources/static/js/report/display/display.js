@@ -690,8 +690,11 @@ var PublishReportMVC = {
             //iframe页面
             if(showContent == 51){
 
-            }else{
+            }
+            else if(showContent == 1 || showContent == 4){
                 reportHeight = reportHeight - 15;
+            }else{
+                reportHeight = reportHeight - 21;
             }
 
             var minHeight = 200

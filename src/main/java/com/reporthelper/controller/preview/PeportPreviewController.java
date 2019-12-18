@@ -59,6 +59,12 @@ public class PeportPreviewController {
     @Autowired
     private ReportComposeService reportComposeService;
 
+    /**
+     * 如果修改参数uid的位置则需要修改类
+     * @param request
+     * @param uid
+     * @return
+     */
     @OpLog(name = "预览报表")
     @GetMapping(value = {"/uid/{uid}"})
     public ModelAndView preview(final HttpServletRequest request, @PathVariable final String uid) {

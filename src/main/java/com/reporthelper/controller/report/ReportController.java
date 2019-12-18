@@ -115,23 +115,28 @@ public class ReportController {
     @OpLog(name = "新增报表")
     @RequiresPermissions("report.designer:add")
     public ResponseResult add(@CurrentUser final User loginUser, final Report po) {
-        po.setUid(UUID.randomUUID().toString());
-        po.setCreateUser(loginUser.getId());
-        po.setCreateDate(new Date());
+        try {
+            po.setUid(UUID.randomUUID().toString());
+            po.setCreateUser(loginUser.getId());
+            po.setCreateDate(new Date());
 
-        po.setUpdateUser(loginUser.getId());
-        po.setUpdateDate(new Date());
+            po.setUpdateUser(loginUser.getId());
+            po.setUpdateDate(new Date());
 
-        this.reportService.save(po);
-        Integer reportId = po.getId();
-        List<ReportCompose> reportComposeList = po.getReportComposeList();
-        reportComposeList.stream().forEach(r -> r.setReportId(reportId));
+            this.reportService.save(po);
+            Integer reportId = po.getId();
+            List<ReportCompose> reportComposeList = po.getReportComposeList();
+            reportComposeList.stream().forEach(r -> r.setReportId(reportId));
 
-        reportComposeService.saveBatch(reportComposeList);
+            reportComposeService.saveBatch(reportComposeList);
 
-        this.saveReportHis(loginUser, po);
+            this.saveReportHis(loginUser, po);
 
-        return ResponseResult.success("添加成功");
+            return ResponseResult.success("添加成功");
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseResult.error("添加失败，错误原因："+e.getMessage());
+        }
     }
 
     @PostMapping(value = "/edit")

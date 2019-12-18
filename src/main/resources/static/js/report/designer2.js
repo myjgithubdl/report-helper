@@ -1354,7 +1354,7 @@ var ReportDesignerMVC = {
 
             $.post(actUrl, reportParams, function (result) {
                 $.messager.progress("close");
-                if (result.respCode = '100') {
+                if (result.respCode == '100') {
                     return $.messager.alert('操作提示', "保存成功", 'info', function () {
                         $("#report-designer-dlg").dialog('close');
                         ReportDesignerMVC.Controller.reloadReports();
@@ -1675,7 +1675,7 @@ var ReportDesignerMVC = {
                     node["hrefTarget"] = $("#hrefTarget" + id).val();
                     node["displayStyle"] = $("#displayStyle" + id).val();
                     node["downMergeCells"] = $("#downMergeCells" + id).val();
-                    node["textAlign"] = $("#textAlign" + id).val();
+                    node["theadTextAlign"] = $("#theadTextAlign" + id).val();
                     node["showDecimals"] = $("#showDecimals" + id).val();
                     node["exportDecimals"] = $("#exportDecimals" + id).val();
                     $(treegridId).treegrid('update', {
