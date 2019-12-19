@@ -527,7 +527,7 @@ var ReportDesigner = {
                 title: '日期格式',
                 width: 80
             }, {
-                field: 'dataRange',
+                field: 'dateRange',
                 title: '日期加减',
                 width: 70
             }, {
@@ -1130,8 +1130,8 @@ var ReportDesignerMVC = {
                     ReportDesignerMVC.Util.alterAndThrow("参数【值内容】为空！", true);
                 }
             } else if (formData['formElement'] == 'date') {
-                //dataRange 日期加减 只能为整数
-                if ($.trim(formData['dataRange']) != '' && !CommonUtils.isInteger(formData['dataRange'])) {
+                //dateRange 日期加减 只能为整数
+                if ($.trim(formData['dateRange']) != '' && !CommonUtils.isInteger(formData['dateRange'])) {
                     ReportDesignerMVC.Util.alterAndThrow("参数【日期加减】只能为整数！", true);
                 }
             }

@@ -1,8 +1,6 @@
 package com.reporthelper.bo.form;
 
 import com.reporthelper.bo.pair.TextValuePair;
-import com.reporthelper.bo.pair.TextValuePair;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -18,12 +16,7 @@ public class SelectHtmlForm extends HtmlFormElement {
      */
     private boolean isMultiple;
 
-    /**
-     * 触发参数名称
-     * <p>
-     * 表单控件是选择框，切内容来源是SQL时有效
-     */
-    private String triggerParamName;
+
 
 
     /**
@@ -42,7 +35,7 @@ public class SelectHtmlForm extends HtmlFormElement {
 
     public SelectHtmlForm(boolean isMultiple, String triggerParamName, List<TextValuePair> optionList) {
         this.isMultiple = isMultiple;
-        this.triggerParamName = triggerParamName;
         this.optionList = optionList;
+        this.setTriggerParamName(triggerParamName);
     }
 }

@@ -1,6 +1,5 @@
 package com.reporthelper.bo.form;
 
-import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -66,10 +65,15 @@ public abstract class HtmlFormElement {
      */
     protected boolean isRequired;
 
+    /**
+     * 触发参数名称
+     * <p>
+     * 表单控件是选择框，切内容来源是SQL时有效
+     */
+    private String triggerParamName;
+
     public HtmlFormElement() {
-
     }
-
 
 
     public HtmlFormElement(String name, String text) {

@@ -56,6 +56,10 @@ var queryFormUtils={
             '   </div>'+
             '</div>';
         $("#"+formId).append(html);
+
+        var inputObj=$($("#"+formId).find("input[name='"+queryParam.name+"']").get(0));
+
+        queryFormUtils.initValueChange(formId,inputObj,queryParam);
     },
     /**
      * 在指定表单下创建选择框参数
@@ -88,14 +92,8 @@ var queryFormUtils={
                 disable_search:true
             })
         }
-        //校验值改变时是否会引起其他选择框值得变化
-        if(queryParam.triggerParamName){
-            selectObj.on('change',function () {
-                var thisVal=$(this).val();
-                console.log(thisVal)
-                PublishReportMVC.Controller.triggerParamReloadSelectOption(formId,queryParam.triggerParamName,thisVal)
-            })
-        }
+
+        queryFormUtils.initValueChange(formId,selectObj,queryParam );
     },
     /**
      * 在form表单下创建时间选择框
@@ -117,12 +115,15 @@ var queryFormUtils={
         var format=queryParam.dateFormat.toLocaleLowerCase();
         var op={format:format};
 
-        queryFormUtils.initDateInput($("#"+formId).find("input[name='"+queryParam.name+"']").get(0),op );
+        var dateInputObj=$($("#"+formId).find("input[name='"+queryParam.name+"']").get(0));
+        queryFormUtils.initDateInput(dateInputObj,op );
 
         if(queryParam.value && format=='yyyymmdd' && value.length==8){//解决yyyymmdd显示的时候1899问题
             var date=new Date(value.substring(0,4),parseInt(value.substring(4,6)-1),value.substring(6))
-            $($("#"+formId).find("input[name='"+queryParam.name+"']").get(0)).datetimepicker('update',date)
+            dateInputObj.datetimepicker('update',date)
         }
+
+        queryFormUtils.initValueChange(formId,dateInputObj,queryParam );
     },
     /**
      * 获取参数文字样式
@@ -191,6 +192,21 @@ var queryFormUtils={
             }
 
         });
+    },
+    /**
+     * 实例化 valChangeJqObj 对应的参数值改变时触发onchange事件
+     * @param formId
+     * @param valChangeJqObj
+     * @param queryParam
+     */
+    initValueChange:function (formId,valChangeJqObj,queryParam) {
+        //校验值改变时是否会引起其他选择框值得变化
+        if(queryParam.triggerParamName){
+            valChangeJqObj.on('change',function () {
+                var thisVal=$(this).val();
+                PublishReportMVC.Controller.triggerParamReloadSelectOption(formId,queryParam.triggerParamName,thisVal)
+            })
+        }
     }
 
 }

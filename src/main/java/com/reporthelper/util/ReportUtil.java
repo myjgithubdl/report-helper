@@ -360,7 +360,7 @@ public class ReportUtil {
 
                 List<TextValuePair> options = getSelectOptionData(report, params, reportQueryParameter);
                 boolean isMultiple = "selectMul".equals(reportQueryParameter.getFormElement());
-                htmlFormElement = new SelectHtmlForm(isMultiple, reportQueryParameter.getTriggerParamName(), options);
+                htmlFormElement = new SelectHtmlForm(isMultiple,reportQueryParameter.getTriggerParamName(),  options);
             } else if ("text".equals(reportQueryParameter.getFormElement())) {//输入框
                 htmlFormElement = new TextHtmlForm();
             } else if ("date".equals(reportQueryParameter.getFormElement())) {//日期
@@ -376,21 +376,17 @@ public class ReportUtil {
                         if (reportQueryParameter.getDateRange() == 0) {
                             defaultValue = "";
                         } else if (StringUtils.isNotEmpty(reportQueryParameter.getDateFormat())) {
-                            if ("YYYY-MM-DD".equals(reportQueryParameter.getDateFormat())) {
+                            if (DateUtil.DATE_FORMAT_YYYY_MM_DD.equals(reportQueryParameter.getDateFormat())
+                            || DateUtil.DATE_FORMAT_YYYYMMDD.equals(reportQueryParameter.getDateFormat())) {
                                 Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
-                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM_DD);
-                            } else if ("YYYYMMDD".equals(reportQueryParameter.getDateFormat())) {
-                                Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
-                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYYMMDD);
-                            } else if ("YYYY-MM".equals(reportQueryParameter.getDateFormat())) {
+                                defaultValue = DateUtil.parseDateToStr(date, reportQueryParameter.getDateFormat());
+                            } else if (DateUtil.DATE_FORMAT_YYYY_MM.equals(reportQueryParameter.getDateFormat())
+                            || DateUtil.DATE_FORMAT_YYYYMM.equals(reportQueryParameter.getDateFormat()) ) {
                                 Date date = DateUtil.addDate(new Date(), 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0);
-                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM);
-                            } else if ("YYYYMM".equals(reportQueryParameter.getDateFormat())) {
-                                Date date = DateUtil.addDate(new Date(), 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0);
-                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYYMM);
-                            } else if ("YYYY".equals(reportQueryParameter.getDateFormat())) {
+                                defaultValue = DateUtil.parseDateToStr(date, reportQueryParameter.getDateFormat());
+                            } else if (DateUtil.DATE_FORMAT_YYYY.equals(reportQueryParameter.getDateFormat())) {
                                 Date date = DateUtil.addDate(new Date(), reportQueryParameter.getDateRange(), 0, 0, 0, 0, 0, 0);
-                                defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY);
+                                defaultValue = DateUtil.parseDateToStr(date, reportQueryParameter.getDateFormat());
                             } else {
                                 Date date = DateUtil.addDate(new Date(), 0, 0, reportQueryParameter.getDateRange(), 0, 0, 0, 0);
                                 defaultValue = DateUtil.parseDateToStr(date, DateUtil.DATE_FORMAT_YYYY_MM_DD);
@@ -411,9 +407,9 @@ public class ReportUtil {
                     reportQueryParameter.getDefaultText(), defaultValue,
                     reportQueryParameter.getTextWidth(), reportQueryParameter.getNameWidth(), reportQueryParameter.getHeight(), reportQueryParameter.getFormElement(),
                     reportQueryParameter.getDataType(), reportQueryParameter.getComment(), reportQueryParameter.isRequired());
+            htmlFormElement.setTriggerParamName(reportQueryParameter.getTriggerParamName());
 
             htmlFormElementList.add(htmlFormElement);
-
         }
 
         return htmlFormElementList;

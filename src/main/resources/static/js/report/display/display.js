@@ -982,7 +982,6 @@ var PublishReportMVC = {
                     $("#"+iframeId).css({"height":reHeight + 'px'})
                 }
             }
-
         },
         /**
          * 获取加载数据的参数

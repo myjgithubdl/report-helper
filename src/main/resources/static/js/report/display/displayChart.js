@@ -42,6 +42,9 @@ var PublishReportChartMVC = {
         PublishReportChartMVC.addChartOptionTitle(options, reportCompose)
         var chartId = PublishReportMVC.Util.getReportComposeChartDivId(reportCompose.uid);
         var echartInstance = echarts.init(document.getElementById(chartId));
+
+        console.log(options)
+        console.log(JSON.stringify(options))
         echartInstance.setOption(options, {notMerge: true});
     },
 
